@@ -1,0 +1,13 @@
+{
+	"files.associations": {
+		"TEST.C": "cpp",
+		"fcntl.h": "c",
+		"__tuple": "c",
+		"array": "c",
+		"__bit_reference": "c",
+		"algorithm": "c",
+		"bitset": "c",
+		"chrono": "c",
+		"unordered_map": "c"
+	}
+}
