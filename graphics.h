@@ -6,14 +6,6 @@
 #include <math.h>
 #include "libft/libft.h"
 
-typedef struct	s_data {
-	void	*img;
-	char	*addr;
-	int		bits_per_pixel;
-	int		line_length;
-	int		endian;
-}				t_data;
-
 typedef struct	s_xy {
 	int		x;
 	int		y;
@@ -22,14 +14,73 @@ typedef struct	s_xy {
 typedef struct	s_player 
 {
 	t_xy	pos;
+	t_xy	i_pos;
 	int		lives;
 }				t_player; 
 
+typedef struct s_graphic_display {
+	int width;
+	int height;
+	void *mlx;
+	void *mlx_win;
+} t_graphic_display;
+
+typedef struct s_frame {
+	t_player			*player;
+	t_graphic_display	*graphics;
+	char				**grid;
+} t_frame;
+
+typedef struct s_game_info {
+	t_player *player;
+	char	**grid;
+} t_game_info;
+
+
+typedef struct	s_data {
+	void	*img;
+	char	*addr;
+	int		bits_per_pixel;
+	int		line_length;
+	int		endian;
+}				t_data;
+
+typedef struct	frame_data {
+	int 		*frame_sec;
+	t_game_info *game_info;
+	t_graphic_display *graphic_display;
+	int 		*i;
+} t_frame_data;
+
 // ISOMEtRIC
 
-t_xy iso_map(int x, int y)
+t_xy iso_map(t_xy pos)
 {
-	return (t_xy){(x - y) * 1.4, (x + y) / 1.4};
+	return (t_xy){(pos.x - pos.y) * 1.4, (pos.x + pos.y) / 1.4};
+}
+
+
+t_xy map_iso(t_xy pos) {
+    float tempX = (pos.x * 0.7 + pos.y * 0.7) / 2.0;
+    float tempY = (pos.y * 0.7 - pos.x * 0.7) / 2.0;
+    return (t_xy){tempX, tempY};
+}
+
+
+t_graphic_display *graphics_init(int width, int height)
+{
+	t_graphic_display *ret;
+
+	ret = malloc(sizeof(t_graphic_display));
+	void *mlx;
+	void *mlx_win;
+	
+	ret->mlx = mlx_init();
+	ret->mlx_win = mlx_new_window(ret->mlx, width, height, "Hello world!");
+	ret->width = width;
+	ret->height = height;
+
+	return(ret);
 }
 
 // RENDERING

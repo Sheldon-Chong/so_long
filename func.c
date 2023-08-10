@@ -49,7 +49,6 @@ void draw_square(t_data *img, int width, int height, int x_pos)
 		while(++y < height)
 			my_mlx_pixel_put(img, x,y, 0x00FF0000);
 	}
-		
 }
 
 
