@@ -6,10 +6,18 @@
 #include <math.h>
 #include "libft/libft.h"
 
+
+
 typedef struct	s_xy {
 	int		x;
 	int		y;
 }				t_xy;
+
+typedef struct camera {
+	t_xy	pos;
+	t_xy	pos_goto;
+} t_camera;
+
 
 typedef struct	s_player 
 {
@@ -22,7 +30,8 @@ typedef struct s_graphic_display {
 	int width;
 	int height;
 	void *mlx;
-	void *mlx_win;
+	void 		*mlx_win;
+	t_camera	*camera;
 } t_graphic_display;
 
 typedef struct s_frame {
@@ -69,6 +78,8 @@ t_xy map_iso(t_xy pos) {
 
 t_graphic_display *graphics_init(int width, int height)
 {
+	t_camera *camera = malloc(sizeof(t_camera));
+	*camera = (t_camera){0,0};
 	t_graphic_display *ret;
 
 	ret = malloc(sizeof(t_graphic_display));
@@ -79,6 +90,7 @@ t_graphic_display *graphics_init(int width, int height)
 	ret->mlx_win = mlx_new_window(ret->mlx, width, height, "Hello world!");
 	ret->width = width;
 	ret->height = height;
+	ret->camera = camera;
 
 	return(ret);
 }

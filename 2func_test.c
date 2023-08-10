@@ -28,11 +28,12 @@ int handle_keypress(int keycode, t_frame *player)
 	return (0);
 }
 
+
 typedef struct s_grid_display {
-	float space_x;
-	float space_y;
-	int offset_x;
-	int offset_y;
+	float		space_x;
+	float		space_y;
+	int			offset_x;
+	int			offset_y;
 } t_grid_display;
 
 typedef struct s_grid {
@@ -65,7 +66,7 @@ int render_grid(t_game_info *game_info, t_graphic_display *display, char **c, t_
 				game_info->player->i_pos = (t_xy){
 					iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).x,
 					iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).y};
-				mlx_put_image_to_window(mlx, mlx_win, put_img("./tile1.xpm", mlx)->img, game_info->player->i_pos.x + grid.offset_x, game_info->player->i_pos.y + grid.offset_y-30);	
+				mlx_put_image_to_window(mlx, mlx_win, put_img("./tile1.xpm", mlx)->img, game_info->player->i_pos.x + grid.offset_x, game_info->player->i_pos.y + grid.offset_y - 30);	
 			}
 		}
 	}
@@ -116,6 +117,22 @@ float lerp(int t, int x, int x2)
     return (x + ((x2 - x) * t));
 }
 
+t_xy lerp_xy(float t, t_xy p1, t_xy p2) {
+    t_xy result;
+    result.x = p1.x + (int)((p2.x - p1.x) * t);
+    result.y = p1.y + (int)((p2.y - p1.y) * t);
+    return result;
+}
+
+t_xy	bounce(t_xy pos, t_xy pos2)
+{
+	// if ((pos2.x - pos.x) < 1)
+		
+	// if ((pos2.y - pos.y) < 1)
+		
+	return((t_xy){(pos2.x - pos.x)/3, (pos2.y - pos.x)/3});
+}
+
 int render_next_frame(void *param)
 {
     t_frame_data *data = (t_frame_data *)param;
@@ -133,7 +150,8 @@ int render_next_frame(void *param)
 		mlx_clear_window(mlx, mlx_win);
         *(data->frame_sec) = 0;
 		mlx_put_image_to_window(mlx, mlx_win, img->img, 0,0);
-		render_grid(game_info, display, game_info->grid, (t_grid_display){21, 21, ((display->width)/2) - game_info->player->i_pos.x,((display->height)/2) - game_info->player->i_pos.y});
+		display->camera->pos = bounce(display->camera->pos, game_info->player->i_pos);
+		render_grid(game_info, display, game_info->grid, (t_grid_display){21, 21, ((display->width) / 2) - display->camera->pos.x, ((display->height) / 2) - display->camera->pos.y});
 		(*(data->i))++;
 	}
 	return 1;
@@ -175,11 +193,13 @@ int	main(void)
 	
 	game_info = &((t_game_info){player, test});
 
-	render_grid(game_info, display, test, (t_grid_display){21,21,300,300});
+	render_grid(game_info, display, test, (t_grid_display){21, 21, 300, 300});
 	
 	t_frame vars;
 	vars.player = player;
 	vars.graphics = display;
+
+	
 
 	int sec = 0;
 	int		frame_sec = 0;
