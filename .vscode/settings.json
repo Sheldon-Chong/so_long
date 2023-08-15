@@ -9,6 +9,9 @@
 		"bitset": "c",
 		"chrono": "c",
 		"unordered_map": "c",
-		"libft.h": "c"
+		"libft.h": "c",
+		"stdio.h": "c",
+		"iterator": "c",
+		"mlx.h": "c"
 	}
 }
