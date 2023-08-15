@@ -12,6 +12,13 @@
 		"libft.h": "c",
 		"stdio.h": "c",
 		"iterator": "c",
-		"mlx.h": "c"
+		"mlx.h": "c",
+		"istream": "c",
+		"ostream": "c",
+		"__node_handle": "c",
+		"__split_buffer": "c",
+		"string": "c",
+		"string_view": "c",
+		"vector": "c"
 	}
 }

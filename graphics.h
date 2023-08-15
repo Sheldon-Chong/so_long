@@ -43,17 +43,18 @@ typedef struct s_graphic_display {
 	t_camera	*camera;
 } t_graphic_display;
 
-typedef struct s_frame {
-	t_player			*player;
-	t_graphic_display	*graphics;
-	char				**grid;
-} t_frame;
-
 typedef struct s_world {
 	t_player	*player;
 	t_enemy		*enemy;
 	char		**grid;
 }	t_world;
+
+typedef struct s_frame {
+	t_graphic_display	*display;
+	t_world				*world;
+} t_frame;
+
+
 
 
 typedef struct	s_data {
@@ -182,7 +183,7 @@ void draw_square(t_data *img, int width, int height, int x_pos, int y_pos)
 
 // LINKEDLISt
 
-t_object	*new_object(char *type, char *data)
+t_object	*new_object(char *type, void *data)
 {
 	t_object	*object_list = malloc(sizeof(t_object));
 	if (!object_list)

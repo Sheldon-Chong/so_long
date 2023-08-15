@@ -3,29 +3,17 @@
 #include <fcntl.h>
 
 
-int handle_keypress(int keycode, t_frame *player)
+int handle_keypress(int keycode, t_frame *frame)
 {
-	if (keycode == 13) // 'W' key is pressed
-	{
-		printf("%p", player);
-		player->player->pos.y --;
-		printf("w\n");
-	}
-	else if (keycode == 0) // 'A' key is pressed
-	{
-		player->player->pos.x --;
-		printf("a\n");
-	}
-	else if (keycode == 1) // 'S' key is pressed
-	{
-		player->player->pos.y ++;
-		printf("s\n");
-	}
-	else if (keycode == 2) // 'D' key is pressed
-	{
-		player->player->pos.x ++;
-		printf("d\n");
-	}
+	t_player *player = frame->world->player;
+	if (keycode == 13 && frame->world->grid[player->pos.y - 1][player->pos.x] != '1') // 'W' key is pressed
+		player->pos.y --;
+	else if (keycode == 0 && frame->world->grid[player->pos.y][player->pos.x - 1] != '1') // 'A' key is pressed
+		player->pos.x --;
+	else if (keycode == 1 && frame->world->grid[player->pos.y + 1][player->pos.x] != '1') // 'S' key is pressed
+		player->pos.y ++;
+	else if (keycode == 2 && frame->world->grid[player->pos.y][player->pos.x + 1] != '1') // 'D' key is pressed
+		player->pos.x ++;
 	return (0);
 }
 
@@ -110,9 +98,8 @@ int render_grid(t_world *world, t_graphic_display *display, char **c, t_grid_dis
 		tile_y = -1;
 		while(++tile_y < 10)
 		{
-			if(c[tile_y][tile_x] == 'c')
-				image = put_img("./tile2.xpm", mlx)->img;
-			else
+			image = put_img("./tile2.xpm", mlx)->img;
+			if(c[tile_y][tile_x] == '1')
 				image = put_img("./tile1.xpm", mlx)->img;
 			mlx_put_image_to_window(mlx, mlx_win, image, 
 				iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).x + grid.offset_x,
@@ -120,7 +107,7 @@ int render_grid(t_world *world, t_graphic_display *display, char **c, t_grid_dis
 			if(tile_x == world->player->pos.x && tile_y == world->player->pos.y)
 			{
 				world->player->i_pos = iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y});
-				render_player(world, (t_xy){world->player->i_pos.x + grid.offset_x+12, world->player->i_pos.y + grid.offset_y - 25}, display);
+				render_player(world, (t_xy){world->player->i_pos.x + grid.offset_x + 12, world->player->i_pos.y + grid.offset_y - 25}, display);
 			}
 			free(image);
 		}
@@ -156,37 +143,95 @@ int render_next_frame(void *param)
 		display->camera->pos = bounce(display->camera->pos, world->player->i_pos);
 		render_grid(world, display, world->grid, (t_grid_display){21, 21, ((display->width) / 2) - display->camera->pos.x, ((display->height) / 2) - display->camera->pos.y});
 		mlx_string_put(mlx,mlx_win,10,10, 0x00FF0000, "test");
-		
 		(*(data->i))++;
-		
 	}
 	free(img);
 	return 1;
+}
+
+typedef struct t_counter{
+	int player;
+	int sentry;
+	int collectible;
+	int wall;
+	int empty;
+	int hole;
+	int exit;
+} t_counter;
+
+void get_objects(char **array)
+{
+	int x;
+	int y;
+
+	t_counter *count = malloc(sizeof(t_counter));
+	*count = (t_counter){0,0,0,0,0,0,0};
+	t_object	*sentry_list = new_object("null", "data");
+	t_object	*object;
+	y = -1;
+	while(array[++y])
+	{
+		x = -1;
+		while(array[++x])
+		{
+			if (array[y][x] == 'C')
+				count->collectible ++;
+			if (array[y][x] == '0') 
+				count->empty ++;
+			if (array[y][x] == '1') 
+				count->wall ++;
+			if (array[y][x] == 'E') 
+				count->exit ++;
+			if (array[y][x] == 'S')
+			{
+				count->sentry ++;
+				object_add_back(&sentry_list, new_object("enemy", "data"));
+			}
+			if (array[y][x] == 'P')
+				count->player ++;
+			if (array[y][x] == 'H')
+				count->hole ++;
+		}
+	}
+	printf("player: %d\n",count->player);
+	printf("sentry: %d\n",count->sentry);
+	printf("coin: %d\n",count->collectible);
+	printf("wall: %d\n",count->wall);
+	printf("empty: %d\n",count->empty);
+	printf("hole: %d\n",count->hole);
+	printf("exit: %d\n",count->exit);
+
+	t_object *head = sentry_list;
+	while(head)
+	{
+		printf("%s | %s\n", head->type, head->data);
+		head = head->next;
+	}
 }
 
 int	main(void)
 {
 	t_graphic_display	*display = graphics_init(1920, 1080);
 	t_player 			*player = malloc(sizeof(t_player));
-	t_world 		*world = malloc(sizeof(world));
+	t_world 			*world = malloc(sizeof(world));
 
-	player->pos = (t_xy){0, 0};
+	player->pos = (t_xy){1, 1};
 	player->lives = 4;
 
 	char c[10][10] = {
-	"cffffffffc",
-	"cffffffffc",
-	"cffffffffc",
-	"cffffffffc",
-	"cffffffffc",
-	"cffffffffc",
-	"cffffffffc",
-	"cffffffffc",
-	"cffffffffc",
-	"cfffcffffc"
+	"1011111111",
+	"1SS0000001",
+	"1000000001",
+	"100000P001",
+	"1000010001",
+	"100E000001",
+	"1000000001",
+	"100CC00H01",
+	"1000000001",
+	"1001111111"
 	};
 
-	char **test = malloc(10 * sizeof(char*));
+	char **test = malloc((11 * sizeof(char*)));
 
 	int i = -1;
 	while(++i < 10)
@@ -194,6 +239,9 @@ int	main(void)
 		test[i] = malloc(sizeof(char *) + 1);
 		ft_strlcpy(test[i], c[i], 11);
 	}
+	test[i] = NULL;
+
+	get_objects(test);
 
 	t_enemy	*enemy;
 	
@@ -201,8 +249,8 @@ int	main(void)
 	render_grid(world, display, test, (t_grid_display){21, 21, 300, 300});
 	
 	t_frame vars;
-	vars.player = player;
-	vars.graphics = display;
+	vars.world = world;
+	vars.display = display;
 
 	int		sec = 0;
 	int		frame_sec = 0;
