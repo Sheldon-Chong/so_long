@@ -19,6 +19,10 @@
 		"__split_buffer": "c",
 		"string": "c",
 		"string_view": "c",
-		"vector": "c"
+		"vector": "c",
+		"__hash_table": "c",
+		"initializer_list": "c",
+		"ios": "c",
+		"complex": "c"
 	}
 }

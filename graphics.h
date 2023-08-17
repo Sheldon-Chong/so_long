@@ -35,11 +35,22 @@ typedef struct	s_player
 	int		lives;
 }				t_player; 
 
+
+typedef struct	s_data {
+	void	*img;
+	char	*addr;
+	int		bits_per_pixel;
+	int		line_length;
+	int		endian;
+}				t_data;
+
 typedef struct s_graphic_display {
 	int width;
 	int height;
 	void *mlx;
 	void 		*mlx_win;
+	t_data		*img;
+	t_data		**sprites;
 	t_camera	*camera;
 } t_graphic_display;
 
@@ -57,13 +68,6 @@ typedef struct s_frame {
 
 
 
-typedef struct	s_data {
-	void	*img;
-	char	*addr;
-	int		bits_per_pixel;
-	int		line_length;
-	int		endian;
-}				t_data;
 
 typedef struct	frame_data {
 	int 		*frame_sec;
@@ -84,26 +88,6 @@ t_xy map_iso(t_xy pos) {
 	float tempX = (pos.x * 0.7 + pos.y * 0.7) / 2.0;
 	float tempY = (pos.y * 0.7 - pos.x * 0.7) / 2.0;
 	return (t_xy){tempX, tempY};
-}
-
-
-t_graphic_display *graphics_init(int width, int height)
-{
-	t_camera *camera = malloc(sizeof(t_camera));
-	*camera = (t_camera){0,0};
-	t_graphic_display *ret;
-
-	ret = malloc(sizeof(t_graphic_display));
-	void *mlx;
-	void *mlx_win;
-	
-	ret->mlx = mlx_init();
-	ret->mlx_win = mlx_new_window(ret->mlx, width, height, "Hello world!");
-	ret->width = width;
-	ret->height = height;
-	ret->camera = camera;
-
-	return(ret);
 }
 
 // RENDERING
@@ -137,6 +121,29 @@ t_data *put_img(char *image, void *mlx)
 	img->addr = mlx_get_data_addr(img->img, &(img->bits_per_pixel), &(img->line_length),
 								&(img->endian));
 	return(img);
+}
+
+
+t_graphic_display *graphics_init(int width, int height)
+{
+	t_camera *camera = malloc(sizeof(t_camera));
+	*camera = (t_camera){1,1};
+	t_graphic_display *ret;
+
+	ret = malloc(sizeof(t_graphic_display));
+
+	ret->mlx = mlx_init();
+	ret->mlx_win = mlx_new_window(ret->mlx, width, height, "Hello world!");
+	ret->width = width;
+	ret->height = height;
+	ret->camera = camera;
+	ret->img = put_img("tile2.xpm", ret->mlx);
+
+	ret->sprites = malloc(sizeof(t_data *) * 5);
+	ret->sprites[1] = put_img("tile1.xpm", ret->mlx);
+	ret->sprites[2] = put_img("tile2.xpm", ret->mlx);
+
+	return(ret);
 }
 
 // COLORING
@@ -204,7 +211,5 @@ void	object_add_back(t_object **head, t_object *object)
 		current = current->next;
 	current->next = object;
 }
-
-// 
 
 # endif
