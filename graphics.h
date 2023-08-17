@@ -14,6 +14,8 @@ typedef struct	s_xy {
 typedef struct s_enemy
 {
 	t_xy	pos;
+	int		angle;
+	int		hp;
 } t_enemy;
 
 typedef struct s_object
@@ -52,7 +54,7 @@ typedef struct s_graphic_display {
 	t_data		*img;
 	t_data		**sprites;
 	t_camera	*camera;
-} t_graphic_display;
+} t_display;
 
 typedef struct s_world {
 	t_player	*player;
@@ -61,18 +63,14 @@ typedef struct s_world {
 }	t_world;
 
 typedef struct s_frame {
-	t_graphic_display	*display;
+	t_display	*display;
 	t_world				*world;
 } t_frame;
-
-
-
-
 
 typedef struct	frame_data {
 	int 		*frame_sec;
 	t_world 	*world;
-	t_graphic_display *graphic_display;
+	t_display *graphic_display;
 	int 		*i;
 } t_frame_data;
 
@@ -124,13 +122,13 @@ t_data *put_img(char *image, void *mlx)
 }
 
 
-t_graphic_display *graphics_init(int width, int height)
+t_display *graphics_init(int width, int height)
 {
 	t_camera *camera = malloc(sizeof(t_camera));
 	*camera = (t_camera){1,1};
-	t_graphic_display *ret;
+	t_display *ret;
 
-	ret = malloc(sizeof(t_graphic_display));
+	ret = malloc(sizeof(t_display));
 
 	ret->mlx = mlx_init();
 	ret->mlx_win = mlx_new_window(ret->mlx, width, height, "Hello world!");
@@ -140,6 +138,7 @@ t_graphic_display *graphics_init(int width, int height)
 	ret->img = put_img("tile2.xpm", ret->mlx);
 
 	ret->sprites = malloc(sizeof(t_data *) * 5);
+	ret->sprites[0] = put_img("enemy.xpm", ret->mlx);
 	ret->sprites[1] = put_img("tile1.xpm", ret->mlx);
 	ret->sprites[2] = put_img("tile2.xpm", ret->mlx);
 

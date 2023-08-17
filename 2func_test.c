@@ -97,23 +97,30 @@ void draw_grid_line(char **array, t_xy pos, double angle_deg, int distance, int 
 
     int error = difference.x - difference.y;
 
+	printf("\n");
+	printf("Start [%d, %d]\n", pos.x, pos.y);
+	printf("End [%d, %d]\n", end.x, end.y);
+	printf("Difference_XY [%d, %d]\n", difference.x, difference.y);
     while (pos.x != end.x || pos.y != end.y) 
 	{
         if (pos.x >= 0 && pos.x < cols && pos.y >= 0 && pos.y < rows)
 		{
 			if(array[pos.y][pos.x] == '1')
 				return;
-			array[pos.y][pos.x] = 'H'; 
+			else
+				array[pos.y][pos.x] = 'H'; 
 		}
-        int double_error = 2 * error;
-
-        if (double_error > -difference.y) {
-            error -= difference.y;
-            pos.x += step_x;
+        if (10 * error > -difference.y) //contains the absolute values. Both error and difference are absolute, hence why they have to look at the smallest small, aka -differencne,y since difference is a absolute value.
+		{
+            error -= difference.y; //corrected to be nearer to the difference
+            pos.x += step_x; //incriment by the step, which is determined by where the endpoint is. Can only be neg or positive because 1 bcoz it cannot increase past that
+			printf("1\n");
         }
-        if (double_error < difference.x) {
+        if (10 * error < difference.x) 
+		{
             error += difference.x;
             pos.y += step_y;
+			printf("2\n");
         }
     }
     if (end.x >= 0 && end.x < cols && end.y >= 0 && end.y < rows)
@@ -121,7 +128,7 @@ void draw_grid_line(char **array, t_xy pos, double angle_deg, int distance, int 
 }
 
 
-int render_player(t_world *world, t_xy pos, t_graphic_display *display)
+int render_player(t_world *world, t_xy pos, t_display *display)
 {
 	void	*mlx	 = display->mlx;
 	void	*mlx_win = display->mlx_win;
@@ -135,26 +142,27 @@ int render_player(t_world *world, t_xy pos, t_graphic_display *display)
 	return 1;
 }
 
-int render_grid(t_world *world, t_graphic_display *display, char **c, t_grid_display grid, t_data **sprites)
+int render_grid(t_world *world, t_display *display, char **c, t_grid_display grid, t_data **sprites)
 {
 	int		tile_x = -1;
 	int		tile_y = 0;
-	void	*mlx = display->mlx;
-	void	*mlx_win = display->mlx_win;
-	t_data	*image;
+	t_data	*b_image;
+	t_xy 	b_xy;
 
 	while(++tile_x < 10)
 	{
 		tile_y = -1;
 		while(++tile_y < 10)
 		{
-			image = sprites[2]->img;
+			b_image = sprites[2]->img;
 			if(c[tile_y][tile_x] == '1')
-				image = sprites[1]->img;
+			{
+				b_image = sprites[1]->img;
+			}
 			if(c[tile_y][tile_x] != 'H')
-				mlx_put_image_to_window(mlx, mlx_win, image, 
+				mlx_put_image_to_window(display->mlx, display->mlx_win, b_image, 
 					iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).x + grid.offset_x,
-					iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).y + grid.offset_y);
+					iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).y + grid.offset_y - ((c[tile_y][tile_x] == '1') * 20));
 			if(tile_x == world->player->pos.x && tile_y == world->player->pos.y)
 			{
 				world->player->i_pos = iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y});
@@ -162,9 +170,12 @@ int render_grid(t_world *world, t_graphic_display *display, char **c, t_grid_dis
 			}
 			if(c[tile_y][tile_x] == 'S')
 			{
-				mlx_put_image_to_window(mlx, mlx_win, sprites[1]->img, 
-				iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).x + grid.offset_x,
-				iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).y + grid.offset_y);
+				char *message = "460";
+				b_xy = (t_xy){
+					iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).x + grid.offset_x,
+					iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).y + grid.offset_y - 30};
+				mlx_put_image_to_window(display->mlx, display->mlx_win, sprites[0]->img, b_xy.x + ((sprites[1]->line_length)/4 - (sprites[0]->line_length)/4) / 2, b_xy.y);
+				mlx_string_put(display->mlx,display->mlx_win, b_xy.x + ((sprites[1]->line_length)/4 - (10 * ft_strlen(message))) / 2, b_xy.y, 0x00FFFFFF, message);
 			}
 		}
 	}
@@ -183,7 +194,7 @@ int render_next_frame(void *param)
 	void *mlx = data->graphic_display->mlx;
 	void *mlx_win = data->graphic_display->mlx_win;
 	t_world *world = data->world;
-	t_graphic_display *display = data->graphic_display;
+	t_display *display = data->graphic_display;
 	int mouse_x, mouse_y;
 	int i = *(data->i);
 	
@@ -196,6 +207,7 @@ int render_next_frame(void *param)
 		//printf("[%d, %d] [%d, %d,]\n", display->camera->pos.x, display->camera->pos.y, world->player->i_pos.x, world->player->i_pos.y);
 		render_grid(world, display, world->grid, (t_grid_display){21, 21, ((display->width) / 2) - display->camera->pos.x, ((display->height) / 2) - display->camera->pos.y}, data->graphic_display->sprites);
 		draw_grid_line(world->grid, (t_xy){1,1}, i, 20,10,10);
+		
 		mlx_string_put(mlx,mlx_win, 10, 10, 0x00FF0000, "test");
 		(*(data->i))++;
 	}
@@ -239,7 +251,7 @@ void get_objects(char **array)
 			{
 				count->sentry ++;
 				t_enemy *sentry = malloc(sizeof(t_enemy));
-				*sentry = (t_enemy){x,y};
+				*sentry = (t_enemy){(t_xy){x,y}, 10};
 				object_add_back(&sentry_list, new_object("enemy", sentry));
 			}
 			if (array[y][x] == 'P')
@@ -264,61 +276,9 @@ void get_objects(char **array)
 	}
 }
 
-int calculate_image_width(t_data *image) {
-    if (image->bits_per_pixel != 0) {
-        return image->line_length / (image->bits_per_pixel / 8);
-    } else {
-        // Handle the case where bits_per_pixel is 0
-        // You can return an error code or take appropriate action
-        // For example, you can return -1 to indicate an error.
-        return -1;
-    }
-}
-
-void draw_ray(char **array, int start_x, int start_y, double angle_deg, int rows, int cols) {
-    double angle_rad = angle_deg * M_PI / 180.0; // Convert angle to radians
-
-    int dx = (angle_rad >= 0.0 && angle_rad <= M_PI) ? 1 : -1;
-    int dy = (angle_rad >= M_PI_2 && angle_rad <= 3 * M_PI_2) ? -1 : 1;
-
-    double tan_angle = tan(angle_rad);
-    double inv_tan_angle = 1.0 / tan_angle;
-
-    int current_x = start_x;
-    int current_y = start_y;
-
-    while (current_x >= 0 && current_x < cols && current_y >= 0 && current_y < rows) {
-        if (array[current_y][current_x] == '1') {
-            break; // Hit a '1', stop the ray
-        }
-
-        array[current_y][current_x] = 'H'; // Set the cell to 'H'
-
-        // Calculate the next step based on the angle quadrant
-        int next_x = current_x + dx;
-        int next_y = current_y + dy;
-
-        double delta_x = fabs(1.0 / tan_angle);
-		double delta_y = fabs(tan_angle);
-
-        if (dx == -1) {
-            delta_x = -delta_x;
-        }
-        if (dy == -1) {
-            delta_y = -delta_y;
-        }
-
-        // Check if the ray is closer to the next horizontal or vertical cell
-        if (delta_x < delta_y) {
-            current_x = next_x;
-        } else {
-            current_y = next_y;
-        }
-    }
-}
 int	main(void)
 {
-	t_graphic_display	*display = graphics_init(1920, 1080);
+	t_display			*display = graphics_init(1920, 1080);
 	t_player 			*player = malloc(sizeof(t_player));
 	t_world 			*world = malloc(sizeof(world));
 
@@ -333,9 +293,9 @@ int	main(void)
 	"100000P001",
 	"1000001111",
 	"100E000101",
-	"1000000101",
-	"1000000101",
-	"1000000001",
+	"10000S0101",
+	"10000S0101",
+	"1000S00001",
 	"1001111111"
 	};
 
@@ -368,13 +328,14 @@ int	main(void)
 	int i2 = -1;
 	while(++i2 < 5)
 	{
-		
 		//draw_ray(test, 1,1,26,10,10);
 		if(my_pos.y < 5 && my_pos.x < 5)
 			test[my_pos.y][my_pos.x] = '1';
 	}
 
+
 	t_frame_data frame = (t_frame_data){&frame_sec, world, display, &i};
+
 	mlx_hook(display->mlx_win, 2, 1L << 0, handle_keypress, &vars);
 	mlx_loop_hook(display->mlx, render_next_frame, &frame);
 	mlx_loop(display->mlx);

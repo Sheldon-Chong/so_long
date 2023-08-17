@@ -8,6 +8,7 @@ void test(char *file)
 	int		lines;
 	int		i;
 	char	*test;
+	char	**array;
 
 	lines = 0;;
 	lines = 0;
