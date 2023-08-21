@@ -22,7 +22,6 @@ int handle_keypress(int keycode, t_frame *current_frame)
 	return (0);
 }
 
-
 typedef struct s_grid_display {
 	float		space_x;
 	float		space_y;
@@ -104,14 +103,14 @@ int render_player(t_world *world, t_xy pos, t_display *display)
 int render_grid(t_world *world, t_display *display, char **c, t_grid_display grid, t_data **sprites)
 {
 	int		tile_x = -1;
-	int		tile_y = 0;
+	int		tile_y = -1;
 	t_data	*b_image;
 	t_xy 	b_xy;
 
-	while(++tile_x < 10)
+	while(c[++tile_y])
 	{
-		tile_y = -1;
-		while(++tile_y < 10)
+		tile_x = -1;
+		while(c[tile_y][++tile_x])
 		{
 			b_image = sprites[2]->img;
 			if(c[tile_y][tile_x] == '1')
@@ -207,16 +206,23 @@ void get_objects(char **array, t_animation *animator, t_world *world)
 
 	t_counter *count = malloc(sizeof(t_counter));
 	*count = (t_counter){0,0,0,0,0,0,0};
+
 	t_object	*sentry_list = new_object("null", "data");
-	t_object	*object;
+
+	t_object	*collectible_list = new_object("null", "data");
 	y = -1;
 	while(array[++y])
 	{
 		x = -1;
-		while(array[++x])
+		while(array[y][++x])
 		{
 			if (array[y][x] == 'C')
+			{
 				count->collectible ++;
+				t_collectible *collectible = malloc(sizeof(t_collectible));
+				*collectible = (t_collectible){(t_xy){x, y}};
+				object_add_back(&collectible_list, new_object("collectible", collectible));
+			}
 			if (array[y][x] == '0') 
 				count->empty ++;
 			if (array[y][x] == '1') 
@@ -250,6 +256,12 @@ void get_objects(char **array, t_animation *animator, t_world *world)
 		printf("%s | %s | [pos: %d, %d]\n", head->type, head->data, ((t_enemy *)(head->data))->pos.x, ((t_enemy *)(head->data))->pos.y);
 		head = head->next;
 	}
+	head = collectible_list;
+	while(head)
+	{
+		printf("%s | %s | [pos: %d, %d]\n", head->type, head->data, ((t_enemy *)(head->data))->pos.x, ((t_enemy *)(head->data))->pos.y);
+		head = head->next;
+	}
 	world->enemies = sentry_list;
 }
 
@@ -275,33 +287,17 @@ int	main(void)
 	player->animator.frames[2] = NULL;
 	player->animator.speed = 30;
 
-	char c[10][10] = {
-	"1111111111",
-	"1000000001",
-	"1000000001",
-	"100000P001",
-	"1000001111",
-	"100E000101",
-	"10000S0101",
-	"10000S0101",
-	"1000S00001",
-	"1001111111"
-	};
+	t_animation	coin_animation = (t_animation){0, 0, 5};
+	enemy_animation.frames = malloc((sizeof(t_data *) * 2)+ 1);
+	enemy_animation.frames[0] = put_img("coin.xpm", display->mlx);
+	enemy_animation.frames[1] = put_img("coin2.xpm", display->mlx);
+	enemy_animation.speed = 30;
 
-	char **test = malloc((11 * sizeof(char*)));
-
-	int i = -1;
-	while(++i < 10)
-	{
-		test[i] = malloc(sizeof(char *) + 1);
-		ft_strlcpy(test[i], c[i], 11);
-	}
-	test[i] = NULL;
-
+	int i;
+	char **test = scan_map();
+	
 	t_enemy *enemy = malloc(sizeof(t_enemy));
-
-	world = &((t_world){player, enemy, NULL, test});
-
+	world = &((t_world){player, enemy, NULL, NULL, test});
 
 	get_objects(test, &enemy_animation, world);
 	
@@ -311,12 +307,9 @@ int	main(void)
 
 	int		sec = 0;
 	int		frame_sec = 0;
-
-	t_xy my_pos = {0,0};
-	t_xy vector = {1,2};
-
+	
 	t_frame_data current_frame = (t_frame_data){&frame_sec, world, display, &i};
-
+	
 	mlx_hook(display->mlx_win, 2, 1L << 0, handle_keypress, &vars);
 	mlx_loop_hook(display->mlx, render_next_frame, &current_frame);
 	mlx_loop(display->mlx);

@@ -6,6 +6,8 @@
 #include <math.h>
 #include "libft/libft.h"
 
+char	**scan_map();
+
 typedef struct	s_xy {
 	int		x;
 	int		y;
@@ -47,6 +49,12 @@ typedef struct s_enemy
 	t_animation	*animator;
 } t_enemy;
 
+typedef struct s_collectible
+{
+	t_xy	pos;
+	t_animation	*animator;
+} t_collectible;
+
 typedef struct	s_player 
 {
 	t_xy	pos;
@@ -70,6 +78,7 @@ typedef struct s_world {
 	t_player	*player;
 	t_enemy		*enemy;
 	t_object	*enemies;
+	t_object	*collectibles;
 	char		**grid;
 }	t_world;
 
@@ -84,6 +93,12 @@ typedef struct	frame_data {
 	t_display *graphic_display;
 	int 		*i;
 } t_frame_data;
+
+typedef struct s_tile
+{
+	void *test;
+} t_tile;
+
 
 // ISOMEtRIC
 
