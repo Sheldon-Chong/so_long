@@ -13,12 +13,15 @@ int count_newline(char *filename)
 	int newline_count = 0;
 	int status;
 
-	buffer = malloc(1);
+	buffer = malloc(2);
 	while ((status = read(fd, buffer, 1)) > 0)
+	{
 		if (buffer[0] == '\n' || buffer[0] == '\r')
 			newline_count++;
-		if(ft_is_charset(buffer, "1P2CE") == 1)
-		{	printf("invalid"); printf("<[%s]>", buffer);}
+		buffer[1] = 0;
+		if(ft_is_charset(buffer, "1P2CES0\n") != 1)
+			return -1;
+	}
 	if (status < 0)
 		perror("Error reading file");
 	
@@ -53,6 +56,12 @@ int main()
 
 	int fd = open("test.ber", 0);
 	count = count_newline("test.ber");
+
+	if(count < 0)
+	{
+		printf("incorrect characters\n");
+		return(1);
+	}
 	array = malloc(sizeof(char *) * (count + 1));
 	i = 0;
 	buffer = get_next_line(fd);

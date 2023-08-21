@@ -63,6 +63,7 @@ typedef struct s_graphic_display {
 	t_data		*img;
 	t_data		**sprites;
 	t_camera	*camera;
+	t_object	*animation;
 } t_display;
 
 typedef struct s_world {
@@ -99,7 +100,6 @@ t_xy map_iso(t_xy pos) {
 }
 
 // RENDERING
-
 void	put_pixel(t_data *data, int x, int y, int color)
 {
 	char	*dst;

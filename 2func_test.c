@@ -44,7 +44,7 @@ t_xy calculate_endpoint(t_xy start, double angle_rad, int distance) {
     return ((t_xy){start.x + (int)(distance * cos(angle_rad)), start.y + (int)(distance * sin(angle_rad))});
 }
 
-void draw_grid_line(char **array, t_xy pos, double angle_deg, int distance, int rows, int cols) {
+void ray_cast(char **array, t_xy pos, double angle_deg, int distance, int rows, int cols) {
     double angle_rad = degrees_to_radians(angle_deg);
     t_xy end = calculate_endpoint(pos, angle_rad, distance);
 	t_xy difference;
@@ -150,13 +150,6 @@ t_xy	bounce(t_xy pos, t_xy pos2)
 				(pos.y + (pos2.y - pos.y)/10)});
 }
 
-int render_enemy(t_world *world, t_display *display)
-{
-	t_enemy *test =  (t_enemy *)((world->enemies)); 
-	//printf("\n[%d]\n", test->hp);
-	return 1;
-}
-
 int render_next_frame(void *param)
 {
 	t_frame_data *data = (t_frame_data *)param;
@@ -174,20 +167,20 @@ int render_next_frame(void *param)
 		*(data->frame_sec) = 0;
 		display->camera->pos = bounce(display->camera->pos, world->player->i_pos);
 		render_grid(world, display, world->grid, (t_grid_display){21, 21, ((display->width) / 2) - display->camera->pos.x, ((display->height) / 2) - display->camera->pos.y}, data->graphic_display->sprites);
-		//draw_grid_line(world->grid, (t_xy){1,1}, i, 20,10,10);
+		//ray_cast(world->grid, (t_xy){1,1}, i, 20,10,10);
 		
 		world->player->animator.frame_timer = (world->player->animator.frame_timer + 1) % world->player->animator.speed;
 		if(world->player->animator.frame_timer == 0)
 			world->player->animator.current_frame = (world->player->animator.current_frame + 1) % 2;
 	
-		printf("______%ld_______\n", i);
+		//printf("______%ld_______\n", i);
 		t_object *head = (data->world->enemies->next);
 		while(head)
 		{
 			((t_enemy *)(head->data))->animator->frame_timer = (((t_enemy *)(head->data))->animator->frame_timer + 1) % ((t_enemy *)(head->data))->animator->speed;
 			if(((t_enemy *)(head->data))->animator->frame_timer == 0)
 				((t_enemy *)(head->data))->animator->current_frame = (((t_enemy *)(head->data))->animator->current_frame + 1) % 2;
-			printf("HP: %d\n", ((t_enemy *)(head->data))->animator->current_frame);
+			//printf("HP: %d\n", ((t_enemy *)(head->data))->animator->current_frame);
 			head = head->next;
 		}
 		mlx_string_put(mlx,mlx_win, 10, 10, 0x00FF0000, "test");
@@ -283,7 +276,7 @@ int	main(void)
 	player->animator.speed = 30;
 
 	char c[10][10] = {
-	"1011111111",
+	"1111111111",
 	"1000000001",
 	"1000000001",
 	"100000P001",
@@ -322,21 +315,7 @@ int	main(void)
 	t_xy my_pos = {0,0};
 	t_xy vector = {1,2};
 
-	int i2 = -1;
-	while(++i2 < 5)
-	{
-		//draw_ray(test, 1,1,26,10,10);
-		if(my_pos.y < 5 && my_pos.x < 5)
-			test[my_pos.y][my_pos.x] = '1';
-	}
-
 	t_frame_data current_frame = (t_frame_data){&frame_sec, world, display, &i};
-
-	
-	t_object *test2f = (current_frame.world->enemies);
-	printf("asfasfssfasf: %d\n", ((t_enemy *)(test2f->next->data))->hp);
-	//printf("\n[%p]\n", test2f);
-
 
 	mlx_hook(display->mlx_win, 2, 1L << 0, handle_keypress, &vars);
 	mlx_loop_hook(display->mlx, render_next_frame, &current_frame);
