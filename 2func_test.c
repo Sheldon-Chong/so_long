@@ -2,47 +2,6 @@
 #include "graphics.h"
 #include <fcntl.h>
 
-// void test(char *file, t_data *img, int i2)
-// {
-// 	int		fd;
-// 	int		lines;
-// 	int		i;
-// 	char	*test;
-
-// 	lines = 0;;
-// 	lines = 0;
-// 	fd = open(file, 0);
-// 	test = get_next_line(fd);
-// 	while(test && ft_strncmp(test, "/* pixels */", 11) != 0)
-// 	{
-// 		test = get_next_line(fd);
-// 		lines ++;
-// 	}
-// 	while(test)
-// 	{
-// 		test = get_next_line(fd);
-// 		test = ft_substr(test, 1, ft_strlen(test) - 4);
-
-// 		if(ft_strchr(test, ';') != 0 || !test)
-// 			break;
-
-// 		i = -1;
-// 		while(test[++i])
-// 		{
-// 			if(test[i] != ' ')
-// 				draw_line(img, (t_xy){(i * 3) + 250, (lines * 3) + 250}, (t_xy){(i * 3) + 200, (lines * 3) + 200}, 0x00FF0000);
-// 		}
-// 			//put_pixel(img, 30 + (i * 2), 30 + (lines * 2), 0x00FF0000);
-// 		//put_pixel(img, 30 + iso_map((t_xy){lines, i}).x, 30 + iso_map((t_xy){lines, i}).y, 0x00FF0000);
-
-// 		//put_pixel(img, 30 + (lines * 2), 30 + (i * 2), 0x00FF0000);
-// 		//printf("%s\n",test);
-		
-// 		lines ++;
-// 	}
-	
-// }
-
 int handle_keypress(int keycode, t_frame *current_frame)
 {
 	t_player *player = current_frame->world->player;
@@ -156,9 +115,7 @@ int render_grid(t_world *world, t_display *display, char **c, t_grid_display gri
 		{
 			b_image = sprites[2]->img;
 			if(c[tile_y][tile_x] == '1')
-			{
 				b_image = sprites[1]->img;
-			}
 			if(c[tile_y][tile_x] != 'H')
 				mlx_put_image_to_window(display->mlx, display->mlx_win, b_image, 
 					iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).x + grid.offset_x,
@@ -168,16 +125,21 @@ int render_grid(t_world *world, t_display *display, char **c, t_grid_display gri
 				world->player->i_pos = iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y});
 				render_player(world, (t_xy){world->player->i_pos.x + grid.offset_x + 12, world->player->i_pos.y + grid.offset_y - 25}, display);
 			}
-			if(c[tile_y][tile_x] == 'S')
-			{
-				char *message = "460";
-				b_xy = (t_xy){
-					iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).x + grid.offset_x,
-					iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).y + grid.offset_y - 25};
-				mlx_put_image_to_window(display->mlx, display->mlx_win, sprites[0]->img, b_xy.x + ((sprites[1]->line_length)/4 - (sprites[0]->line_length)/4) / 2, b_xy.y);
-				mlx_string_put(display->mlx,display->mlx_win, b_xy.x + ((sprites[1]->line_length)/4 - (10 * ft_strlen(message))) / 2, b_xy.y, 0x00FFFFFF, message);
-			}
 		}
+	}
+	t_object *head = world->enemies->next;
+	t_enemy	*enemy; 
+	while(head)
+	{
+		enemy = ((t_enemy *)(head->data));
+		b_image = enemy->animator->frames[1];
+		if(enemy->animator->current_frame == 1)
+			b_image = enemy->animator->frames[0];
+		b_xy = (t_xy){
+					iso_map((t_xy){enemy->pos.x * grid.space_x, enemy->pos.y * grid.space_y}).x + grid.offset_x,
+					iso_map((t_xy){enemy->pos.x * grid.space_x, enemy->pos.y * grid.space_y}).y + grid.offset_y - 25};
+			mlx_put_image_to_window(display->mlx, display->mlx_win, b_image->img, b_xy.x + ((display->sprites[1]->line_length)/4 - (b_image->line_length)/4) / 2, b_xy.y);
+		head = head->next;
 	}
 	return (1);
 }
@@ -188,20 +150,12 @@ t_xy	bounce(t_xy pos, t_xy pos2)
 				(pos.y + (pos2.y - pos.y)/10)});
 }
 
-// int render(t_world *world, t_display *display)
-// {
-// 	t_object *head = *(world->enemies);
-// 	while(head)
-// 	{
-// 		printf("%s | %s | [pos: %d, %d]\n", head->type, head->data, ((t_enemy *)(head->data))->pos.x, ((t_enemy *)(head->data))->pos.y);
-// 		head = head->next;
-// 	} 
-
-// 	// world->player->animator.frame_timer = (world->player->animator.frame_timer + 1) % world->player->animator.speed;
-// 	// 	if(world->player->animator.frame_timer == 0)
-// 	// 		world->player->animator.current_frame = (world->player->animator.current_frame + 1) % 2;
-// 	return 1;
-// }
+int render_enemy(t_world *world, t_display *display)
+{
+	t_enemy *test =  (t_enemy *)((world->enemies)); 
+	//printf("\n[%d]\n", test->hp);
+	return 1;
+}
 
 int render_next_frame(void *param)
 {
@@ -211,7 +165,7 @@ int render_next_frame(void *param)
 	t_world *world = data->world;
 	t_display *display = data->graphic_display;
 	int mouse_x, mouse_y;
-	int i = *(data->i);
+	long i = *(data->i);
 	
 	(*(data->frame_sec))++;
 	if (*(data->frame_sec) > 100)
@@ -225,7 +179,17 @@ int render_next_frame(void *param)
 		world->player->animator.frame_timer = (world->player->animator.frame_timer + 1) % world->player->animator.speed;
 		if(world->player->animator.frame_timer == 0)
 			world->player->animator.current_frame = (world->player->animator.current_frame + 1) % 2;
-		
+	
+		printf("______%ld_______\n", i);
+		t_object *head = (data->world->enemies->next);
+		while(head)
+		{
+			((t_enemy *)(head->data))->animator->frame_timer = (((t_enemy *)(head->data))->animator->frame_timer + 1) % ((t_enemy *)(head->data))->animator->speed;
+			if(((t_enemy *)(head->data))->animator->frame_timer == 0)
+				((t_enemy *)(head->data))->animator->current_frame = (((t_enemy *)(head->data))->animator->current_frame + 1) % 2;
+			printf("HP: %d\n", ((t_enemy *)(head->data))->animator->current_frame);
+			head = head->next;
+		}
 		mlx_string_put(mlx,mlx_win, 10, 10, 0x00FF0000, "test");
 		(*(data->i))++;
 	}
@@ -293,7 +257,7 @@ void get_objects(char **array, t_animation *animator, t_world *world)
 		printf("%s | %s | [pos: %d, %d]\n", head->type, head->data, ((t_enemy *)(head->data))->pos.x, ((t_enemy *)(head->data))->pos.y);
 		head = head->next;
 	}
-	//world->enemies = &sentry_list;
+	world->enemies = sentry_list;
 }
 
 int	main(void)
@@ -302,10 +266,11 @@ int	main(void)
 	t_player 			*player = malloc(sizeof(t_player));
 	t_world 			*world = malloc(sizeof(world));
 
-	t_animation	enemy_animation = (t_animation){0,0,5};
+	t_animation	enemy_animation = (t_animation){0, 0, 5};
 	enemy_animation.frames = malloc((sizeof(t_data *) * 2)+ 1);
 	enemy_animation.frames[0] = put_img("enemy_idle_1.xpm", display->mlx);
-	enemy_animation.frames[0] = put_img("enemy_idle_1.xpm", display->mlx);
+	enemy_animation.frames[1] = put_img("enemy_idle_2.xpm", display->mlx);
+	enemy_animation.speed = 30;
 
 	player->pos = (t_xy){1, 1};
 	player->i_pos = (t_xy){1, 1};
@@ -340,11 +305,12 @@ int	main(void)
 	}
 	test[i] = NULL;
 
-	get_objects(test, &enemy_animation, world);
+	t_enemy *enemy = malloc(sizeof(t_enemy));
 
-	t_enemy	*enemy;
-	
 	world = &((t_world){player, enemy, NULL, test});
+
+
+	get_objects(test, &enemy_animation, world);
 	
 	t_frame vars;
 	vars.world = world;
@@ -365,6 +331,12 @@ int	main(void)
 	}
 
 	t_frame_data current_frame = (t_frame_data){&frame_sec, world, display, &i};
+
+	
+	t_object *test2f = (current_frame.world->enemies);
+	printf("asfasfssfasf: %d\n", ((t_enemy *)(test2f->next->data))->hp);
+	//printf("\n[%p]\n", test2f);
+
 
 	mlx_hook(display->mlx_win, 2, 1L << 0, handle_keypress, &vars);
 	mlx_loop_hook(display->mlx, render_next_frame, &current_frame);

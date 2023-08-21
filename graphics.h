@@ -68,7 +68,7 @@ typedef struct s_graphic_display {
 typedef struct s_world {
 	t_player	*player;
 	t_enemy		*enemy;
-	t_object	**enemies;
+	t_object	*enemies;
 	char		**grid;
 }	t_world;
 
