@@ -11,13 +11,6 @@ typedef struct	s_xy {
 	int		y;
 }				t_xy;
 
-typedef struct s_enemy
-{
-	t_xy	pos;
-	int		angle;
-	int		hp;
-} t_enemy;
-
 typedef struct s_object
 {
 	char			*type;
@@ -30,14 +23,6 @@ typedef struct camera {
 	t_xy	pos_goto;
 } t_camera;
 
-typedef struct	s_player 
-{
-	t_xy	pos;
-	t_xy	i_pos;
-	int		lives;
-}				t_player; 
-
-
 typedef struct	s_data {
 	void	*img;
 	char	*addr;
@@ -45,6 +30,30 @@ typedef struct	s_data {
 	int		line_length;
 	int		endian;
 }				t_data;
+
+typedef struct s_animation
+{
+	int		current_frame;
+	int		frame_timer;
+	int		speed;
+	t_data	**frames;
+} t_animation;
+
+typedef struct s_enemy
+{
+	t_xy	pos;
+	int		angle;
+	int		hp;
+	t_animation	*animator;
+} t_enemy;
+
+typedef struct	s_player 
+{
+	t_xy	pos;
+	t_xy	i_pos;
+	int		lives;
+	t_animation	animator;
+}				t_player; 
 
 typedef struct s_graphic_display {
 	int width;
@@ -59,6 +68,7 @@ typedef struct s_graphic_display {
 typedef struct s_world {
 	t_player	*player;
 	t_enemy		*enemy;
+	t_object	**enemies;
 	char		**grid;
 }	t_world;
 
