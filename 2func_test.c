@@ -41,10 +41,11 @@ t_xy calculate_endpoint(t_xy start, double angle_rad, int distance) {
     return ((t_xy){start.x + (int)(distance * cos(angle_rad)), start.y + (int)(distance * sin(angle_rad))});
 }
 
-void ray_cast(char **array, t_xy pos, double angle_deg, int distance, int rows, int cols) {
+void ray_cast(t_world *world, t_xy pos, double angle_deg, int distance, int rows, int cols) {
     double angle_rad = degrees_to_radians(angle_deg);
     t_xy end = calculate_endpoint(pos, angle_rad, distance);
 	t_xy difference;
+	t_tile **array = world->tgrid;
 
 	difference = (t_xy){abs(end.x - pos.x), abs(end.y - pos.y)};
 
@@ -61,10 +62,10 @@ void ray_cast(char **array, t_xy pos, double angle_deg, int distance, int rows, 
 	{
         if (pos.x >= 0 && pos.x < cols && pos.y >= 0 && pos.y < rows)
 		{
-			if(array[pos.y][pos.x] == '1')
+			if(array[pos.y][pos.x].type == '1')
 				return;
 			else
-				array[pos.y][pos.x] = 'H'; 
+				array[pos.y][pos.x].type = 'H'; 
 		}
         if (10 * error > -difference.y) //contains the absolute values. Both error and difference are absolute, hence why they have to look at the smallest small, aka -differencne,y since difference is a absolute value.
 		{
@@ -80,7 +81,7 @@ void ray_cast(char **array, t_xy pos, double angle_deg, int distance, int rows, 
         }
     }
     if (end.x >= 0 && end.x < cols && end.y >= 0 && end.y < rows)
-        array[end.y][end.x] = 'H';
+        array[end.y][end.x].type = 'H';
 }
 
 
@@ -164,7 +165,7 @@ int render_next_frame(void *param)
 		*(data->frame_sec) = 0;
 		display->camera->pos = bounce(display->camera->pos, world->player->i_pos);
 		render_grid(world, display, (t_grid_display){21, 21, ((display->width) / 2) - display->camera->pos.x, ((display->height) / 2) - display->camera->pos.y}, data->graphic_display->sprites);
-		//ray_cast(world->grid, (t_xy){1,1}, i, 20,10,10);
+		ray_cast(world, (t_xy){5,5}, i, 20,10,10);
 		
 		world->player->animator.frame_timer = (world->player->animator.frame_timer + 1) % world->player->animator.speed;
 		if(world->player->animator.frame_timer == 0)
