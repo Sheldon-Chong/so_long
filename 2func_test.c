@@ -17,8 +17,6 @@ int handle_keypress(int keycode, t_frame *current_frame)
 		new_pos.x ++;
 	if(new_pos.x > 0 && new_pos.y > 0)
 		player->pos = new_pos;
-	
-	//current_frame->world->grid[player->pos.y][player->pos.x] = '1';
 	return (0);
 }
 
@@ -100,45 +98,45 @@ int render_player(t_world *world, t_xy pos, t_display *display)
 	return 1;
 }
 
-int render_grid(t_world *world, t_display *display, char **c, t_grid_display grid, t_data **sprites)
+int render_grid(t_world *world, t_display *display, t_grid_display grid, t_data **sprites)
 {
 	int		tile_x = -1;
 	int		tile_y = -1;
 	t_data	*b_image;
 	t_xy 	b_xy;
+	t_tile	**tgrid = world->tgrid;
+	t_enemy	*enemy; 
 
-	while(c[++tile_y])
+	while(tgrid[++tile_y])
 	{
 		tile_x = -1;
-		while(c[tile_y][++tile_x])
+		while(tgrid[tile_y][++tile_x].type)
 		{
 			b_image = sprites[2]->img;
-			if(c[tile_y][tile_x] == '1')
+			if(tgrid[tile_y][tile_x].type == '1')
 				b_image = sprites[1]->img;
-			if(c[tile_y][tile_x] != 'H')
+			if(tgrid[tile_y][tile_x].type != 'H')
 				mlx_put_image_to_window(display->mlx, display->mlx_win, b_image, 
 					iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).x + grid.offset_x,
-					iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).y + grid.offset_y - ((c[tile_y][tile_x] == '1') * 20));
+					iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y}).y + grid.offset_y - ((tgrid[tile_y][tile_x].type == '1') * 20));
+			if(tgrid[tile_y][tile_x].type == 'S' && tgrid[tile_y][tile_x].data)
+			{
+				
+				enemy = ((t_enemy *)((t_object *)(tgrid[tile_y][tile_x].data))->data);
+				b_image = enemy->animator->frames[1];
+				if(enemy->animator->current_frame == 1)
+					b_image = enemy->animator->frames[0];
+				b_xy = (t_xy){
+	 				iso_map((t_xy){enemy->pos.x * grid.space_x, enemy->pos.y * grid.space_y}).x + grid.offset_x,
+					iso_map((t_xy){enemy->pos.x * grid.space_x, enemy->pos.y * grid.space_y}).y + grid.offset_y - 25};
+		 		mlx_put_image_to_window(display->mlx, display->mlx_win, b_image->img, b_xy.x + ((display->sprites[1]->line_length)/4 - (b_image->line_length)/4) / 2, b_xy.y);
+			}	
 			if(tile_x == world->player->pos.x && tile_y == world->player->pos.y)
 			{
 				world->player->i_pos = iso_map((t_xy){tile_x * grid.space_x, tile_y * grid.space_y});
 				render_player(world, (t_xy){world->player->i_pos.x + grid.offset_x + 12, world->player->i_pos.y + grid.offset_y - 25}, display);
 			}
 		}
-	}
-	t_object *head = world->enemies->next;
-	t_enemy	*enemy; 
-	while(head)
-	{
-		enemy = ((t_enemy *)(head->data));
-		b_image = enemy->animator->frames[1];
-		if(enemy->animator->current_frame == 1)
-			b_image = enemy->animator->frames[0];
-		b_xy = (t_xy){
-					iso_map((t_xy){enemy->pos.x * grid.space_x, enemy->pos.y * grid.space_y}).x + grid.offset_x,
-					iso_map((t_xy){enemy->pos.x * grid.space_x, enemy->pos.y * grid.space_y}).y + grid.offset_y - 25};
-			mlx_put_image_to_window(display->mlx, display->mlx_win, b_image->img, b_xy.x + ((display->sprites[1]->line_length)/4 - (b_image->line_length)/4) / 2, b_xy.y);
-		head = head->next;
 	}
 	return (1);
 }
@@ -165,7 +163,7 @@ int render_next_frame(void *param)
 		mlx_clear_window(mlx, mlx_win);
 		*(data->frame_sec) = 0;
 		display->camera->pos = bounce(display->camera->pos, world->player->i_pos);
-		render_grid(world, display, world->grid, (t_grid_display){21, 21, ((display->width) / 2) - display->camera->pos.x, ((display->height) / 2) - display->camera->pos.y}, data->graphic_display->sprites);
+		render_grid(world, display, (t_grid_display){21, 21, ((display->width) / 2) - display->camera->pos.x, ((display->height) / 2) - display->camera->pos.y}, data->graphic_display->sprites);
 		//ray_cast(world->grid, (t_xy){1,1}, i, 20,10,10);
 		
 		world->player->animator.frame_timer = (world->player->animator.frame_timer + 1) % world->player->animator.speed;
@@ -288,18 +286,21 @@ int	main(void)
 	player->animator.speed = 30;
 
 	t_animation	coin_animation = (t_animation){0, 0, 5};
-	enemy_animation.frames = malloc((sizeof(t_data *) * 2)+ 1);
-	enemy_animation.frames[0] = put_img("coin.xpm", display->mlx);
-	enemy_animation.frames[1] = put_img("coin2.xpm", display->mlx);
-	enemy_animation.speed = 30;
+	coin_animation.frames = malloc((sizeof(t_data *) * 2)+ 1);
+	coin_animation.frames[0] = put_img("coin.xpm", display->mlx);
+	coin_animation.frames[1] = put_img("coin2.xpm", display->mlx);
+	coin_animation.speed = 30;
 
 	int i;
 	char **test = scan_map();
 	
+	
 	t_enemy *enemy = malloc(sizeof(t_enemy));
-	world = &((t_world){player, enemy, NULL, NULL, test});
+	world = &((t_world){player, enemy, NULL, NULL, test, NULL});
 
 	get_objects(test, &enemy_animation, world);
+
+	world->tgrid = read_array2(world, count_newline("test.ber"));
 	
 	t_frame vars;
 	vars.world = world;

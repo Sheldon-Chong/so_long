@@ -1,6 +1,6 @@
-#include "libft/libft.h"
 #include <stdio.h>
 #include <sys/fcntl.h>
+#include "graphics.h"
 
 // cant detect unusable characters. Might be the ft_is_charset function
 
@@ -25,7 +25,6 @@ int count_newline(char *filename)
 	}
 	if (status < 0)
 		exit(write(2,"Error reading file\n",19));
-	free(buffer);
 	return (newline_count + 1);
 }
 
@@ -108,7 +107,29 @@ char	**read_array(char *file, int rows)
 		buffer = get_next_line(fd);
 	}
 	array[i] = NULL;
+	close(fd);
 	return(array);
+}
+
+t_tile	**read_array2(char **array, int rows)
+{
+	int x;
+	int y;
+	t_tile **ret_array;
+	t_tile *tile;
+
+	x = -1;
+	y = -1;
+	ret_array = malloc(sizeof(t_tile *) * (rows));
+	while(array[++y])
+	{
+		while(array[++x])
+		{
+
+		}
+	}
+
+	return(ret_array);
 }
 
 char	**scan_map()
@@ -133,6 +154,23 @@ char	**scan_map()
 	print_2d_array(array);
 	return (array);
 }
+
+// int main()
+// {
+// 	int count = count_newline("test.ber");
+// 	char **array = read_array("test.ber", count);
+// 	t_tile **map = read_array2(array, count);
+// 	int i = -1;
+// 	int i2 = -1;
+
+// 	while(map[++i])
+// 	{
+// 		i2 = -1;
+// 		while(++i2 < 7)
+// 			printf("[%s]", (map[i][i2]).type);
+// 		printf("\n");
+// 	}
+// }
 
 /*
 i = -1;

@@ -5,8 +5,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include "libft/libft.h"
+#include <stdio.h>
+#include <sys/fcntl.h>
 
-char	**scan_map();
 
 typedef struct	s_xy {
 	int		x;
@@ -74,12 +75,21 @@ typedef struct s_graphic_display {
 	t_object	*animation;
 } t_display;
 
+
+
+typedef struct s_tile
+{
+	char type;
+	void *data;
+} t_tile;
+
 typedef struct s_world {
 	t_player	*player;
 	t_enemy		*enemy;
 	t_object	*enemies;
 	t_object	*collectibles;
 	char		**grid;
+	t_tile		**tgrid;
 }	t_world;
 
 typedef struct s_frame {
@@ -93,12 +103,6 @@ typedef struct	frame_data {
 	t_display *graphic_display;
 	int 		*i;
 } t_frame_data;
-
-typedef struct s_tile
-{
-	void *test;
-} t_tile;
-
 
 // ISOMEtRIC
 
@@ -228,12 +232,183 @@ void	object_add_back(t_object **head, t_object *object)
 	t_object	*current;
 	
 	if (*head == NULL)
-        *head = object;
+		*head = object;
 
 	current = *head;
 	while(current->next)
 		current = current->next;
 	current->next = object;
 }
+
+int count_newline(char *filename)
+{
+	char *buffer;	
+	int newline_count;
+	int status;
+	int fd;
+
+	newline_count = 0;
+	fd = open("test.ber", 0);
+	buffer = malloc(2);
+	while ((status = read(fd, buffer, 1)) > 0)
+	{
+		if (buffer[0] == '\n' || buffer[0] == '\r')
+			newline_count++;
+		buffer[1] = 0;
+		if (ft_is_charset(buffer, "1P2CES0\n") != 1)
+			exit(write(2, "Incorrect characters\n", 19));
+	}
+	if (status < 0)
+		exit(write(2,"Error reading file\n",19));
+	return (newline_count + 1);
+}
+
+int find_holes(char **array, int rows)
+{
+	int	i;
+
+	i = -1;
+	if(!array || !array[0])
+		return(0);
+	while(array[0][++i])
+		if(array[0][i] != '1' || array[rows - 1][i] != '1')
+			exit(write(2, "Not fully walled\n", 16));
+	i = -1;
+	while(array[++i])
+		if(array[i][0] != '1' || array[i][ft_strlen(array[0]) - 1] != '1')
+			exit(write(2, "Not fully walled\n", 16));
+	return(0);
+}
+
+int check_objects(char **c)
+{
+	int	y;
+	int exits;
+	int player;
+	int collectible;
+	
+	exits = 0;
+	player = 0;
+	collectible = 0;
+	y = -1;
+	while(c[++y])
+	{
+		if(ft_strchr(c[y], 'P') != 0)
+			player = 1;
+		if(ft_strchr(c[y], 'C') != 0)
+			collectible = 1;
+		if(ft_strchr(c[y], 'E') != 0)
+			exits = 1;
+	}
+	if(player != 1)
+		exit(write(2,"No player\n", 10));
+	if(collectible != 1)
+		exit(write(2,"No collectible\n", 15));
+	if(exits != 1)
+		exit(write(2,"No exit\n", 8));
+	return(0);
+}
+
+void	print_2d_array(char **c)
+{
+	int	y;
+	int	x;
+
+	y = -1;
+	while(c[++y])
+	{
+		x = -1;
+		while(c[y][++x])
+			ft_putchar_fd(c[y][x], 1);
+		ft_putchar_fd('\n', 1);
+	}
+}
+
+char	**read_array(char *file, int rows)
+{
+	int		i;
+	char	*buffer;
+	char **array;
+	int fd;
+	
+	fd = open(file, 0);
+	i = 0;
+	buffer = get_next_line(fd);
+	array = malloc(sizeof(char *) * (rows + 1));
+	while(buffer)
+	{
+		buffer = ft_substr(buffer, 0, ft_strrchr(buffer, '\n') - buffer);
+		array[i++] = buffer;
+		buffer = get_next_line(fd);
+	}
+	array[i] = NULL;
+	close(fd);
+	return(array);
+}
+
+t_tile	**read_array2(t_world *world, int rows)
+{
+	int x;
+	int y;
+	t_tile **ret_array;
+	t_tile *row;
+	char	**array;
+	t_object	*object;
+
+	object = world->enemies->next;
+	array = world->grid;
+	ret_array = malloc(sizeof(t_tile *) * (rows + 1));
+	y = -1;
+	while(++y < rows)
+	{
+		row = malloc(sizeof(t_tile) * (ft_strlen(array[0]) + 1));
+		x = -1;
+		while(++x < ft_strlen(array[y]))
+		{
+			row[x] = (t_tile){array[y][x], NULL};
+			if(array[y][x] == 'S' && object)
+			{
+				row[x].data = object;
+				object = object->next;
+			}
+		}
+		row[x] = (t_tile){0, NULL};
+		ret_array[y] = row;
+	}
+	ret_array[y] = NULL;
+	return(ret_array);
+}
+
+char	**scan_map()
+{
+	int count;
+	char **array;
+	char *buffer;
+	int i;
+	int i2;
+
+	int fd = open("test.ber", 0);
+	count = count_newline("test.ber");
+	array = malloc(sizeof(char *) * (count + 1));
+	array = read_array("test.ber", count);
+	i = -1;
+	while(array[++i + 1])
+	 	if(ft_strlen(array[i]) != ft_strlen(array[i+1]))
+			exit(write(2, "Incorrect length\n", 17));
+	check_objects(array);
+	find_holes(array, count);
+	print_2d_array(array);
+	
+	// i = -1;
+	// while(test[++i])
+	// {
+	// 	i2 = -1;
+	// 	while(test[i][++i2].data)
+	// 		printf("[%c]", test[i][i2].type);
+	// 	printf("\n");
+	// }
+	return (array);
+}
+
 
 # endif
