@@ -80,6 +80,7 @@ typedef struct s_graphic_display {
 	t_camera	*camera;
 	t_object	*animations;
 	t_object	*anim_spritesheet;
+	t_xy		*mouse_pos;
 } t_display;
 
 
@@ -227,17 +228,17 @@ int	ray_cast(t_world *world, t_xy pos, double angle_deg, int distance, int rows,
 			if(array[pos.y][pos.x].type == '1')
 				return 0;
 			if(!(array[pos.y][pos.x].type == 'S'))
-			  	array[pos.y][pos.x].type = 'H'; 
+			   	array[pos.y][pos.x].type = 'H'; 
 			if(pos.x == world->player->pos.x && pos.y == world->player->pos.y)
 				return 1;
 		}
-		if (10 * error > -difference.y) //contains the absolute values. Both error and difference are absolute, hence why they have to look at the smallest small, aka -differencne,y since difference is a absolute value.
+		if (2 * error > -difference.y) //contains the absolute values. Both error and difference are absolute, hence why they have to look at the smallest small, aka -differencne,y since difference is a absolute value.
 		{
 			error -= difference.y; //corrected to be nearer to the difference
 			pos.x += step_x; //incriment by the step, which is determined by where the endpoint is. Can only be neg or positive because 1 bcoz it cannot increase past that
 			//printf("1\n");
 		}
-		if (10 * error < difference.x) 
+		if (2 * error < difference.x) 
 		{
 			error += difference.x;
 			pos.y += step_y;

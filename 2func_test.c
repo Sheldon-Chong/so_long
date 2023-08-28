@@ -87,33 +87,52 @@ int render_tile(t_display *display, t_grid_display grid, t_data *b_image, t_xy p
 	return 1;
 }
 
+int draw_fov(t_enemy *enemy, t_world *world, t_display *display, t_grid_display grid)
+{
+	t_data *test = new_img(display->mlx, 100,60);
+	draw_square(test, 100,60, 0,0,0xFFFF0000);
+	t_xy pos = (t_xy){30, 0};
+	draw_line(test, iso_map(pos), iso_map(moveInDirection(pos, enemy->angle + 20, 15)), 0x00FF0000);
+		draw_line(test, iso_map(pos), iso_map(moveInDirection(pos, enemy->angle -20, 15)), 0x00FF0000);
+		mlx_put_image_to_window(display->mlx, display->mlx_win, test->img, 
+			iso_map((t_xy){enemy->pos.x * 21, enemy->pos.y * 21}).x + grid.offset_x - 18,
+			iso_map((t_xy){enemy->pos.x * 21, enemy->pos.y * 21}).y + grid.offset_y - 50);
+	free(test);
+	return 1;
+}
+
 int update_enemy(t_world *world, t_display *display, t_grid_display grid)
 {
-	int i = 0;
-	t_object *head = world->enemies;
+	t_enemy	*enemy;
+	t_object *head;
+	
+	head = world->enemies;
 	t_data *test = new_img(display->mlx, 100,60);
 	while(head)
 	{
-		draw_square(test, 100,60, 0,0,0xFFFF0000);
-		t_xy pos = (t_xy){30, 0};
-		t_xy enemy_pos = ((t_enemy *)(head->data))->pos;
-		t_enemy	*enemy = ((t_enemy *)(head->data));
+		enemy = (t_enemy *)(head->data);
 		enemy->angle = enemy->angle + (enemy->i_angle - enemy->angle) / 10;
-		draw_line(test, iso_map(pos), iso_map(moveInDirection(pos, ((t_enemy *)(head->data))->angle + 20, 15)), 0x00FF0000);
-		draw_line(test, iso_map(pos), iso_map(moveInDirection(pos, ((t_enemy *)(head->data))->angle -20, 15)), 0x00FF0000);
-		mlx_put_image_to_window(display->mlx, display->mlx_win, test->img, 
-			iso_map((t_xy){enemy_pos.x * 21, enemy_pos.y * 21}).x + grid.offset_x - 18,
-			iso_map((t_xy){enemy_pos.x * 21, enemy_pos.y * 21}).y + grid.offset_y - 50);
-
+		draw_fov(enemy, world, display, grid);
 		enemy->player_found = 0;
-		if(ray_cast(world, enemy->pos, enemy->i_angle, 6, world->dimensions.y, world->dimensions.x) == 1 ||
-			ray_cast(world, enemy->pos, enemy->i_angle + 20, 6, world->dimensions.y, world->dimensions.x) == 1 ||
-			ray_cast(world, enemy->pos, enemy->i_angle - 20, 6, world->dimensions.y, world->dimensions.x) == 1
-			)
+		if(ray_cast(world, enemy->pos, enemy->angle, 10, world->dimensions.y, world->dimensions.x) == 1 ||
+			ray_cast(world, enemy->pos, enemy->angle + 20, 10, world->dimensions.y, world->dimensions.x) == 1 ||
+			ray_cast(world, enemy->pos, enemy->angle - 20, 10, world->dimensions.y, world->dimensions.x) == 1)
 			enemy->player_found = 1;				 	
 		if(enemy->player_found == 1)
 			render_tile(display, grid, display->sprites[1], enemy->pos, (t_xy){((display->sprites[1]->line_length)/4 - (enemy->animator->frames[0]->line_length)/4) / 2, - 40});
-		move_enemy(enemy, (t_xy){enemy->pos.x + 1,4}, world);
+		if (generateRandomInt(1, 100) == 1 && enemy->player_found == 0)
+			enemy->i_angle += generateRandomInt(-60, 60);
+		if (generateRandomInt(1, 10) == 1 && enemy->player_found == 1)
+		{
+			if(world->player->pos.x - enemy->pos.x > 0)
+				move_enemy(enemy, (t_xy){enemy->pos.x + 1, enemy->pos.y}, world);
+			if(world->player->pos.x - enemy->pos.x < 0)
+				move_enemy(enemy, (t_xy){enemy->pos.x - 1, enemy->pos.y}, world);
+			if(world->player->pos.y - enemy->pos.y > 0)
+				move_enemy(enemy, (t_xy){enemy->pos.x, enemy->pos.y + 1}, world);
+			if(world->player->pos.y - enemy->pos.y < 0)
+				move_enemy(enemy, (t_xy){enemy->pos.x, enemy->pos.y - 1}, world);
+		}
 		head = head->next;
 	}
 	free(test);
@@ -192,14 +211,6 @@ int render_next_frame(void *param)
 			head = head->next;
 		}
 		mlx_string_put(mlx,mlx_win, 10, 10, 0x00FF0000, ft_itoa(world->movement_count));
-		(*(data->i))++;
-		head = world->enemies;
-		while(head)
-		{
-			if (generateRandomInt(1, 100) == 1)
-			 	((t_enemy *)(head->data))->i_angle = generateRandomInt(1, 360);
-			head = head->next;
-		}
 	}
 	return (1);
 }
