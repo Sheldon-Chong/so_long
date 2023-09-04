@@ -17,6 +17,11 @@ typedef struct	s_xy {
 	int		y;
 }				t_xy;
 
+typedef struct s_timer {
+	int stopper;
+	int elapsed;
+}				t_timer;
+
 typedef struct s_object
 {
 	char			*type;
@@ -47,12 +52,15 @@ typedef struct s_animation
 
 typedef struct s_enemy
 {
-	t_xy	pos;
-	int		angle;
-	int		i_angle;
-	int		hp;
-	t_animation	*animator;
-	int		player_found;
+	t_xy	pos;			//Position
+	int		current_angle;			//Current angle
+	int		final_angle;		//Angle to turn towards
+	int		hp;				//Health
+	t_animation	*animator;	//Animator
+	int		player_found;	//Bool for whether it has the player in its sights
+	int		alert;			//A value that is set to 100 when player is detected. As long as it is over 0, the enemy will look towards the player. It will constantly deduct
+	t_xy	current_pos;
+	t_object	*timers;
 } t_enemy;
 
 typedef struct s_collectible
@@ -80,7 +88,8 @@ typedef struct s_graphic_display {
 	t_camera	*camera;
 	t_object	*animations;
 	t_object	*anim_spritesheet;
-	t_xy		*mouse_pos;
+	t_xy		mouse_pos;
+	t_xy		dimensions;
 } t_display;
 
 
@@ -116,9 +125,9 @@ typedef struct	frame_data {
 
 // ISOMEtRIC
 
-t_xy	bounce(t_xy pos, t_xy pos2)
+t_xy	bounce(t_xy pos, t_xy pos2, int value)
 {
-	return((t_xy){(pos.x + (pos2.x - pos.x)/10), (pos.y + (pos2.y - pos.y)/10)});
+	return((t_xy){(pos.x + (pos2.x - pos.x)/value), (pos.y + (pos2.y - pos.y)/value)});
 }
 
 
@@ -173,8 +182,9 @@ t_display *graphics_init(int width, int height)
 	*camera = (t_camera){1,1};
 	t_display *ret;
 
+	
 	ret = malloc(sizeof(t_display));
-
+	ret->dimensions = (t_xy){width, height};
 	ret->mlx = mlx_init();
 	ret->mlx_win = mlx_new_window(ret->mlx, width, height, "Hello world!");
 	ret->width = width;
@@ -183,6 +193,7 @@ t_display *graphics_init(int width, int height)
 	ret->img = put_img("tile2.xpm", ret->mlx);
 	ret->animations = NULL;
 	ret->anim_spritesheet = NULL;
+	ret->mouse_pos = (t_xy){0,0};
 
 	ret->sprites = malloc(sizeof(t_data *) * 5);
 	ret->sprites[0] = put_img("enemy.xpm", ret->mlx);
@@ -193,60 +204,100 @@ t_display *graphics_init(int width, int height)
 	return(ret);
 }
 
+t_data *g_frame(void *t, int c)
+{
+	t_collectible	 *c_ret;
+	t_enemy			*s_ret;
+
+	if(c == 0)
+		return (((t_collectible*)t)->animator->frames[((t_collectible*)t)->animator->current_frame]);
+	if(c == 1)
+		return (((t_enemy*)t)->animator->frames[((t_enemy*)t)->animator->current_frame]);
+	return(NULL);
+}
+
 // MAtH
 
-double degrees_to_radians(double degrees) {
+double deg2rad(double degrees) {
 	return degrees * M_PI / 180.0;
 }
 
-t_xy calculate_endpoint(t_xy start, double angle_rad, int distance) {
+t_xy pos_ang_dis2pos(t_xy start, double angle_rad, int distance) {
 	return ((t_xy){start.x + (int)(distance * cos(angle_rad)), start.y + (int)(distance * sin(angle_rad))});
 }
 
-int	ray_cast(t_world *world, t_xy pos, double angle_deg, int distance, int rows, int cols) {
-	double angle_rad = degrees_to_radians(angle_deg);
-	t_xy end = calculate_endpoint(pos, angle_rad, distance);
-	t_xy difference;
-	t_tile **array = world->tgrid;
-	int i = 0;
+double calculate_distance(t_xy point1, t_xy point2) 
+{
+	int	dx;
+	int	dy;
 
-	difference = (t_xy){abs(end.x - pos.x), abs(end.y - pos.y)};
+	dx = point2.x - point1.x;
+	dy = point2.y - point1.y;
+	return (sqrt(dx * dx + dy * dy));
+}
 
-	int step_x = (pos.x < end.x) ? 1 : -1;
-	int step_y = (pos.y < end.y) ? 1 : -1;
+int pts2angle(t_xy point1, t_xy point2) 
+{
+	double	dx;
+	double	dy;
+	double angle_rad;
+	double angle_deg;
 
-	int error = difference.x - difference.y;
+	dx = (double)(point2.x - point1.x);
+	dy = (double)(point2.y - point1.y);
+	angle_rad = atan2(dy, dx);
+	angle_deg = angle_rad * (180.0 / M_PI);
 
-	// printf("\n");
-	// printf("Start [%d, %d]\n", pos.x, pos.y);
-	// printf("End [%d, %d]\n", end.x, end.y);
-	// printf("Difference_XY [%d, %d]\n", difference.x, difference.y);
-	while ((pos.x != end.x || pos.y != end.y) && i < 40) 
+	if (angle_deg < 0)
+		angle_deg += 360.0;
+	return (int)(angle_deg + 0.5);
+}
+
+typedef struct s_ray
+{
+	double	angle_rad;
+	t_xy	end;
+	t_xy	difference;
+	int		step_x;
+	int		step_y;
+	int		error;
+}	t_ray;
+
+int	ray_cast(t_world *world, t_xy pos, double angle_deg, int distance, int rows, int cols) 
+{
+	t_ray	ray;
+	ray.angle_rad = deg2rad(angle_deg);
+	ray.end = pos_ang_dis2pos(pos, ray.angle_rad, distance);
+	ray.difference = (t_xy){abs(ray.end.x - pos.x), abs(ray.end.y - pos.y)};
+	ray = (t_ray){ray.angle_rad, ray.end, ray.difference, -1 + ((pos.x < ray.end.x) * 2), 
+					-1 + ((pos.y < ray.end.y) * 2), ray.difference.x - ray.difference.y};
+
+	while ((pos.x != ray.end.x || pos.y != ray.end.y)) 
 	{
 		if (pos.x >= 0 && pos.x < cols && pos.y >= 0 && pos.y < rows)
 		{
-			if(array[pos.y][pos.x].type == '1')
+			if(world->tgrid[pos.y][pos.x].type == '1')
 				return 0;
-			if(!(array[pos.y][pos.x].type == 'S'))
-			   	array[pos.y][pos.x].type = 'H'; 
 			if(pos.x == world->player->pos.x && pos.y == world->player->pos.y)
 				return 1;
 		}
-		if (2 * error > -difference.y) //contains the absolute values. Both error and difference are absolute, hence why they have to look at the smallest small, aka -differencne,y since difference is a absolute value.
+		if (2 * ray.error > -ray.difference.y)
 		{
-			error -= difference.y; //corrected to be nearer to the difference
-			pos.x += step_x; //incriment by the step, which is determined by where the endpoint is. Can only be neg or positive because 1 bcoz it cannot increase past that
-			//printf("1\n");
+			ray.error -= ray.difference.y;
+			pos.x += ray.step_x;
 		}
-		if (2 * error < difference.x) 
+		if (2 * ray.error < ray.difference.x) 
 		{
-			error += difference.x;
-			pos.y += step_y;
-			//printf("2\n");
+			ray.error += ray.difference.x;
+			pos.y += ray.step_y;
 		}
-		i ++;
-	}        
-	return 0;
+	}
+	return	0;
+}
+
+int	center(t_data *image, t_data *image2)
+{
+	return(((image->line_length)/4 - (image2->line_length) / 4) / 2);
 }
 
 // COLORING
@@ -258,23 +309,24 @@ int	create_trgb(int t, int r, int g, int b)
 
 //SHAPES
 
-void draw_line(t_data *img, t_xy start, t_xy end, int color) {
-	int dx = end.x - start.x;
-	int dy = end.y - start.y;
-	int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
-	int i2 = 0;
+void draw_line(t_data *img, t_xy start, t_xy end, int color) 
+{
+	int		steps;
+	int		i2;
+	float	x;
+	float	y;
 
-	float xIncrement = (float)dx / steps;
-	float yIncrement = (float)dy / steps;
-
-	float x = start.x;
-	float y = start.y;
-
-	for (int i = 0; i <= steps; i++) {
-		put_pixel(img, (int)x, (int)y, create_trgb(i2 * 4.4,255,255,255));
-		x += xIncrement;
-		y += yIncrement;
-		i2 ++;
+	steps = abs(end.y - start.y);
+	if (abs(end.x - start.x) > abs(end.y - start.y))
+		steps = abs(end.x - start.x);
+	x = start.x;
+	y = start.y;
+	i2 = -1;
+	while (++i2 <= steps)
+	{
+		put_pixel(img, (int)x, (int)y, color);
+		x += (float)(end.x - start.x) / steps;;
+		y += (float)(end.y - start.y) / steps;;
 	}
 }
 
@@ -313,7 +365,6 @@ void	object_add_back(t_object **head, t_object *object)
 		*head = object;
 		return;
 	}
-		
 	current = *head;
 	while(current->next)
 		current = current->next;
@@ -455,7 +506,7 @@ t_tile	**read_array2(t_world *world, int rows)
 			}
 			if(array[y][x] == 'C' && collectible)
 			{
-				row[x].data = collectible;
+				row[x].data = (t_collectible *)(collectible->data);
 				collectible = collectible->next;
 			}
 		}

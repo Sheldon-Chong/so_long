@@ -23,6 +23,7 @@
 		"__hash_table": "c",
 		"initializer_list": "c",
 		"ios": "c",
-		"complex": "c"
+		"complex": "c",
+		"__locale": "c"
 	}
 }
