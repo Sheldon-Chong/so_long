@@ -53,7 +53,7 @@ typedef struct s_animation
 typedef struct s_enemy
 {
 	t_xy	pos;			//Position
-	int		current_angle;			//Current angle
+	int		c_ang;			//Current angle
 	int		final_angle;		//Angle to turn towards
 	int		hp;				//Health
 	t_animator	*animator;	//Animator
@@ -67,14 +67,12 @@ typedef struct s_collectible
 {
 	t_xy	pos;
 	t_animator	*animator;
-} t_collectible;
+} t_coin;
 
 typedef struct	s_player 
 {
 	t_xy	pos;
-	t_xy	i_pos;
 	t_xy	mapped_pos;
-	int		lives;
 	t_animator	animator;
 }				t_player; 
 
@@ -104,7 +102,7 @@ typedef struct s_world {
 	t_player	*player;
 	t_enemy		*enemy;
 	t_object	*enemies;
-	t_object	*collectibles;
+	t_object	*coins;
 	char		**grid;
 	t_tile		**tgrid;
 	long		movement_count;
@@ -173,7 +171,7 @@ t_data *put_img(char *image, void *mlx)
 t_display *display_init(int width, int height)
 {
 	t_camera *camera = malloc(sizeof(t_camera));
-	*camera = (t_camera){1,1};
+	*camera = (t_camera){(t_xy){1,1}, (t_xy){1,1}};
 	t_display *ret;
 
 	
@@ -201,11 +199,8 @@ t_display *display_init(int width, int height)
 
 t_data *g_frame(void *t, int c)
 {
-	t_collectible	 *c_ret;
-	t_enemy			*s_ret;
-
 	if(c == 0)
-		return (((t_collectible*)t)->animator->frames[((t_collectible*)t)->animator->current_frame]);
+		return (((t_coin*)t)->animator->frames[((t_coin*)t)->animator->current_frame]);
 	if(c == 1)
 		return (((t_enemy*)t)->animator->frames[((t_enemy*)t)->animator->current_frame]);
 	return(NULL);
@@ -346,7 +341,7 @@ void draw_square(t_data *img, int width, int height, int x_pos, int y_pos, int c
 
 // LINKEDLISt
 
-t_object	*new_object(char *type, void *data)
+t_object	*new_obj(char *type, void *data)
 {
 	t_object	*object_list = malloc(sizeof(t_object));
 	if (!object_list)
@@ -357,19 +352,20 @@ t_object	*new_object(char *type, void *data)
 	return object_list;
 }
 
-void	object_add_back(t_object **head, t_object *object)
+t_object	*append(t_object **head, t_object *object)
 {
 	t_object	*current;
 	
 	if (*head == NULL)
 	{
 		*head = object;
-		return;
+		return object;
 	}
 	current = *head;
 	while(current->next)
 		current = current->next;
 	current->next = object;
+	return(object);
 }
 
 int count_newline(char *filename)
@@ -380,7 +376,7 @@ int count_newline(char *filename)
 	int fd;
 
 	newline_count = 0;
-	fd = open("test.ber", 0);
+	fd = open(filename, 0);
 	buffer = malloc(2);
 	while ((status = read(fd, buffer, 1)) > 0)
 	{
@@ -478,58 +474,66 @@ char	**read_array(char *file, int rows)
 	return(array);
 }
 
-t_tile	**read_array2(t_world *world, int rows)
+t_enemy *new_enemy(t_display *display, t_xy pos)
 {
-	int x;
-	int y;
-	t_tile **ret_array;
-	t_tile *row;
-	char	**array;
-	t_object	*sentry_object;
-	t_object	*collectible;
+	t_enemy *sentry = malloc(sizeof(t_enemy));
+	*sentry = (t_enemy){pos, 0, 0, 5, (t_animator *)(display->anim_spritesheet->next->data), 0, 0, pos, NULL};
 
-	sentry_object = world->enemies;
-	collectible = world->collectibles;
-	array = world->grid;
-	ret_array = malloc(sizeof(t_tile *) * (rows + 1));
-	y = -1;
-	while(++y < rows)
-	{
-		row = malloc(sizeof(t_tile) * (ft_strlen(array[0]) + 1));
-		x = -1;
-		while(++x < ft_strlen(array[y]))
-		{
-			row[x] = (t_tile){array[y][x], NULL};
-			if(array[y][x] == 'S' && sentry_object)
-			{
-				row[x].data = (t_enemy *)(sentry_object->data);
-				sentry_object = sentry_object->next;
-			}
-			if(array[y][x] == 'C' && collectible)
-			{
-				row[x].data = (t_collectible *)(collectible->data);
-				collectible = collectible->next;
-			}
-		}
-		row[x] = (t_tile){0, NULL};
-		ret_array[y] = row;
-	}
-	ret_array[y] = NULL;
-	return(ret_array);
+	t_timer *timer = malloc(sizeof(t_coin));
+	*timer = (t_timer){5,0};
+	append(&(sentry->timers), new_obj("timer", timer));
+	return(sentry);
 }
 
-char	**scan_map(t_world *world)
+t_coin *new_coin(t_display *display, t_xy pos)
+{
+	t_coin	*collectible = malloc(sizeof(t_coin));
+	*collectible = (t_coin){pos, (t_animator *)(display->anim_spritesheet->data)};
+
+	return(collectible);
+}
+
+t_tile	**read_array2(t_world *world, int row_count, t_display *display)
+{
+	int		x;
+	int		y;
+	t_tile	**ret_array;
+
+	ret_array = malloc(sizeof(t_tile *) * (row_count + 1));
+	y = -1;
+	while (++y < row_count)
+	{
+		ret_array[y] = malloc(sizeof(t_tile) * (ft_strlen(world->grid[0]) + 1));
+		x = -1;
+		while (++x < (int)(ft_strlen(world->grid[y])))
+		{
+			ret_array[y][x] = (t_tile){world->grid[y][x], NULL};
+			if (world->grid[y][x] == 'S')
+				ret_array[y][x].data = ((t_enemy *)(append(&world->enemies, \
+		new_obj("enemy", new_enemy(display, (t_xy){x, y}))))->data);
+			if (world->grid[y][x] == 'C')
+				ret_array[y][x].data = (t_coin *)(append(&world->coins, \
+				new_obj("c", new_coin(display, (t_xy){x, y})))->data);
+			if (world->grid[y][x] == 'P')
+				world->player->pos = (t_xy){x,y};
+		}
+		ret_array[y][x] = (t_tile){0, NULL};
+	}
+	ret_array[y] = NULL;
+	return (ret_array);
+}
+
+char	**scan_map(t_world *world, char *file)
 {
 	int count;
 	char **char_array;
-	char *buffer;
 	int i;
-	int i2;
+	int fd;
 
-	int fd = open("test.ber", 0);
-	count = count_newline("test.ber");
+	fd = open(file, 0);
+	count = count_newline(file);
 	char_array = malloc(sizeof(char *) * (count + 1));
-	char_array = read_array("test.ber", count);
+	char_array = read_array(file, count);
 	i = -1;
 	while(char_array[++i + 1])
 	 	if(ft_strlen(char_array[i]) != ft_strlen(char_array[i+1]))
