@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/09 11:08:18 by shechong          #+#    #+#             */
-/*   Updated: 2023/07/03 11:05:10 by shechong         ###   ########.fr       */
+/*   Updated: 2023/09/07 13:04:47 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ int				ft_isprint(int c);
 
 int				ft_ibounds(long num);
 void			ft_free_stack(t_list **head);
-int				ft_free_array(void **array, int ret, int tofree);
+int				ft_free_array(void **array, int ret);
 
 int				ft_contains_char(char *str, char *chars);
 int				ft_is_charset(char *str, char *charset);

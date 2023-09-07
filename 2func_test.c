@@ -8,7 +8,7 @@ int endgame(t_world *world, t_display *display)
 	exit(0);
 }
 
-int handle_keypress(int keycode, t_frame_data *current_frame)
+int handle_keypress(int keycode, t_frame *current_frame)
 {
 	t_player *player = current_frame->world->player;
 	t_xy new_pos = player->pos;
@@ -247,10 +247,10 @@ int render_world(t_world *world, t_display *display, t_grid_display grid, t_data
 int update_animations(t_display *display, t_world *world)
 {
 	t_object	*head = display->animations;
-	t_animation	*animator;
+	t_animator	*animator;
 	while(head)
 	{
-		animator = ((t_animation *)(head->data));
+		animator = ((t_animator *)(head->data));
 		animator->frame_timer = (animator->frame_timer + 1) % animator->speed;
 		if(animator->frame_timer == 0)
 			animator->current_frame = (animator->current_frame + 1) % 2;
@@ -262,11 +262,11 @@ int update_animations(t_display *display, t_world *world)
 
 int render_next_frame(void *param)
 {
-	t_frame_data	*data;
+	t_frame	*data;
 	t_world			*world;
 	t_display		*display;
 	
-	data =(t_frame_data *)param;
+	data =(t_frame *)param;
 	world = data->world;
 	display = data->display;
 	(*(data->frame_sec))++;
@@ -297,7 +297,7 @@ typedef struct t_counter{
 	int exit;
 } t_counter;
 
-void new_sentry(t_object *sentry_list, t_object *timer_list, t_xy pos, t_animation	*animator)
+void new_sentry(t_object *sentry_list, t_object *timer_list, t_xy pos, t_animator	*animator)
 {
 	t_enemy *sentry = malloc(sizeof(t_enemy));
 	*sentry = (t_enemy){pos, 0, 0, 5, animator, 0, 0, (t_xy){0,0}};
@@ -308,7 +308,7 @@ void new_sentry(t_object *sentry_list, t_object *timer_list, t_xy pos, t_animati
 	object_add_back(&(sentry->timers), new_object("timer", timer));
 }
 
-void get_objects(char **array, t_animation *animator, t_world *world, t_display *display)
+void get_objects(char **array, t_world *world, t_display *display)
 {
 	int 		x;
 	int 		y;
@@ -329,7 +329,7 @@ void get_objects(char **array, t_animation *animator, t_world *world, t_display 
 			{
 				count.collectible ++;
 				t_collectible *collectible = malloc(sizeof(t_collectible));
-				*collectible = (t_collectible){(t_xy){x, y}, (t_animation *)(display->anim_spritesheet->data)};
+				*collectible = (t_collectible){(t_xy){x, y}, (t_animator *)(display->anim_spritesheet->data)};
 				object_add_back(&collectible_list, new_object("collectible", collectible));
 			}
 			if (array[y][x] == 'E') 
@@ -337,7 +337,7 @@ void get_objects(char **array, t_animation *animator, t_world *world, t_display 
 			if (array[y][x] == 'S')
 			{
 				t_enemy *sentry = malloc(sizeof(t_enemy));
-				*sentry = (t_enemy){(t_xy){x,y}, 0, 0, 5, animator, 0, 0, (t_xy){0,0}};
+				*sentry = (t_enemy){(t_xy){x,y}, 0, 0, 5, (t_animator *)(display->anim_spritesheet->next->data), 0, 0, (t_xy){0,0}};
 				object_add_back(&sentry_list, new_object("enemy", sentry));
 
 				t_timer *timer = malloc(sizeof(t_collectible));
@@ -362,10 +362,11 @@ void get_objects(char **array, t_animation *animator, t_world *world, t_display 
 	world->collectibles = collectible_list;
 }
 
-t_data	**frames(char *frames, t_display *display)
+t_data	**frames(char *frames, char *directory, t_display *display)
 {
 	t_data	**array;
 	char	**char_array;
+	char	*path;
 	int		i;
 
 	char_array = ft_split(frames, ',');
@@ -376,14 +377,17 @@ t_data	**frames(char *frames, t_display *display)
 	array[i - 1] = NULL;
 	i = -1;
 	while(char_array[++i])
-		array[i] = put_img(char_array[i], display->mlx);
+	{
+		path = ft_strjoin(directory, char_array[i]);
+		array[i] = put_img(path, display->mlx);
+	}
 	return(array);
 }
 
 
 int mouse(int x, int y, void *param)
 {
-	t_frame_data *char_array = (t_frame_data *)param;
+	t_frame *char_array = (t_frame *)param;
 	char_array->display->mouse_pos.x = x;
 	char_array->display->mouse_pos.y = y;
 	return (1);
@@ -402,12 +406,33 @@ void recur(char **c, t_xy pos, t_world *world, int *exit_found)
 	recur(c, (t_xy){pos.x - 1, pos.y}, world, exit_found);
 }
 
+
+
+char **clone_char_array(char **c)
+{
+	int y = 0;
+	char **ret_array;
+
+	while(c[y])
+		y ++;
+	printf("LENGtH: %d\n", y);
+	ret_array = malloc(sizeof(char *) * (y + 1));
+	y = -1;
+	while(c[++y])
+		ret_array[y] = ft_strdup(c[y]);
+	ret_array[y] = NULL;
+	return(ret_array);
+}
+
 int	exit_accessible(char **c, t_world *world)
 {
-	int exit_found;
-	
+	int	exit_found;
+	char **dup;
+
 	exit_found = 0;
-	recur(c, world->player->pos, world, &exit_found);
+	dup = clone_char_array(c);
+	recur(dup, world->player->pos, world, &exit_found);
+	ft_free_array((void **)dup, 0);
 	return (exit_found);
 }
 
@@ -423,7 +448,6 @@ void	print_statistics(t_world *world)
 		printf("HP: (%d)\n", ((t_enemy *)(head->data))->hp);
 		head = head->next;
 	}
-
 	printf("\nCOLLECtIBLES:\n");
 	head = world->enemies;
 	while(head)
@@ -433,49 +457,49 @@ void	print_statistics(t_world *world)
 	}
 }
 
-int	main(void)
+void animation_init(t_world *world, t_display *display)
 {
-	t_display			*display = display_init(1920, 1080);
-	t_player 			*player = malloc(sizeof(t_player));
-	t_world 			*world = malloc(sizeof(t_world));
+	t_animator	*coin_animation = malloc(sizeof(t_animator));
+	*coin_animation = (t_animator){0, 0, 30, frames("collectible.xpm,player.xpm", "assets/", display)};
 
-	t_animation	*enemy_animation;
-	enemy_animation = &(t_animation){0, 0, 5, frames("assets/sentry.xpm,assets/sentry.xpm", display)};
+	t_animator	*enemy_animation = malloc(sizeof(t_animator));
+	*enemy_animation = (t_animator){0, 0, 5, frames("sentry.xpm,sentry.xpm", "assets/", display)};
 
-	*player = (t_player){(t_xy){1, 1},(t_xy){1, 1},(t_xy){1, 1}, 4, 0};
-	player->animator = (t_animation){0, 0, 30, frames("assets/player.xpm,assets/player.xpm", display)};
-
-	t_animation	*coin_animation;
-	coin_animation = &(t_animation){0, 0, 30, frames("assets/collectible.xpm,assets/player.xpm", display)};
-	
-	char	**char_array = scan_map(world);
-	world = &((t_world){player, 0, NULL, NULL, char_array, NULL, 0, world->dimensions});
+	world->player->animator = (t_animator){0, 0, 30, frames("player.xpm,player.xpm", "assets/", display)};
 
 	object_add_back(&display->anim_spritesheet, new_object("animation", coin_animation));
-
-	get_objects(char_array, enemy_animation, world, display);
-	t_object	*head = world->collectibles;
-
-	print_statistics(world);
-
-	object_add_back(&display->animations, new_object("animation",  enemy_animation));
 	object_add_back(&display->animations, new_object("animation",  coin_animation));
-	object_add_back(&display->animations, new_object("player animation",  &player->animator));
-	
-	world->tgrid = read_array2(world, count_newline("char_array.ber"));
-	print_2d_tiles(world->tgrid);
+	object_add_back(&display->anim_spritesheet, new_object("animation", enemy_animation));
+	object_add_back(&display->animations, new_object("animation",  enemy_animation));
+	object_add_back(&display->animations, new_object("player animation",  &(world->player->animator)));
+}
 
+int	main(void)
+{
+	t_display	*display;
+	t_player	*player; 
+	t_world		*world;
+	t_frame		frame;
+
+	display = display_init(1920, 1080);
+	player = malloc(sizeof(t_player));
+	world = malloc(sizeof(t_world));
+	char	**char_array = scan_map(world);
+	world = &((t_world){player, 0, NULL, NULL, char_array, NULL, 0, world->dimensions});
+	*player = (t_player){(t_xy){1, 1},(t_xy){1, 1},(t_xy){1, 1}, 4, 0};
 	if(exit_accessible(char_array, world) == 0)
 		exit(write(2, "Error: Player cannot reach exit\n", 32));
+	animation_init(world, display);
+	get_objects(char_array, world, display);
+	world->tgrid = read_array2(world, count_newline("char_array.ber"));
+	print_statistics(world);
+	print_2d_tiles(world->tgrid);
 
 	int		frame_sec = 0;
-	int		i;
-	t_frame_data current_frame = (t_frame_data){&frame_sec, world, display, &i};
-
-	mlx_hook(display->mlx_win, 2, 1L << 0, handle_keypress, &current_frame);
-	mlx_loop_hook(display->mlx, render_next_frame, &current_frame);
-	mlx_hook(display->mlx_win, 6, 1L << 6, mouse, &current_frame);    
-
+	frame = (t_frame){&frame_sec, world, display};
+	mlx_hook(display->mlx_win, 2, 1L << 0, handle_keypress, &frame);
+	mlx_loop_hook(display->mlx, render_next_frame, &frame);
+	mlx_hook(display->mlx_win, 6, 1L << 6, mouse, &frame);    
 	mlx_loop(display->mlx);
 }
 

@@ -48,7 +48,7 @@ typedef struct s_animation
 	int		frame_timer;
 	int		speed;
 	t_data	**frames;
-} t_animation;
+} t_animator;
 
 typedef struct s_enemy
 {
@@ -56,7 +56,7 @@ typedef struct s_enemy
 	int		current_angle;			//Current angle
 	int		final_angle;		//Angle to turn towards
 	int		hp;				//Health
-	t_animation	*animator;	//Animator
+	t_animator	*animator;	//Animator
 	int		player_found;	//Bool for whether it has the player in its sights
 	int		alert;			//A value that is set to 100 when player is detected. As long as it is over 0, the enemy will look towards the player. It will constantly deduct
 	t_xy	current_pos;
@@ -66,7 +66,7 @@ typedef struct s_enemy
 typedef struct s_collectible
 {
 	t_xy	pos;
-	t_animation	*animator;
+	t_animator	*animator;
 } t_collectible;
 
 typedef struct	s_player 
@@ -75,7 +75,7 @@ typedef struct	s_player
 	t_xy	i_pos;
 	t_xy	mapped_pos;
 	int		lives;
-	t_animation	animator;
+	t_animator	animator;
 }				t_player; 
 
 typedef struct s_display {
@@ -115,8 +115,7 @@ typedef struct	frame_data {
 	int 		*frame_sec;
 	t_world 	*world;
 	t_display 	*display;
-	int 		*i;
-} t_frame_data;
+} t_frame;
 
 // ISOMEtRIC
 
