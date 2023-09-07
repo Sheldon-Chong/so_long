@@ -78,7 +78,7 @@ typedef struct	s_player
 	t_animation	animator;
 }				t_player; 
 
-typedef struct s_graphic_display {
+typedef struct s_display {
 	int width;
 	int height;
 	void *mlx;
@@ -111,15 +111,10 @@ typedef struct s_world {
 	t_xy		dimensions;
 }	t_world;
 
-typedef struct s_frame {
-	t_display	*display;
-	t_world				*world;
-} t_frame;
-
 typedef struct	frame_data {
 	int 		*frame_sec;
 	t_world 	*world;
-	t_display *graphic_display;
+	t_display 	*display;
 	int 		*i;
 } t_frame_data;
 
@@ -176,7 +171,7 @@ t_data *put_img(char *image, void *mlx)
 }
 
 
-t_display *graphics_init(int width, int height)
+t_display *display_init(int width, int height)
 {
 	t_camera *camera = malloc(sizeof(t_camera));
 	*camera = (t_camera){1,1};
@@ -200,6 +195,7 @@ t_display *graphics_init(int width, int height)
 	ret->sprites[1] = put_img("assets/Wall.xpm", ret->mlx);
 	ret->sprites[2] = put_img("assets/tile_black.xpm", ret->mlx);
 	ret->sprites[3] = put_img("assets/tile_white.xpm", ret->mlx);
+	ret->sprites[4] = put_img("assets/Exit.xpm", ret->mlx);
 
 	return(ret);
 }
@@ -257,21 +253,27 @@ typedef struct s_ray
 {
 	double	angle_rad;
 	t_xy	end;
-	t_xy	difference;
+	t_xy	dif;
 	int		step_x;
 	int		step_y;
 	int		error;
 }	t_ray;
 
+void ray_init(t_ray *ray, t_xy pos, double angle_deg, int distance)
+{
+	ray->angle_rad = deg2rad(angle_deg);
+	ray->end = pos_ang_dis2pos(pos, ray->angle_rad, distance);
+	ray->dif = (t_xy){abs(ray->end.x - pos.x), abs(ray->end.y - pos.y)};
+	ray->step_x = -1 + ((pos.x < ray->end.x) * 2);
+	ray->step_y = -1 + ((pos.y < ray->end.y) * 2);
+	ray->error =  ray->dif.x - ray->dif.y;
+}
+
 int	ray_cast(t_world *world, t_xy pos, double angle_deg, int distance, int rows, int cols) 
 {
 	t_ray	ray;
-	ray.angle_rad = deg2rad(angle_deg);
-	ray.end = pos_ang_dis2pos(pos, ray.angle_rad, distance);
-	ray.difference = (t_xy){abs(ray.end.x - pos.x), abs(ray.end.y - pos.y)};
-	ray = (t_ray){ray.angle_rad, ray.end, ray.difference, -1 + ((pos.x < ray.end.x) * 2), 
-					-1 + ((pos.y < ray.end.y) * 2), ray.difference.x - ray.difference.y};
-
+	
+	ray_init(&ray, pos, angle_deg, distance);
 	while ((pos.x != ray.end.x || pos.y != ray.end.y)) 
 	{
 		if (pos.x >= 0 && pos.x < cols && pos.y >= 0 && pos.y < rows)
@@ -281,18 +283,18 @@ int	ray_cast(t_world *world, t_xy pos, double angle_deg, int distance, int rows,
 			if(pos.x == world->player->pos.x && pos.y == world->player->pos.y)
 				return 1;
 		}
-		if (2 * ray.error > -ray.difference.y)
+		if (2 * ray.error > -ray.dif.y)
 		{
-			ray.error -= ray.difference.y;
+			ray.error -= ray.dif.y;
 			pos.x += ray.step_x;
 		}
-		if (2 * ray.error < ray.difference.x) 
+		if (2 * ray.error < ray.dif.x) 
 		{
-			ray.error += ray.difference.x;
+			ray.error += ray.dif.x;
 			pos.y += ray.step_y;
 		}
 	}
-	return	0;
+	return	(0);
 }
 
 int	center(t_data *image, t_data *image2)
@@ -325,8 +327,8 @@ void draw_line(t_data *img, t_xy start, t_xy end, int color)
 	while (++i2 <= steps)
 	{
 		put_pixel(img, (int)x, (int)y, color);
-		x += (float)(end.x - start.x) / steps;;
-		y += (float)(end.y - start.y) / steps;;
+		x += (float)(end.x - start.x) / steps;
+		y += (float)(end.y - start.y) / steps;
 	}
 }
 
@@ -387,10 +389,10 @@ int count_newline(char *filename)
 			newline_count++;
 		buffer[1] = 0;
 		if (ft_is_charset(buffer, "1P2CESH0\n") != 1)
-			exit(write(2, "Incorrect characters\n", 19));
+			exit(write(2, "Error: Incorrect characters\n", 19));
 	}
 	if (status < 0)
-		exit(write(2,"Error reading file\n",19));
+		exit(write(2,"Error: reading file\n",20));
 	return (newline_count + 1);
 }
 
@@ -411,7 +413,7 @@ int find_holes(char **array, int rows)
 	return(0);
 }
 
-void	print_2d_array(char **c)
+void	print_char_array(char **c)
 {
 	int	y;
 	int	x;
@@ -520,34 +522,25 @@ t_tile	**read_array2(t_world *world, int rows)
 char	**scan_map(t_world *world)
 {
 	int count;
-	char **array;
+	char **char_array;
 	char *buffer;
 	int i;
 	int i2;
 
 	int fd = open("test.ber", 0);
 	count = count_newline("test.ber");
-	array = malloc(sizeof(char *) * (count + 1));
-	array = read_array("test.ber", count);
+	char_array = malloc(sizeof(char *) * (count + 1));
+	char_array = read_array("test.ber", count);
 	i = -1;
-	while(array[++i + 1])
-	 	if(ft_strlen(array[i]) != ft_strlen(array[i+1]))
+	while(char_array[++i + 1])
+	 	if(ft_strlen(char_array[i]) != ft_strlen(char_array[i+1]))
 			exit(write(2, "Incorrect length\n", 17));
-	find_holes(array, count);
-	print_2d_array(array);
+	find_holes(char_array, count);
+	print_char_array(char_array);
 	world->dimensions.y = count;
-	world->dimensions.x = ft_strlen(array[0]);
-	
-	// i = -1;
-	// while(test[++i])
-	// {
-	// 	i2 = -1;
-	// 	while(test[i][++i2].data)
-	// 		printf("[%c]", test[i][i2].type);
-	// 	printf("\n");
-	// }
-	return (array);
+	world->dimensions.x = ft_strlen(char_array[0]);
+	print_char_array(char_array);
+	return (char_array);
 }
-
 
 # endif

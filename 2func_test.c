@@ -2,10 +2,17 @@
 #include "graphics.h"
 #include <fcntl.h>
 
-int handle_keypress(int keycode, t_frame *current_frame)
+int endgame(t_world *world, t_display *display)
+{
+	mlx_destroy_window(display->mlx, display->mlx_win);
+	exit(0);
+}
+
+int handle_keypress(int keycode, t_frame_data *current_frame)
 {
 	t_player *player = current_frame->world->player;
 	t_xy new_pos = player->pos;
+	t_tile tile;
 
 	if (keycode == 13)     //'W' key is pressed
 		new_pos.y --;
@@ -15,11 +22,14 @@ int handle_keypress(int keycode, t_frame *current_frame)
 		new_pos.y ++;
 	else if (keycode == 2) // 'D' key is pressed
 		new_pos.x ++;
-	if(new_pos.x > 0 && new_pos.y > 0 && current_frame->world->tgrid[new_pos.y][new_pos.x].type != '1' && current_frame->world->tgrid[new_pos.y][new_pos.x].type != 'S')
+	tile = current_frame->world->tgrid[new_pos.y][new_pos.x];
+	if(new_pos.x > 0 && new_pos.y > 0 && tile.type != '1' && tile.type != 'S')
 	{
 		player->pos = new_pos;
 		current_frame->world->movement_count ++;
 	}
+	if (tile.type == 'E')
+		endgame(current_frame->world, current_frame->display);
 	if((current_frame->world->tgrid[player->pos.y][player->pos.x].type) == 'C')
 		current_frame->world->tgrid[player->pos.y][player->pos.x].type = 'G';
 	return (0);
@@ -62,13 +72,13 @@ void	move_enemy(t_enemy *enemy, t_xy pos, t_world *world)
 	}	
 }
 
-int draw_fov(t_enemy *enemy, t_world *world, t_display *display, t_grid_display grid, t_data *test)
+int draw_fov(t_enemy *enemy, t_world *world, t_display *display, t_grid_display grid, t_data *char_array)
 {
-	draw_square(test, 100,60, 0,0,0xFFFF0000);
+	draw_square(char_array, 100,60, 0,0,0xFFFF0000);
 	t_xy pos = (t_xy){30, 0};
-	draw_line(test, iso_map(pos), iso_map(moveInDirection(pos, enemy->current_angle + 20, 15)), 0x30eeff);
-	draw_line(test, iso_map(pos), iso_map(moveInDirection(pos, enemy->current_angle -20, 15)), 0x30eeff);
-		mlx_put_image_to_window(display->mlx, display->mlx_win, test->img, 
+	draw_line(char_array, iso_map(pos), iso_map(moveInDirection(pos, enemy->current_angle + 20, 15)), 0x30eeff);
+	draw_line(char_array, iso_map(pos), iso_map(moveInDirection(pos, enemy->current_angle -20, 15)), 0x30eeff);
+		mlx_put_image_to_window(display->mlx, display->mlx_win, char_array->img, 
 			iso_map((t_xy){enemy->pos.x * 21, enemy->pos.y * 21}).x + grid.offset_x - 14,
 			iso_map((t_xy){enemy->pos.x * 21, enemy->pos.y * 21}).y + grid.offset_y - 50);
 	return (1);
@@ -136,15 +146,17 @@ int update_enemy(t_world *world, t_display *display, t_grid_display grid)
 {
 	t_enemy		*enemy;
 	t_object	*head;
-	t_data		*test;
+	t_data		*char_array;
 	
-	test = new_img(display->mlx, 100,60);
+	char_array = new_img(display->mlx, 100,60);
 	head = world->enemies;
 	while(head)
 	{
 		enemy = (t_enemy *)(head->data);
+		if(enemy->pos.x == world->player->pos.x && enemy->pos.y == world->player->pos.y)
+			endgame(world, display);
 		enemy->current_angle = enemy->current_angle + (enemy->final_angle - enemy->current_angle) / 10;
-		draw_fov(enemy, world, display, grid, test);
+		draw_fov(enemy, world, display, grid, char_array);
 		enemy->player_found = 0;
 		enemy_search4player(world, display, enemy);
 		if (generateRandomInt(1, 100) == 1 && enemy->player_found == 0)
@@ -157,7 +169,7 @@ int update_enemy(t_world *world, t_display *display, t_grid_display grid)
 		if(((t_timer *)(enemy->timers->data))->elapsed > 70)
 			((t_timer *)(enemy->timers->data))->elapsed = 0;
 	}
-	free(test);
+	free(char_array);
 	return 1;
 }
 
@@ -218,8 +230,8 @@ int render_world(t_world *world, t_display *display, t_grid_display grid, t_data
 			current_tile = world->tgrid[tile.y][tile.x];
 			if(current_tile.type == '1')
 				render_tile(display, grid, sprites[1], (t_xy){tile.x, tile.y}, (t_xy){0, (current_tile.type == '1') * -30});	
-			if(current_tile.type == 'E' && current_tile.data)
-				render_tile(display, grid, sprites[1], (t_xy){tile.x, tile.y}, (t_xy){0, (current_tile.type == '1') * -30});	
+			if(current_tile.type == 'E')
+				render_tile(display, grid, sprites[4], (t_xy){tile.x, tile.y}, (t_xy){0, -50});	
 			if(current_tile.type == 'S' && current_tile.data)
 				render_enemy(world,display,grid,(t_enemy *)((current_tile.data)));
 			if(current_tile.type == 'C' && current_tile.data)
@@ -256,7 +268,7 @@ int render_next_frame(void *param)
 	
 	data =(t_frame_data *)param;
 	world = data->world;
-	display = data->graphic_display;
+	display = data->display;
 	(*(data->frame_sec))++;
 	if (*(data->frame_sec) > 100)
 	{
@@ -265,9 +277,10 @@ int render_next_frame(void *param)
 		display->camera->pos = bounce(display->camera->pos, 
 			(t_xy){world->player->mapped_pos.x + (display->mouse_pos.x - (display->dimensions.x / 2)) / 3,
 			world->player->mapped_pos.y + (display->mouse_pos.y - (display->dimensions.y / 2)) / 3}, 10);
-		render_world(world, display, (t_grid_display){21, 21, ((display->width) / 2) - display->camera->pos.x, 
+		render_world(world, display, (t_grid_display){
+				21, 21, ((display->width) / 2) - display->camera->pos.x, 
 				((display->height) / 2) - display->camera->pos.y}, 
-		data->graphic_display->sprites);
+		data->display->sprites);
 		update_animations(display, world);
 		mlx_string_put(display->mlx,display->mlx_win, 10, 10, 0x00FF0000, ft_itoa(world->movement_count));
 	}
@@ -284,6 +297,16 @@ typedef struct t_counter{
 	int exit;
 } t_counter;
 
+void new_sentry(t_object *sentry_list, t_object *timer_list, t_xy pos, t_animation	*animator)
+{
+	t_enemy *sentry = malloc(sizeof(t_enemy));
+	*sentry = (t_enemy){pos, 0, 0, 5, animator, 0, 0, (t_xy){0,0}};
+	object_add_back(&sentry_list, new_object("enemy", sentry));
+
+	t_timer *timer = malloc(sizeof(t_collectible));
+	*timer = (t_timer){5,0};
+	object_add_back(&(sentry->timers), new_object("timer", timer));
+}
 
 void get_objects(char **array, t_animation *animator, t_world *world, t_display *display)
 {
@@ -313,7 +336,6 @@ void get_objects(char **array, t_animation *animator, t_world *world, t_display 
 				count.exit ++;
 			if (array[y][x] == 'S')
 			{
-				count.sentry ++;
 				t_enemy *sentry = malloc(sizeof(t_enemy));
 				*sentry = (t_enemy){(t_xy){x,y}, 0, 0, 5, animator, 0, 0, (t_xy){0,0}};
 				object_add_back(&sentry_list, new_object("enemy", sentry));
@@ -327,18 +349,13 @@ void get_objects(char **array, t_animation *animator, t_world *world, t_display 
 				world->player->pos = (t_xy){x,y};
 				count.player ++;
 			}
-			if (array[y][x] == 'H')
-				count.hole ++;
 		}
 	}
 	if(count.player > 1 )
-		exit(write(1, "More than 1 player\n", 19));
+		exit(write(1, "Error: More than 1 player\n", 26));
 	printf("player: %d\n",count.player);
 	printf("sentry: %d\n",count.sentry);
 	printf("coin: %d\n",count.collectible);
-	printf("wall: %d\n",count.wall);
-	printf("empty: %d\n",count.empty);
-	printf("hole: %d\n",count.hole);
 	printf("exit: %d\n",count.exit);
 
 	world->enemies = sentry_list;
@@ -366,45 +383,37 @@ t_data	**frames(char *frames, t_display *display)
 
 int mouse(int x, int y, void *param)
 {
-	t_frame *test = (t_frame *)param;
-	test->display->mouse_pos.x = x;
-	test->display->mouse_pos.y = y;
-	return 1;
+	t_frame_data *char_array = (t_frame_data *)param;
+	char_array->display->mouse_pos.x = x;
+	char_array->display->mouse_pos.y = y;
+	return (1);
 }
 
-int	main(void)
+void recur(char **c, t_xy pos, t_world *world, int *exit_found)
 {
-	t_display			*display = graphics_init(1920, 1080);
-	t_player 			*player = malloc(sizeof(t_player));
-	t_world 			*world = malloc(sizeof(t_world));
+	if(!(pos.x < world->dimensions.x && pos.y < world->dimensions.y && pos.x >= 0 && pos.y >= 0 && c[pos.y][pos.x] != '1' && c[pos.y][pos.x] != 'L'))
+		return ;
+	if(c[pos.y][pos.x] == 'E')
+		*exit_found = 1;
+	c[pos.y][pos.x] = 'L';
+	recur(c, (t_xy){pos.x, pos.y + 1}, world, exit_found);
+	recur(c, (t_xy){pos.x, pos.y - 1}, world, exit_found);
+	recur(c, (t_xy){pos.x + 1, pos.y}, world, exit_found);
+	recur(c, (t_xy){pos.x - 1, pos.y}, world, exit_found);
+}
 
-	t_animation	*enemy_animation = malloc(sizeof(t_animation));
-	*enemy_animation = (t_animation){0, 0, 5, frames("assets/sentry.xpm,assets/sentry.xpm", display)};
-
-	*player = (t_player){(t_xy){1, 1},(t_xy){1, 1},(t_xy){1, 1},4,0};
-	player->animator.current_frame = 0;
-	player->animator.frames = frames("assets/player.xpm,assets/player.xpm", display);
-	player->animator.speed = 30;
-
-	t_animation	*coin_animation = malloc(sizeof(t_animation));
-	*coin_animation = (t_animation){0, 0, 5};
-	coin_animation->frames = frames("assets/collectible.xpm,assets/player.xpm", display);
-	coin_animation->speed = 30;
+int	exit_accessible(char **c, t_world *world)
+{
+	int exit_found;
 	
-	char	**test = scan_map(world);
-	
-	world = &((t_world){player, 0, NULL, NULL, test, NULL, 0, world->dimensions});
+	exit_found = 0;
+	recur(c, world->player->pos, world, &exit_found);
+	return (exit_found);
+}
 
-	object_add_back(&display->anim_spritesheet, new_object("animation", coin_animation));
-
-	printf("<%d>\n", ((t_animation *)(display->anim_spritesheet->data))->current_frame);
-	get_objects(test, enemy_animation, world, display);
-	t_object	*head = world->collectibles;
-	while(head)
-	{
-		printf("%d]]]\n", ((t_collectible *)(head->data))->pos.x);
-		head = head->next;
-	}
+void	print_statistics(t_world *world)
+{
+	t_object *head;
 
 	printf("\nENEMIES:\n");
 	head = world->enemies;
@@ -422,26 +431,50 @@ int	main(void)
 		printf("Position: (%d, %d)\n", ((t_collectible *)(head->data))->pos.x, ((t_collectible *)(head->data))->pos.y);
 		head = head->next;
 	}
+}
+
+int	main(void)
+{
+	t_display			*display = display_init(1920, 1080);
+	t_player 			*player = malloc(sizeof(t_player));
+	t_world 			*world = malloc(sizeof(t_world));
+
+	t_animation	*enemy_animation;
+	enemy_animation = &(t_animation){0, 0, 5, frames("assets/sentry.xpm,assets/sentry.xpm", display)};
+
+	*player = (t_player){(t_xy){1, 1},(t_xy){1, 1},(t_xy){1, 1}, 4, 0};
+	player->animator = (t_animation){0, 0, 30, frames("assets/player.xpm,assets/player.xpm", display)};
+
+	t_animation	*coin_animation;
+	coin_animation = &(t_animation){0, 0, 30, frames("assets/collectible.xpm,assets/player.xpm", display)};
+	
+	char	**char_array = scan_map(world);
+	world = &((t_world){player, 0, NULL, NULL, char_array, NULL, 0, world->dimensions});
+
+	object_add_back(&display->anim_spritesheet, new_object("animation", coin_animation));
+
+	get_objects(char_array, enemy_animation, world, display);
+	t_object	*head = world->collectibles;
+
+	print_statistics(world);
 
 	object_add_back(&display->animations, new_object("animation",  enemy_animation));
 	object_add_back(&display->animations, new_object("animation",  coin_animation));
 	object_add_back(&display->animations, new_object("player animation",  &player->animator));
 	
-	world->tgrid = read_array2(world, count_newline("test.ber"));
+	world->tgrid = read_array2(world, count_newline("char_array.ber"));
 	print_2d_tiles(world->tgrid);
 
-	t_frame vars;
-	vars.world = world;
-	vars.display = display;
+	if(exit_accessible(char_array, world) == 0)
+		exit(write(2, "Error: Player cannot reach exit\n", 32));
 
-	int		sec = 0;
 	int		frame_sec = 0;
 	int		i;
 	t_frame_data current_frame = (t_frame_data){&frame_sec, world, display, &i};
-	
-	mlx_hook(display->mlx_win, 2, 1L << 0, handle_keypress, &vars);
+
+	mlx_hook(display->mlx_win, 2, 1L << 0, handle_keypress, &current_frame);
 	mlx_loop_hook(display->mlx, render_next_frame, &current_frame);
-	mlx_hook(display->mlx_win, 6, 1L << 6, mouse, &vars);    
+	mlx_hook(display->mlx_win, 6, 1L << 6, mouse, &current_frame);    
 
 	mlx_loop(display->mlx);
 }
