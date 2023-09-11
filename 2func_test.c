@@ -5,6 +5,8 @@
 int endgame(t_world *world, t_display *display)
 {
 	mlx_destroy_window(display->mlx, display->mlx_win);
+	system("leaks program");
+
 	exit(0);
 }
 
@@ -26,7 +28,7 @@ int handle_keypress(int keycode, t_frame *current_frame)
 	if(new_pos.x > 0 && new_pos.y > 0 && tile.type != '1' && tile.type != 'S')
 	{
 		player->pos = new_pos;
-		current_frame->world->movement_count ++;
+		current_frame->world->count.moves ++;
 	}
 	if (tile.type == 'E')
 		endgame(current_frame->world, current_frame->display);
@@ -189,8 +191,8 @@ int render_floor(t_world *world, t_display *display, t_grid_display grid, t_data
 			b_image = sprites[2];
 			if((tile.x % 2 == 0 && tile.y % 2 != 0 )|| (tile.x % 2 != 0 && tile.y % 2 == 0) )
 				b_image = sprites[3];
-			if(tgrid[tile.y][tile.x].type != 'H')
-				render_tile(display, grid, b_image, (t_xy){tile.x, tile.y}, (t_xy){0, (tgrid[tile.y][tile.x].type == '1') * -20});	
+			render_tile(display, grid, b_image, (t_xy){tile.x, tile.y}, 
+				(t_xy){0, (tgrid[tile.y][tile.x].type == '1') * -20});	
 		}
 	}
 	return (1);
@@ -261,7 +263,7 @@ int update_animations(t_display *display, t_world *world)
 
 int render_next_frame(void *param)
 {
-	t_frame	*data;
+	t_frame			*data;
 	t_world			*world;
 	t_display		*display;
 	
@@ -281,20 +283,10 @@ int render_next_frame(void *param)
 				((display->height) / 2) - display->camera->pos.y}, 
 		data->display->sprites);
 		update_animations(display, world);
-		mlx_string_put(display->mlx,display->mlx_win, 10, 10, 0x00FF0000, ft_itoa(world->movement_count));
+		mlx_string_put(display->mlx,display->mlx_win, 10, 10, 0x00FF0000, ft_itoa(world->count.moves));
 	}
 	return (1);
 }
-
-typedef struct t_counter{
-	int player;
-	int sentry;
-	int collectible;
-	int wall;
-	int empty;
-	int hole;
-	int exit;
-} t_counter;
 
 void new_sentry(t_object *sentry_list, t_xy pos, t_animator	*animator)
 {
@@ -305,59 +297,6 @@ void new_sentry(t_object *sentry_list, t_xy pos, t_animator	*animator)
 	t_timer *timer = malloc(sizeof(t_coin));
 	*timer = (t_timer){5,0};
 	append(&(sentry->timers), new_obj("timer", timer));
-}
-
-void get_objects(char **array, t_world *world, t_display *display)
-{
-	int 		x;
-	int 		y;
-	t_counter	count;
-	
-	count = (t_counter){0,0,0,0,0,0,0};
-
-	t_object	*sentry_list = NULL;
-	t_object	*collectible_list = NULL;
-	y = -1;
-	while(array[++y])
-	{
-		x = -1;
-		while(array[y][++x])
-		{
-			if (array[y][x] == 'C')
-			{
-				count.collectible ++;
-				t_coin *collectible = malloc(sizeof(t_coin));
-				*collectible = (t_coin){(t_xy){x, y}, (t_animator *)(display->anim_spritesheet->data)};
-				append(&collectible_list, new_obj("collectible", collectible));
-			}
-			if (array[y][x] == 'E') 
-				count.exit ++;
-			if (array[y][x] == 'S')
-			{
-				t_enemy *sentry = malloc(sizeof(t_enemy));
-				*sentry = (t_enemy){(t_xy){x,y}, 0, 0, 5, (t_animator *)(display->anim_spritesheet->next->data), 0, 0, (t_xy){0,0}, 0};
-				append(&sentry_list, new_obj("enemy", sentry));
-
-				t_timer *timer = malloc(sizeof(t_coin));
-				*timer = (t_timer){5,0};
-				append(&(sentry->timers), new_obj("timer", timer));
-			}
-			if (array[y][x] == 'P')
-			{
-				world->player->pos = (t_xy){x,y};
-				count.player ++;
-			}
-		}
-	}
-	if (count.player > 1 )
-		exit(write(1, "Error: More than 1 player\n", 26));
-	printf("player: %d\n",count.player);
-	printf("sentry: %d\n",count.sentry);
-	printf("coin: %d\n",count.collectible);
-	printf("exit: %d\n",count.exit);
-
-	world->enemies = sentry_list;
-	world->coins = collectible_list;
 }
 
 t_data	**frames(char *frames, char *directory, t_display *display)
@@ -472,34 +411,46 @@ void animation_init(t_world *world, t_display *display)
 	append(&display->animations, new_obj("player animation",  &(world->player->animator)));
 }
 
+t_world *world_init(char *map)
+{
+	t_world		*world;
+	t_player	*player;
+
+	player = malloc(sizeof(t_player));
+	world = malloc(sizeof(t_world));
+	world->count=(t_counter){0,0,0,0,0};
+	*world = ((t_world){player, NULL, NULL, scan_map(world, map), NULL, world->dimensions, 0});
+	*player = (t_player){(t_xy){1, 1},(t_xy){1, 1}, (t_animator){0,0,0,0}};
+	return(world);
+}
+
 int	main(void)
 {
 	t_display	*display;
-	t_player	*player; 
 	t_world		*world;
 	t_frame		frame;
 
 	display = display_init(1920, 1080);
-	player = malloc(sizeof(t_player));
-	world = malloc(sizeof(t_world));
-	char	**char_array = scan_map(world, "map.ber");
-	world = &((t_world){player, 0, NULL, NULL, char_array, NULL, 0, world->dimensions});
-	*player = (t_player){(t_xy){1, 1},(t_xy){1, 1}, (t_animator){0,0,0,0}};
-	if(find_exit(char_array, world) == 0)
-		exit(write(2, "Error: Player cannot reach exit\n", 32));
+	world = world_init("map.ber");
+	printf("%d,%d\n",world->player->pos.x, world->player->pos.y);
 	animation_init(world, display);
 	//get_objects(char_array, world, display);
 	world->coins = NULL;
 	world->enemies = NULL;
-	world->tgrid = read_array2(world, count_newline("map.ber"), display);
+	world->tgrid = char2tile(world, count_newline("map.ber"), display);
+	if(find_exit(world->grid, world) == 0)
+		exit(write(2, "Error: Player cannot reach exit\n", 32));
+
 	print_statistics(world);
-	print_2d_tiles(world->tgrid);
+	//print_2d_tiles(world->tgrid);
 
 	int		frame_sec = 0;
 	frame = (t_frame){&frame_sec, world, display};
 	mlx_hook(display->mlx_win, 2, 1L << 0, handle_keypress, &frame);
 	mlx_loop_hook(display->mlx, render_next_frame, &frame);
-	mlx_hook(display->mlx_win, 6, 1L << 6, mouse, &frame);    
-	mlx_loop(display->mlx);
-}
+	mlx_hook(display->mlx_win, 6, 1L << 6, mouse, &frame);
 
+    
+
+	mlx_loop(display->mlx);	
+}

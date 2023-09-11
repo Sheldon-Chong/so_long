@@ -90,7 +90,13 @@ typedef struct s_display {
 	t_xy		dimensions;
 } t_display;
 
-
+typedef struct t_counter{
+	int player;
+	int sentry;
+	int collectible;
+	int moves;
+	int exit;
+} t_counter;
 
 typedef struct s_tile
 {
@@ -100,13 +106,12 @@ typedef struct s_tile
 
 typedef struct s_world {
 	t_player	*player;
-	t_enemy		*enemy;
 	t_object	*enemies;
 	t_object	*coins;
 	char		**grid;
 	t_tile		**tgrid;
-	long		movement_count;
 	t_xy		dimensions;
+	t_counter		count;
 }	t_world;
 
 typedef struct	frame_data {
@@ -162,6 +167,12 @@ t_data *put_img(char *image, void *mlx)
 
 	t_data *img = malloc(sizeof(t_data));
 	img->img = mlx_xpm_file_to_image(mlx, image, &img_width, &img_height);
+	if (img->img == NULL) 
+	{
+		printf("%s\n", image);
+		free(img);
+		return NULL;
+	}
 	img->addr = mlx_get_data_addr(img->img, &(img->bits_per_pixel), &(img->line_length),
 								&(img->endian));
 	return(img);
@@ -174,7 +185,6 @@ t_display *display_init(int width, int height)
 	*camera = (t_camera){(t_xy){1,1}, (t_xy){1,1}};
 	t_display *ret;
 
-	
 	ret = malloc(sizeof(t_display));
 	ret->dimensions = (t_xy){width, height};
 	ret->mlx = mlx_init();
@@ -182,7 +192,6 @@ t_display *display_init(int width, int height)
 	ret->width = width;
 	ret->height = height;
 	ret->camera = camera;
-	ret->img = put_img("tile2.xpm", ret->mlx);
 	ret->animations = NULL;
 	ret->anim_spritesheet = NULL;
 	ret->mouse_pos = (t_xy){0,0};
@@ -230,8 +239,8 @@ int pts2angle(t_xy point1, t_xy point2)
 {
 	double	dx;
 	double	dy;
-	double angle_rad;
-	double angle_deg;
+	double	angle_rad;
+	double	angle_deg;
 
 	dx = (double)(point2.x - point1.x);
 	dy = (double)(point2.y - point1.y);
@@ -328,9 +337,10 @@ void draw_line(t_data *img, t_xy start, t_xy end, int color)
 
 void draw_square(t_data *img, int width, int height, int x_pos, int y_pos, int color)
 {
-	int x = -1;
-	int y;
+	int	x;
+	int	y;
 	
+	x = - 1;
 	while(++x < width)
 	{
 		y = -1;
@@ -370,10 +380,10 @@ t_object	*append(t_object **head, t_object *object)
 
 int count_newline(char *filename)
 {
-	char *buffer;	
-	int newline_count;
-	int status;
-	int fd;
+	char	*buffer;	
+	int		newline_count;
+	int		status;
+	int		fd;
 
 	newline_count = 0;
 	fd = open(filename, 0);
@@ -451,13 +461,39 @@ void	print_2d_tiles(t_tile	**c)
 	}
 }
 
+typedef struct s_count
+{
+	int	player_count;
+	int	coins;
+	int coins_collected;
+	int steps_moved;
 
-char	**read_array(char *file, int rows)
+}	t_count;
+
+t_count	*count_items(char *array, t_world *world)
+{
+	int i;
+
+	i = -1;
+	while(array[++i])
+	{
+		if(array[i] == 'P')
+			world->count.player ++;
+		if(array[i] == 'C')
+			world->count.collectible ++;
+		if(array[i] == 'E')
+			world->count.exit ++;
+	}
+	return(NULL);
+}
+
+
+char	**read_map(char *file, int rows, t_world *world)
 {
 	int		i;
 	char	*buffer;
-	char **array;
-	int fd;
+	char	**array;
+	int		fd;
 	
 	fd = open(file, 0);
 	i = 0;
@@ -465,16 +501,23 @@ char	**read_array(char *file, int rows)
 	array = malloc(sizeof(char *) * (rows + 1));
 	while(buffer)
 	{
-		buffer = ft_substr(buffer, 0, ft_strrchr(buffer, '\n') - buffer);
-		array[i++] = buffer;
+		array[i++] = ft_substr(buffer, 0, ft_strrchr(buffer, '\n') - buffer);
+		count_items(array[i - 1], world);
+		free(buffer);
 		buffer = get_next_line(fd);
 	}
 	array[i] = NULL;
 	close(fd);
-	return(array);
+	if(world->count.player < 1)
+		exit(write(1, "Error: Incorrect number of players\n", 34));
+	if(world->count.exit < 1)
+		exit(write(1, "Error: No exit\n", 15));
+	if(world->count.collectible < 1)
+		exit(write(1, "Error: No collectible\n", 21));
+	return (array);
 }
 
-t_enemy *new_enemy(t_display *display, t_xy pos)
+t_enemy	*new_enemy(t_display *display, t_xy pos)
 {
 	t_enemy *sentry = malloc(sizeof(t_enemy));
 	*sentry = (t_enemy){pos, 0, 0, 5, (t_animator *)(display->anim_spritesheet->next->data), 0, 0, pos, NULL};
@@ -493,7 +536,7 @@ t_coin *new_coin(t_display *display, t_xy pos)
 	return(collectible);
 }
 
-t_tile	**read_array2(t_world *world, int row_count, t_display *display)
+t_tile	**char2tile(t_world *world, int row_count, t_display *display)
 {
 	int		x;
 	int		y;
@@ -525,23 +568,29 @@ t_tile	**read_array2(t_world *world, int row_count, t_display *display)
 
 char	**scan_map(t_world *world, char *file)
 {
-	int count;
+	int line_count;
 	char **char_array;
 	int i;
 	int fd;
 
 	fd = open(file, 0);
-	count = count_newline(file);
-	char_array = malloc(sizeof(char *) * (count + 1));
-	char_array = read_array(file, count);
+	if(fd == -1)
+		exit(write(2, "Error: Cannot read file\n", 23));
+	line_count = count_newline(file);
+	if(line_count == 1)
+		exit(write(2, "Error: Incorrect length\n", 23));
+	char_array = malloc(sizeof(char *) * (line_count + 1));
+	char_array = read_map(file, line_count, world);
 	i = -1;
 	while(char_array[++i + 1])
 	 	if(ft_strlen(char_array[i]) != ft_strlen(char_array[i+1]))
-			exit(write(2, "Incorrect length\n", 17));
-	find_holes(char_array, count);
+			exit(write(2, "Error: Incorrect length\n", 23));
+	find_holes(char_array, line_count);
 	print_char_array(char_array);
-	world->dimensions.y = count;
+	world->dimensions.y = line_count;
 	world->dimensions.x = ft_strlen(char_array[0]);
+	if(world->dimensions.y == world->dimensions.x)
+		exit(write(2, "Error: Incorrect length\n", 23));
 	print_char_array(char_array);
 	return (char_array);
 }
