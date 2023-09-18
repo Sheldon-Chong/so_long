@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   hooks.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/09/11 18:47:21 by shechong          #+#    #+#             */
+/*   Updated: 2023/09/14 12:05:06 by shechong         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "graphics.h"
 
 int	handle_keypress(int keycode, t_frame *frame)
@@ -29,13 +41,20 @@ int	handle_keypress(int keycode, t_frame *frame)
 	return (0);
 }
 
+void	ui(t_world *world, t_display *display)
+{
+	char			*buffer;
+
+	buffer = ft_itoa(world->count.moves);
+	mlx_string_put(display->mlx, display->mlx_win, 10, 10, 0x00FF0000, buffer);
+	free(buffer);
+}
 
 int	render_next_frame(void *param)
 {
 	t_frame			*data;
 	t_world			*world;
 	t_display		*display;
-	char			*buffer;
 
 	data = (t_frame *)param;
 	world = data->world;
@@ -49,13 +68,12 @@ int	render_next_frame(void *param)
 			(t_xy){world->player->mapped_pos.x + (display->mouse.x
 				- (display->dimensions.x / 2)) / 3, world->player->mapped_pos.y \
 		+ (display->mouse.y - (display->dimensions.y / 2)) / 3}, 10);
-	render_world(world, display, (t_grid_d){
+	render_world(world, display);
+	*(display->grid_display) = (t_grid_d){
 		21, 21, ((display->width) / 2) - display->camera->pos.x,
-		((display->height) / 2) - display->camera->pos.y});
+		((display->height) / 2) - display->camera->pos.y};
 	update_animations(display, world);
-	buffer = ft_itoa(world->count.moves);
-	mlx_string_put(display->mlx, display->mlx_win, 10, 10, 0x00FF0000, buffer);
-	free(buffer);
+	ui(world, display);
 	return (1);
 }
 

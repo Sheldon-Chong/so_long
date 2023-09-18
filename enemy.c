@@ -1,10 +1,24 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   enemy.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/09/11 18:47:16 by shechong          #+#    #+#             */
+/*   Updated: 2023/09/18 11:43:14 by shechong         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "graphics.h"
 
 void	move_enemy(t_enemy *enemy, t_xy pos, t_world *world)
 {
-	if (pos.x < world->dimensions.x && pos.y < world->dimensions.y
+	if (pos.x < world->dimensions.x
+		&& pos.y < world->dimensions.y
 		&& world->tgrid[pos.y][pos.x].type != 'S'
-		&& world->tgrid[pos.y][pos.x].type != '1' )
+		&& world->tgrid[pos.y][pos.x].type != '1'
+		&& world->tgrid[pos.y][pos.x].type != 'E')
 	{
 		world->tgrid[enemy->pos.y][enemy->pos.x].type = '0';
 		world->tgrid[enemy->pos.y][enemy->pos.x].data = NULL;
@@ -47,7 +61,23 @@ int	enemy_search4player(t_world *world, t_enemy *enemy)
 	return (1);
 }
 
-void	update_enemy(t_world *world, t_display *display, t_grid_d grid)
+void	enemy_track(t_world *world, t_display *display, t_enemy *enemy)
+{
+	if (enemy->pos.x == world->player->pos.x
+		&& enemy->pos.y == world->player->pos.y)
+		endgame(world, display);
+	enemy->c_ang = enemy->c_ang + (enemy->final_angle - enemy->c_ang) / 10;
+	enemy->player_found = 0;
+	enemy_search4player(world, enemy);
+	if (ran_int(1, 100) == 1 && enemy->player_found == 0)
+		enemy->final_angle += ran_int(-180, 180);
+	if (enemy->player_found == 1
+		&& (((t_timer *)(enemy->timers->data))->elapsed == 0))
+		decide_enemy_movement(world, enemy);
+	enemy->alert -= (enemy->alert > 0);
+}
+
+void	update_enemy(t_world *world, t_display *display)
 {
 	t_enemy		*enemy;
 	t_object	*head;
@@ -58,43 +88,11 @@ void	update_enemy(t_world *world, t_display *display, t_grid_d grid)
 	while (head)
 	{
 		enemy = (t_enemy *)(head->data);
-		if (enemy->pos.x == world->player->pos.x
-			&& enemy->pos.y == world->player->pos.y)
-			endgame(world, display);
-		enemy->c_ang = enemy->c_ang + (enemy->final_angle - enemy->c_ang) / 10;
-		draw_fov(enemy, display, grid, char_array);
-		enemy->player_found = 0;
-		enemy_search4player(world, enemy);
-		if (ran_int(1, 100) == 1 && enemy->player_found == 0)
-			enemy->final_angle += ran_int(-180, 180);
-		if (enemy->player_found == 1
-			&& (((t_timer *)(enemy->timers->data))->elapsed == 0))
-			decide_enemy_movement(world, enemy);
-		enemy->alert -= (enemy->alert > 0);
+		enemy_track(world, display, enemy);
+		draw_fov(enemy, display, char_array);
 		head = head->next;
-		((t_timer *)(enemy->timers->data))->elapsed ++;
-		if (((t_timer *)(enemy->timers->data))->elapsed > 70)
-			((t_timer *)(enemy->timers->data))->elapsed = 0;
+		((t_timer *)(enemy->timers->data))->elapsed
+			= (((t_timer *)(enemy->timers->data))->elapsed + 1) % 70;
 	}
 	free(char_array);
-}
-
-int	update_animations(t_display *display, t_world *world)
-{
-	t_object	*head;
-	t_animator	*animator;
-
-	head = display->animations;
-	while (head)
-	{
-		animator = ((t_animator *)(head->data));
-		animator->frame_timer = (animator->frame_timer + 1) % animator->speed;
-		if (animator->frame_timer == 0)
-			animator->current_frame = (animator->current_frame + 1) % 2;
-		update_enemy(world, display, (t_grid_d){21, 21, ((display->width) / 2)
-			- display->camera->pos.x, ((display->height) / 2)
-			- display->camera->pos.y});
-		head = head->next;
-	}
-	return (1);
 }

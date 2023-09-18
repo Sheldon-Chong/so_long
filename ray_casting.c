@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ray_casting.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/09/11 18:47:00 by shechong          #+#    #+#             */
+/*   Updated: 2023/09/14 11:30:45 by shechong         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "graphics.h"
 
 void	ray_init(t_ray *ray, t_xy pos, double angle_deg, int distance)
 {
-	ray->angle_rad = deg2rad(angle_deg);
+	ray->angle_rad = (angle_deg * M_PI / 180.0);
 	ray->end = pos_ang_dis2pos(pos, ray->angle_rad, distance);
 	ray->dif = (t_xy){abs(ray->end.x - pos.x), abs(ray->end.y - pos.y)};
 	ray->step_x = -1 + ((pos.x < ray->end.x) * 2);
@@ -30,7 +42,7 @@ int	ray_cast(t_world *world, t_xy pos, double angle_deg, int distance)
 			ray.error -= ray.dif.y;
 			pos.x += ray.step_x;
 		}
-		if (2 * ray.error < ray.dif.x) 
+		if (2 * ray.error < ray.dif.x)
 		{
 			ray.error += ray.dif.x;
 			pos.y += ray.step_y;

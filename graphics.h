@@ -74,18 +74,27 @@ typedef struct s_player
 	t_animator	animator;
 }	t_player;
 
-typedef struct s_display {
+typedef struct s_grid_display
+{
+	float		space_x;
+	float		space_y;
+	int			offset_x;
+	int			offset_y;
+}	t_grid_d;
+
+typedef struct s_display
+{
 	int			width;
 	int			height;
 	void		*mlx;
 	void		*mlx_win;
-	t_data		*img;
 	t_data		**sprites;
 	t_camera	*camera;
 	t_object	*animations;
 	t_object	*anim_spritesheet;
 	t_xy		mouse;
 	t_xy		dimensions;
+	t_grid_d	*grid_display;
 }	t_display;
 
 typedef struct t_counter{
@@ -131,15 +140,6 @@ typedef struct s_ray
 }	t_ray;
 
 
-typedef struct s_grid_display
-{
-	float		space_x;
-	float		space_y;
-	int			offset_x;
-	int			offset_y;
-}	t_grid_d;
-
-
 int			ran_int(int min, int max);
 t_xy		bounce(t_xy pos, t_xy pos2, int value);
 t_xy		iso_map(t_xy pos);
@@ -147,9 +147,8 @@ t_xy		map_iso(t_xy pos);
 void		put_pixel(t_data *data, int x, int y, int color);
 t_data		*new_img(void *mlx, int x, int y);
 t_data		*put_img(char *image, void *mlx);
-t_display	*display_init(int width, int height);
+t_display	display_init(int width, int height);
 t_data		*g_frame(void *t, int c);
-double		deg2rad(double degrees);
 t_xy		pos_ang_dis2pos(t_xy start, double angle_rad, int distance);
 double		calculate_distance(t_xy point1, t_xy point2);
 int			pts2angle(t_xy point1, t_xy point2);
@@ -177,28 +176,29 @@ t_world		*world_init(char *map);
 void		reur(char **c, t_xy pos, t_world *world, int *exit_found);
 char		**clone_char_array(char **c);
 int			find_exit(char **c, t_world *world);
-int			render_floor(t_world *world, t_display *display,
-				t_grid_d grid, t_data **sprites);
-int			render_sentry(t_display *display,
-				t_grid_d grid, t_enemy *enemy);
-void		render_world(t_world *world, t_display *display, t_grid_d grid);
-t_xy		moveInDirection(t_xy currentPos, double direction, double distance);
-void		update_enemy(t_world *world, t_display *display,
-				t_grid_d grid);
+int			render_floor(t_world *world, t_display *display, t_data **sprites);
+int			render_sentry(t_display *display, t_enemy *enemy);
+void		render_world(t_world *world, t_display *display);
+t_xy		move_in_dir(t_xy currentPos, double direction, double distance);
+void		update_enemy(t_world *world, t_display *display);
 int			update_animations(t_display *display, t_world *world);
 int			enemy_search4player(t_world *world, t_enemy *enemy);
 int			decide_enemy_movement(t_world *world, t_enemy *enemy);
 void		move_enemy(t_enemy *enemy, t_xy pos, t_world *world);
 int			draw_fov(t_enemy *enemy, t_display *display,
-				t_grid_d grid, t_data *char_array);
+				t_data *char_array);
 void		ft_free_objects(t_object **head);
 int			endgame(t_world *world, t_display *display);
 int			mouse(int x, int y, void *param);
 int			render_next_frame(void *param);
 int			handle_keypress(int keycode, t_frame *current_frame);
 
-
-void	print_statistics(t_world *world);
-void	print_2d_tiles(t_tile **c);
+int			endgame(t_world *world, t_display *display);
+void		print_statistics(t_world *world);
+void		print_2d_tiles(t_tile **c);
+t_xy		render_tile(t_display *display,
+				t_data *b_image, t_xy pos, t_xy mod);
+int			render_player(t_world *world, t_display *display);
+void		print_end_screen(t_world *world);
 
 #	endif

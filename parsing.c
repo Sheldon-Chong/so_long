@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parsing.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/09/11 18:47:29 by shechong          #+#    #+#             */
+/*   Updated: 2023/09/18 11:41:12 by shechong         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "graphics.h"
 
 int	find_holes(char **array, int rows)
@@ -39,7 +51,7 @@ char	**read_map(char *file, int rows, t_world *world)
 	char	*buffer;
 	char	**array;
 	int		fd;
-
+	
 	fd = open(file, 0);
 	i = 0;
 	buffer = get_next_line(fd);
@@ -64,31 +76,30 @@ char	**read_map(char *file, int rows, t_world *world)
 
 t_tile	**char2tile(t_world *world, int row_count, t_display *display)
 {
-	int		x;
-	int		y;
+	t_xy	p;
 	t_tile	**ret_array;
 
 	ret_array = malloc(sizeof(t_tile *) * (row_count + 1));
-	y = -1;
-	while (++y < row_count)
+	p.y = -1;
+	while (++p.y < row_count)
 	{
-		ret_array[y] = malloc(sizeof(t_tile) * (ft_strlen(world->grid[0]) + 1));
-		x = -1;
-		while (++x < (int)(ft_strlen(world->grid[y])))
+		ret_array[p.y] = malloc(16 * (ft_strlen(world->grid[0]) + 1));
+		p.x = -1;
+		while (++p.x < (int)(ft_strlen(world->grid[p.y])))
 		{
-			ret_array[y][x] = (t_tile){world->grid[y][x], NULL, };
-			if (world->grid[y][x] == 'S')
-				ret_array[y][x].data = ((t_enemy *)(append(&world->enemies, \
-				new_obj("enemy", new_enemy(display, (t_xy){x, y}))))->data);
-			if (world->grid[y][x] == 'C')
-				ret_array[y][x].data = (t_coin *)(append(&world->coins, \
-				new_obj("c", new_coin(display, (t_xy){x, y})))->data);
-			if (world->grid[y][x] == 'P')
-				world->player->pos = (t_xy){x, y};
+			ret_array[p.y][p.x] = (t_tile){world->grid[p.y][p.x], NULL, };
+			if (world->grid[p.y][p.x] == 'S')
+				ret_array[p.y][p.x].data = ((t_enemy *)(append(&world->enemies, \
+				new_obj("enemy", new_enemy(display, (t_xy){p.x, p.y}))))->data);
+			if (world->grid[p.y][p.x] == 'C')
+				ret_array[p.y][p.x].data = (t_coin *)(append(&world->coins, \
+				new_obj("c", new_coin(display, (t_xy){p.x, p.y})))->data);
+			if (world->grid[p.y][p.x] == 'P')
+				world->player->pos = (t_xy){p.x, p.y};
 		}
-		ret_array[y][x] = (t_tile){0, NULL};
+		ret_array[p.y][p.x] = (t_tile){0, NULL};
 	}
-	ret_array[y] = NULL;
+	ret_array[p.y] = NULL;
 	return (ret_array);
 }
 
@@ -105,13 +116,12 @@ char	**scan_map(t_world *world, char *file)
 	line_count = count_newline(file);
 	if (line_count == 1)
 		exit(write(2, "Error: Incorrect length\n", 23));
-	char_array = malloc(sizeof(char *) * (line_count + 1));
 	char_array = read_map(file, line_count, world);
 	i = -1;
 	while (char_array[++i + 1])
 		if (ft_strlen(char_array[i])
 			!= ft_strlen(char_array[i + 1]))
-			exit(write(2, "Error: Incorrect length\n", 23));
+			exit(write(2, "Error: Incorrect length1\n", 23));
 	find_holes(char_array, line_count);
 	print_char_array(char_array);
 	world->dimensions.y = line_count;
