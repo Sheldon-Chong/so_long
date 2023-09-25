@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:43 by shechong          #+#    #+#             */
-/*   Updated: 2023/09/14 20:22:11 by shechong         ###   ########.fr       */
+/*   Updated: 2023/09/18 13:03:06 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,9 @@ t_data	*put_img(char *image, void *mlx)
 
 	img = malloc(sizeof(t_data));
 	img->img = mlx_xpm_file_to_image(mlx, image, &img_width, &img_height);
+	printf("%s | %p, %p\n", image, img, img->img);
 	if (img->img == NULL)
 	{
-		printf("%s\n", image);
 		free(img);
 		return (NULL);
 	}

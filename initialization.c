@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:23 by shechong          #+#    #+#             */
-/*   Updated: 2023/09/18 11:42:06 by shechong         ###   ########.fr       */
+/*   Updated: 2023/09/18 14:09:52 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,13 +73,13 @@ void	animation_init(t_world *world, t_display *display)
 	coin_animation = malloc(sizeof(t_animator));
 	enemy_animation = malloc(sizeof(t_animator));
 	*coin_animation = (t_animator){0, 0, 30,
-		frames("player_2.xpm,player_2.xpm", "assets/", display)};
+		frames("collectible_1.xpm,collectible_4.xpm", "assets/", display)};
 	*enemy_animation = (t_animator){0, 0, 5,
 		frames("sentry.xpm,sentry.xpm", "assets/", display)};
 	world->player->animator = (t_animator){0, 0, 30,
 		frames("player.xpm,player_2.xpm", "assets/", display)};
-	append(&display->anim_spritesheet, new_obj("animation", coin_animation));
-	append(&display->anim_spritesheet, new_obj("animation", enemy_animation));
+	append(&display->anim_spritesheet, new_obj("coin animation", coin_animation));
+	append(&display->anim_spritesheet, new_obj("enemy animation", enemy_animation));
 	append(&display->animations, new_obj("animation", coin_animation));
 	append(&display->animations, new_obj("animation", enemy_animation));
 	append(&display->animations, new_obj("player animation",
