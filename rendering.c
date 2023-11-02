@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:48:33 by shechong          #+#    #+#             */
-/*   Updated: 2023/09/14 12:14:06 by shechong         ###   ########.fr       */
+/*   Updated: 2023/11/02 19:38:06 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,9 +71,9 @@ void	render_obj(t_world *world, t_display *display, t_xy tile)
 	if (current_tile.type == 'S' && current_tile.data)
 		render_sentry(display, (t_enemy *)((current_tile.data)));
 	if (current_tile.type == 'C' && current_tile.data)
-		render_tile(display, g_frame((t_coin *) \
+		render_tile(display, get_frame((t_coin *) \
 	(current_tile.data), 0), tile, (t_xy){center(display->sprites[1], \
-			g_frame((t_coin *)(current_tile.data), 0)), -20});
+			get_frame((t_coin *)(current_tile.data), 0)), -20});
 	if (tile.x == world->player->pos.x && tile.y == world->player->pos.y)
 		render_player(world, display);
 }
@@ -104,7 +104,7 @@ int	update_animations(t_display *display, t_world *world)
 		animator->frame_timer = (animator->frame_timer + 1) % animator->speed;
 		if (animator->frame_timer == 0)
 			animator->current_frame = (animator->current_frame + 1) % 2;
-		update_enemy(world, display);
+		update_enemies(world, display);
 		head = head->next;
 	}
 	return (1);

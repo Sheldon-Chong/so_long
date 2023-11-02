@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:21 by shechong          #+#    #+#             */
-/*   Updated: 2023/09/14 12:05:06 by shechong         ###   ########.fr       */
+/*   Updated: 2023/11/02 19:33:33 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,13 @@ int	handle_keypress(int keycode, t_frame *frame)
 
 	player = frame->world->player;
 	new_pos = player->pos;
-	if (keycode == 13)
+	if (keycode == LINUX_W)
 		new_pos.y --;
-	else if (keycode == 0)
+	else if (keycode == LINUX_A)
 		new_pos.x --;
-	else if (keycode == 1)
+	else if (keycode == LINUX_S)
 		new_pos.y ++;
-	else if (keycode == 2)
+	else if (keycode == LINUX_D)
 		new_pos.x ++;
 	t = frame->world->tgrid[new_pos.y][new_pos.x];
 	if (new_pos.x > 0 && new_pos.y > 0 && t.type != '1' && t.type != 'S')
@@ -41,7 +41,7 @@ int	handle_keypress(int keycode, t_frame *frame)
 	return (0);
 }
 
-void	ui(t_world *world, t_display *display)
+void	render_ui(t_world *world, t_display *display)
 {
 	char			*buffer;
 
@@ -64,16 +64,16 @@ int	render_next_frame(void *param)
 		return (1);
 	mlx_clear_window(display->mlx, display->mlx_win);
 	*(data->frame_sec) = 0;
-	display->camera->pos = bounce(display->camera->pos,
+	display->camera->pos = interpolate(display->camera->pos,
 			(t_xy){world->player->mapped_pos.x + (display->mouse.x
-				- (display->dimensions.x / 2)) / 3, world->player->mapped_pos.y \
-		+ (display->mouse.y - (display->dimensions.y / 2)) / 3}, 10);
+				- (SCREEN_WIDTH / 2)) / 3, world->player->mapped_pos.y \
+		+ (display->mouse.y - (SCREEN_HEIGHT / 2)) / 3}, 10);
 	render_world(world, display);
 	*(display->grid_display) = (t_grid_d){
 		21, 21, ((display->width) / 2) - display->camera->pos.x,
 		((display->height) / 2) - display->camera->pos.y};
 	update_animations(display, world);
-	ui(world, display);
+	render_ui(world, display);
 	return (1);
 }
 

@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:23 by shechong          #+#    #+#             */
-/*   Updated: 2023/09/18 14:09:52 by shechong         ###   ########.fr       */
+/*   Updated: 2023/11/02 19:18:13 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,8 +78,10 @@ void	animation_init(t_world *world, t_display *display)
 		frames("sentry.xpm,sentry.xpm", "assets/", display)};
 	world->player->animator = (t_animator){0, 0, 30,
 		frames("player.xpm,player_2.xpm", "assets/", display)};
-	append(&display->anim_spritesheet, new_obj("coin animation", coin_animation));
-	append(&display->anim_spritesheet, new_obj("enemy animation", enemy_animation));
+	append(&display->anim_spritesheet,
+		new_obj("coin animation", coin_animation));
+	append(&display->anim_spritesheet,
+		new_obj("enemy animation", enemy_animation));
 	append(&display->animations, new_obj("animation", coin_animation));
 	append(&display->animations, new_obj("animation", enemy_animation));
 	append(&display->animations, new_obj("player animation",
@@ -100,7 +102,7 @@ t_world	*world_init(char *map)
 	return (world);
 }
 
-t_data	*g_frame(void *t, int c)
+t_data	*get_frame(void *t, int c)
 {
 	if (c == 0)
 		return (((t_coin *)t)->animator->frames

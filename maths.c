@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 11:29:36 by shechong          #+#    #+#             */
-/*   Updated: 2023/09/14 12:03:46 by shechong         ###   ########.fr       */
+/*   Updated: 2023/11/02 19:41:27 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,23 +17,18 @@ int	ran_int(int min, int max)
 	return (rand() % (max - min + 1) + min);
 }
 
-t_xy	pos_ang_dis2pos(t_xy start, double angle_rad, int distance)
+t_xy	polar_to_vec2(t_xy start, double angle_rad, int distance)
 {
 	return ((t_xy){start.x + (int)(distance * cos(angle_rad)),
 		start.y + (int)(distance * sin(angle_rad))});
 }
 
-double	calculate_distance(t_xy point1, t_xy point2)
+double	deg_to_rad(double degrees)
 {
-	int	dx;
-	int	dy;
-
-	dx = point2.x - point1.x;
-	dy = point2.y - point1.y;
-	return (sqrt(dx * dx + dy * dy));
+	return (degrees * (M_PI / 180.0));
 }
 
-int	pts2angle(t_xy point1, t_xy point2)
+int	vec2_to_angle(t_xy point1, t_xy point2)
 {
 	double	dx;
 	double	dy;

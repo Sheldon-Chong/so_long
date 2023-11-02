@@ -7,6 +7,13 @@
 # include "libft/libft.h"
 # include <stdio.h>
 # include <sys/fcntl.h>
+# define ON_DESTROY 17
+# define LINUX_W 13
+# define LINUX_A 0
+# define LINUX_S 1
+# define LINUX_D 2
+# define SCREEN_WIDTH 1920
+# define SCREEN_HEIGHT 1080
 
 typedef struct s_xy
 {
@@ -40,7 +47,7 @@ typedef struct s_data
 	int		endian;
 }				t_data;
 
-typedef struct s_animation
+typedef struct s_animator
 {
 	int		current_frame;
 	int		frame_timer;
@@ -51,7 +58,7 @@ typedef struct s_animation
 typedef struct s_enemy
 {
 	t_xy		pos;			
-	int			c_ang;			
+	int			current_angle;			
 	int			final_angle;	
 	int			hp;				
 	t_animator	*animator;	
@@ -141,21 +148,27 @@ typedef struct s_ray
 
 
 int			ran_int(int min, int max);
-t_xy		bounce(t_xy pos, t_xy pos2, int value);
+double		deg_to_rad(double degrees);
+t_xy		move_in_dir(t_xy currentPos, double direction, double distance);
+t_xy		polar_to_vec2(t_xy start, double angle_rad, int distance);
+int			vec2_to_angle(t_xy point1, t_xy point2);
+
+t_xy		interpolate(t_xy pos, t_xy pos2, int value);
 t_xy		iso_map(t_xy pos);
-t_xy		map_iso(t_xy pos);
 void		put_pixel(t_data *data, int x, int y, int color);
 t_data		*new_img(void *mlx, int x, int y);
 t_data		*put_img(char *image, void *mlx);
+
 t_display	display_init(int width, int height);
-t_data		*g_frame(void *t, int c);
-t_xy		pos_ang_dis2pos(t_xy start, double angle_rad, int distance);
-double		calculate_distance(t_xy point1, t_xy point2);
-int			pts2angle(t_xy point1, t_xy point2);
+void		animation_init(t_world *world, t_display *display);
+t_world		*world_init(char *map);
+
+t_data		*get_frame(void *t, int c);
+
 int			center(t_data *image, t_data *image2);
-int			create_trgb(int t, int r, int g, int b);
 void		draw_line(t_data *img, t_xy start, t_xy end, int color);
 void		draw_rect(t_data *img, t_xy dimensions, t_xy pos, int color);
+
 t_object	*new_obj(char *type, void *data);
 t_object	*append(t_object **head, t_object *object);
 int			count_newline(char *filename);
@@ -168,26 +181,33 @@ t_enemy		*new_enemy(t_display *display, t_xy pos);
 t_coin		*new_coin(t_display *display, t_xy pos);
 t_tile		**char2tile(t_world *world, int row_count, t_display *display);
 char		**scan_map(t_world *world, char *file);
+
+
 void		ray_init(t_ray *ray, t_xy pos, double angle_deg, int distance);
 int			ray_cast(t_world *world, t_xy pos, double angle_deg,
 				int distance);
-void		animation_init(t_world *world, t_display *display);
-t_world		*world_init(char *map);
-void		reur(char **c, t_xy pos, t_world *world, int *exit_found);
 char		**clone_char_array(char **c);
 int			find_exit(char **c, t_world *world);
+
+
 int			render_floor(t_world *world, t_display *display, t_data **sprites);
 int			render_sentry(t_display *display, t_enemy *enemy);
 void		render_world(t_world *world, t_display *display);
-t_xy		move_in_dir(t_xy currentPos, double direction, double distance);
-void		update_enemy(t_world *world, t_display *display);
+
+void		update_enemies(t_world *world, t_display *display);
 int			update_animations(t_display *display, t_world *world);
-int			enemy_search4player(t_world *world, t_enemy *enemy);
+
+void		enemy_move(t_enemy *enemy, t_xy pos, t_world *world);
 int			decide_enemy_movement(t_world *world, t_enemy *enemy);
-void		move_enemy(t_enemy *enemy, t_xy pos, t_world *world);
+int			enemy_search4player(t_world *world, t_enemy *enemy);
+void		enemy_track(t_world *world, t_display *display, t_enemy *enemy);
+void		update_enemies(t_world *world, t_display *display);
+
 int			draw_fov(t_enemy *enemy, t_display *display,
 				t_data *char_array);
+
 void		ft_free_objects(t_object **head);
+
 int			endgame(t_world *world, t_display *display);
 int			mouse(int x, int y, void *param);
 int			render_next_frame(void *param);
@@ -200,5 +220,7 @@ t_xy		render_tile(t_display *display,
 				t_data *b_image, t_xy pos, t_xy mod);
 int			render_player(t_world *world, t_display *display);
 void		print_end_screen(t_world *world);
+
+
 
 #	endif

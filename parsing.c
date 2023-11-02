@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:29 by shechong          #+#    #+#             */
-/*   Updated: 2023/09/18 14:34:56 by shechong         ###   ########.fr       */
+/*   Updated: 2023/11/02 19:23:59 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ char	**read_map(char *file, int rows, t_world *world)
 	char	*buffer;
 	char	**array;
 	int		fd;
-	
+
 	fd = open(file, 0);
 	i = 0;
 	buffer = get_next_line(fd);

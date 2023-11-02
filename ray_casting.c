@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:00 by shechong          #+#    #+#             */
-/*   Updated: 2023/10/18 12:21:13 by shechong         ###   ########.fr       */
+/*   Updated: 2023/11/02 19:42:19 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 void	ray_init(t_ray *ray, t_xy pos, double angle_deg, int distance)
 {
-	ray->angle_rad = (angle_deg * M_PI / 180.0);
-	ray->end = pos_ang_dis2pos(pos, ray->angle_rad, distance);
+	ray->angle_rad = deg_to_rad(angle_deg);
+	ray->end = polar_to_vec2(pos, ray->angle_rad, distance);
 	ray->dif = (t_xy){abs(ray->end.x - pos.x), abs(ray->end.y - pos.y)};
 	ray->step_x = -1 + ((pos.x < ray->end.x) * 2);
 	ray->step_y = -1 + ((pos.y < ray->end.y) * 2);

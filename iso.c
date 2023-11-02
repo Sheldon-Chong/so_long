@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:09 by shechong          #+#    #+#             */
-/*   Updated: 2023/09/14 12:04:13 by shechong         ###   ########.fr       */
+/*   Updated: 2023/11/02 19:24:21 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,4 @@
 t_xy	iso_map(t_xy pos)
 {
 	return ((t_xy){(pos.x - pos.y) * 1.4, (pos.x + pos.y) / 1.4});
-}
-
-t_xy	map_iso(t_xy pos)
-{
-	return ((t_xy){
-		(pos.x * 0.7 + pos.y * 0.7) / 2.0, (pos.y * 0.7 - pos.x * 0.7) / 2.0});
 }

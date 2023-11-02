@@ -6,13 +6,13 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:16 by shechong          #+#    #+#             */
-/*   Updated: 2023/09/18 11:43:14 by shechong         ###   ########.fr       */
+/*   Updated: 2023/11/02 19:39:06 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "graphics.h"
 
-void	move_enemy(t_enemy *enemy, t_xy pos, t_world *world)
+void	enemy_move(t_enemy *enemy, t_xy pos, t_world *world)
 {
 	if (pos.x < world->dimensions.x
 		&& pos.y < world->dimensions.y
@@ -31,29 +31,29 @@ void	move_enemy(t_enemy *enemy, t_xy pos, t_world *world)
 int	decide_enemy_movement(t_world *world, t_enemy *enemy)
 {
 	if (world->player->pos.x - enemy->pos.x > 0)
-		move_enemy(enemy, (t_xy){enemy->pos.x + 1, enemy->pos.y}, world);
+		enemy_move(enemy, (t_xy){enemy->pos.x + 1, enemy->pos.y}, world);
 	if (world->player->pos.x - enemy->pos.x < 0)
-		move_enemy(enemy, (t_xy){enemy->pos.x - 1, enemy->pos.y}, world);
+		enemy_move(enemy, (t_xy){enemy->pos.x - 1, enemy->pos.y}, world);
 	if (world->player->pos.y - enemy->pos.y > 0)
-		move_enemy(enemy, (t_xy){enemy->pos.x, enemy->pos.y + 1}, world);
+		enemy_move(enemy, (t_xy){enemy->pos.x, enemy->pos.y + 1}, world);
 	if (world->player->pos.y - enemy->pos.y < 0)
-		move_enemy(enemy, (t_xy){enemy->pos.x, enemy->pos.y - 1}, world);
+		enemy_move(enemy, (t_xy){enemy->pos.x, enemy->pos.y - 1}, world);
 	return (1);
 }
 
 int	enemy_search4player(t_world *world, t_enemy *enemy)
 {
-	if (enemy->alert > 0)
+	if (enemy->alert)
 	{
-		enemy->final_angle = pts2angle(enemy->pos, world->player->pos);
-		enemy->c_ang = pts2angle(enemy->pos, world->player->pos);
+		enemy->final_angle = vec2_to_angle(enemy->pos, world->player->pos);
+		enemy->current_angle = vec2_to_angle(enemy->pos, world->player->pos);
 	}
-	if (ray_cast(world, enemy->pos, enemy->c_ang, 10) == 1
-		|| ray_cast(world, enemy->pos, enemy->c_ang + 20, 10) == 1
-		|| ray_cast(world, enemy->pos, enemy->c_ang - 20, 10) == 1)
+	if (ray_cast(world, enemy->pos, enemy->current_angle, 10) == 1
+		|| ray_cast(world, enemy->pos, enemy->current_angle + 20, 10) == 1
+		|| ray_cast(world, enemy->pos, enemy->current_angle - 20, 10) == 1)
 	{
 		enemy->player_found = 1;
-		enemy->final_angle = enemy->c_ang;
+		enemy->final_angle = enemy->current_angle;
 		enemy->alert = 100;
 	}
 	else
@@ -66,7 +66,8 @@ void	enemy_track(t_world *world, t_display *display, t_enemy *enemy)
 	if (enemy->pos.x == world->player->pos.x
 		&& enemy->pos.y == world->player->pos.y)
 		endgame(world, display);
-	enemy->c_ang = enemy->c_ang + (enemy->final_angle - enemy->c_ang) / 10;
+	enemy->current_angle = enemy->current_angle
+		+ (enemy->final_angle - enemy->current_angle) / 10;
 	enemy->player_found = 0;
 	enemy_search4player(world, enemy);
 	if (ran_int(1, 100) == 1 && enemy->player_found == 0)
@@ -77,7 +78,7 @@ void	enemy_track(t_world *world, t_display *display, t_enemy *enemy)
 	enemy->alert -= (enemy->alert > 0);
 }
 
-void	update_enemy(t_world *world, t_display *display)
+void	update_enemies(t_world *world, t_display *display)
 {
 	t_enemy		*enemy;
 	t_object	*head;
