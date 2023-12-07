@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:23 by shechong          #+#    #+#             */
-/*   Updated: 2023/11/02 19:18:13 by shechong         ###   ########.fr       */
+/*   Updated: 2023/11/02 19:57:46 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,10 @@ t_display	display_init(int width, int height)
 	*(ret.grid_display) = (t_grid_d){1, 1, 1, 1};
 	ret.mouse = (t_xy){0, 0};
 	ret.sprites = malloc(sizeof(t_data *) * 6);
-	ret.sprites[1] = put_img("assets/Wall.xpm", ret.mlx);
-	ret.sprites[2] = put_img("assets/tile_black.xpm", ret.mlx);
-	ret.sprites[3] = put_img("assets/tile_white.xpm", ret.mlx);
-	ret.sprites[4] = put_img("assets/Exit.xpm", ret.mlx);
+	ret.sprites[1] = img_from_path("assets/Wall.xpm", ret.mlx);
+	ret.sprites[2] = img_from_path("assets/tile_black.xpm", ret.mlx);
+	ret.sprites[3] = img_from_path("assets/tile_white.xpm", ret.mlx);
+	ret.sprites[4] = img_from_path("assets/Exit.xpm", ret.mlx);
 	ret.sprites[5] = NULL;
 
 	return (ret);
@@ -57,7 +57,7 @@ t_data	**frames(char *frames, char *directory, t_display *display)
 	while (char_array[++i])
 	{
 		path = ft_strjoin(directory, char_array[i]);
-		array[i] = put_img(path, display->mlx);
+		array[i] = img_from_path(path, display->mlx);
 		free(path);
 	}
 	ft_free_array((void *)(char_array), 0);

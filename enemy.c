@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:16 by shechong          #+#    #+#             */
-/*   Updated: 2023/11/02 19:39:06 by shechong         ###   ########.fr       */
+/*   Updated: 2023/11/02 19:57:17 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ void	update_enemies(t_world *world, t_display *display)
 	t_object	*head;
 	t_data		*char_array;
 
-	char_array = new_img(display->mlx, 100, 60);
+	char_array = empty_img(display->mlx, 100, 60);
 	head = world->enemies;
 	while (head)
 	{

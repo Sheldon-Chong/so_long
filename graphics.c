@@ -6,13 +6,13 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:43 by shechong          #+#    #+#             */
-/*   Updated: 2023/11/02 19:19:45 by shechong         ###   ########.fr       */
+/*   Updated: 2023/11/02 19:57:46 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "graphics.h"
 
-t_data	*new_img(void *mlx, int x, int y)
+t_data	*empty_img(void *mlx, int x, int y)
 {
 	t_data	*img;
 
@@ -23,7 +23,7 @@ t_data	*new_img(void *mlx, int x, int y)
 	return (img);
 }
 
-t_data	*put_img(char *image, void *mlx)
+t_data	*img_from_path(char *image, void *mlx)
 {
 	int		img_width;
 	int		img_height;

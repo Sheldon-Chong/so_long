@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:35 by shechong          #+#    #+#             */
-/*   Updated: 2023/09/14 12:38:03 by shechong         ###   ########.fr       */
+/*   Updated: 2023/11/02 20:10:41 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,28 +40,28 @@ void	print_2d_tiles(t_tile **c)
 	}
 }
 
-void	print_statistics(t_world *world)
-{
-	t_object	*head;
+// void	print_statistics(t_world *world)
+// {
+// 	t_object	*head;
 
-	printf("\nENEMIES:\n");
-	head = world->enemies;
-	while (head)
-	{
-		printf("Position: (%d, %d)\n", ((t_enemy *)(head->data))->pos.x,
-			((t_enemy *)(head->data))->pos.y);
-		printf("HP: (%d)\n", ((t_enemy *)(head->data))->hp);
-		head = head->next;
-	}
-	printf("\nCOLLECtIBLES:\n");
-	head = world->enemies;
-	while (head)
-	{
-		printf("Position: (%d, %d)\n", ((t_coin *)(head->data))->pos.x,
-			((t_coin *)(head->data))->pos.y);
-		head = head->next;
-	}
-}
+// 	printf("\nENEMIES:\n");
+// 	head = world->enemies;
+// 	while (head)
+// 	{
+// 		printf("Position: (%d, %d)\n", ((t_enemy *)(head->data))->pos.x,
+// 			((t_enemy *)(head->data))->pos.y);
+// 		printf("HP: (%d)\n", ((t_enemy *)(head->data))->hp);
+// 		head = head->next;
+// 	}
+// 	printf("\nCOLLECtIBLES:\n");
+// 	head = world->enemies;
+// 	while (head)
+// 	{
+// 		printf("Position: (%d, %d)\n", ((t_coin *)(head->data))->pos.x,
+// 			((t_coin *)(head->data))->pos.y);
+// 		head = head->next;
+// 	}
+// }
 
 void	print_char_array(char **c)
 {

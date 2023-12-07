@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   graphics.h                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/02 20:06:01 by shechong          #+#    #+#             */
+/*   Updated: 2023/11/02 20:13:52 by shechong         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef GRAPHICS_H
 # define GRAPHICS_H
 
@@ -146,41 +158,107 @@ typedef struct s_ray
 	int		error;
 }	t_ray;
 
+//enemy.c
+void		enemy_move(t_enemy *enemy, t_xy pos, t_world *world);
+int			decide_enemy_movement(t_world *world, t_enemy *enemy);
+int			enemy_search4player(t_world *world, t_enemy *enemy);
+void		enemy_track(t_world *world, t_display *display, t_enemy *enemy);
+void		update_enemies(t_world *world, t_display *display);
 
+//free.c
+void		free_world_display(t_world *world, t_display *display);
+void		ft_free_objects(t_object **head);
+void		img_destroy(void *mlx, t_data *img);
+void		free_obj_list(t_object *object);
+void		free_animations(t_world *world, t_display *display);
+
+//graphics.c
+t_data		*empty_img(void *mlx, int x, int y);
+t_data		*img_from_path(char *image, void *mlx);
+
+
+//initialization.c
+t_display	display_init(int width, int height);			//test
+t_data		**frames(char *frames, char *directory, t_display *display);
+void		animation_init(t_world *world, t_display *display);
+t_world		*world_init(char *map);
+t_data		*get_frame(void *t, int c);
+
+//hooks.c
+int			handle_keypress(int keycode, t_frame *current_frame);
+void		render_ui(t_world *world, t_display *display);
+int			render_next_frame(void *param);
+int			mouse(int x, int y, void *param);
+
+//main.c
+void		print_list(t_object *start);
+int			shut(void *param);
+
+
+//maths.c
 int			ran_int(int min, int max);
 double		deg_to_rad(double degrees);
 t_xy		move_in_dir(t_xy currentPos, double direction, double distance);
 t_xy		polar_to_vec2(t_xy start, double angle_rad, int distance);
 int			vec2_to_angle(t_xy point1, t_xy point2);
 
+
+//objects.c
+t_object	*new_obj(char *type, void *data);
+t_object	*append(t_object **head, t_object *object);
+t_enemy		*new_enemy(t_display *display, t_xy pos);
+t_coin		*new_coin(t_display *display, t_xy pos);
+
+//parsing.c
+int			find_holes(char **array, int rows);
+void		count_items(char *array, t_world *world);
+char		**read_map(char *file, int rows, t_world *world);
+t_tile		**char2tile(t_world *world, int row_count, t_display *display);
+char		**scan_map(t_world *world, char *file);
+
+//parsing2.c
+void		recur(char **c, t_xy pos, t_world *world, int *exit_found);
+char		**clone_char_array(char **c);
+int			find_exit(char **c, t_world *world);
+int			count_newline(char *filename);
+
+//pixels.c
+void		draw_rect(t_data *img, t_xy dimensions, t_xy pos, int color);
+void		put_pixel(t_data *data, int x, int y, int color);
+void		draw_line(t_data *img, t_xy start, t_xy end, int color);
+
+//positioning.c
+int			center(t_data *image, t_data *image2);
 t_xy		interpolate(t_xy pos, t_xy pos2, int value);
 t_xy		iso_map(t_xy pos);
+
+//printing.c
+void		print_2d_tiles(t_tile **c);
+void		print_char_array(char **c);
+
+//ray_casting.c
+void		ray_init(t_ray *ray, t_xy pos, double angle_deg, int distance);
+int			ray_cast(t_world *world, t_xy pos, double angle_deg, int distance);
+
+//rendering_objects.c
+t_xy		interpolate(t_xy pos, t_xy pos2, int value);
 void		put_pixel(t_data *data, int x, int y, int color);
-t_data		*new_img(void *mlx, int x, int y);
-t_data		*put_img(char *image, void *mlx);
+t_data		*empty_img(void *mlx, int x, int y);
+t_data		*img_from_path(char *image, void *mlx);
 
-t_display	display_init(int width, int height);
-void		animation_init(t_world *world, t_display *display);
-t_world		*world_init(char *map);
 
-t_data		*get_frame(void *t, int c);
-
-int			center(t_data *image, t_data *image2);
 void		draw_line(t_data *img, t_xy start, t_xy end, int color);
 void		draw_rect(t_data *img, t_xy dimensions, t_xy pos, int color);
 
-t_object	*new_obj(char *type, void *data);
-t_object	*append(t_object **head, t_object *object);
 int			count_newline(char *filename);
-int			find_holes(char **array, int rows);
+
 void		print_char_array(char **c);
 void		print_2d_tiles(t_tile	**c);
 void		count_items(char *array, t_world *world);
 char		**read_map(char *file, int rows, t_world *world);
-t_enemy		*new_enemy(t_display *display, t_xy pos);
-t_coin		*new_coin(t_display *display, t_xy pos);
 t_tile		**char2tile(t_world *world, int row_count, t_display *display);
 char		**scan_map(t_world *world, char *file);
+
 
 
 void		ray_init(t_ray *ray, t_xy pos, double angle_deg, int distance);
@@ -197,21 +275,18 @@ void		render_world(t_world *world, t_display *display);
 void		update_enemies(t_world *world, t_display *display);
 int			update_animations(t_display *display, t_world *world);
 
-void		enemy_move(t_enemy *enemy, t_xy pos, t_world *world);
-int			decide_enemy_movement(t_world *world, t_enemy *enemy);
-int			enemy_search4player(t_world *world, t_enemy *enemy);
-void		enemy_track(t_world *world, t_display *display, t_enemy *enemy);
-void		update_enemies(t_world *world, t_display *display);
+
 
 int			draw_fov(t_enemy *enemy, t_display *display,
 				t_data *char_array);
 
-void		ft_free_objects(t_object **head);
+
 
 int			endgame(t_world *world, t_display *display);
 int			mouse(int x, int y, void *param);
 int			render_next_frame(void *param);
-int			handle_keypress(int keycode, t_frame *current_frame);
+
+
 
 int			endgame(t_world *world, t_display *display);
 void		print_statistics(t_world *world);

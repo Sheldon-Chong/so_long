@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:48:33 by shechong          #+#    #+#             */
-/*   Updated: 2023/11/02 19:38:06 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/07 10:39:17 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,4 +108,26 @@ int	update_animations(t_display *display, t_world *world)
 		head = head->next;
 	}
 	return (1);
+}
+
+void	place_pixel(t_data *image, int x, int y, int color)
+{
+	char	*dst;
+
+	if (x < 0 || y < 0)
+		return ;
+	dst = image->addr + (y * image->line_length + x * (image->bits_per_pixel
+				/ 8));
+	*(unsigned int *)dst = color;
+}
+
+
+int	get_color(t_data *img, int x, int y)
+{
+	char	*src;
+
+	if (x < 0 || y < 0)
+		return (0);
+	src = img->addr + (y * img->line_length + x * (img->bits_per_pixel / 8));
+	return (*(unsigned int *)src);
 }
