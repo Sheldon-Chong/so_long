@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:09 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/14 16:48:37 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/14 17:04:54 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,7 @@ int img_on_img(t_img *canvas, t_img *img, t_xy start, t_xy scaling)
 					color = get_color(img, pix.x, pix.y);
 				else
 					color = get_color(img, (int)(((double)pix.x / (double)scaling.x) * img->width), (int)(((double)pix.y / (double)scaling.y) * img->height));
-				// printf("kele: %d\n", get_color(img, 0,0));
-				if(color != -16777216)
+				if(color != -16777216 && color != 0xFFFF0000)
 					put_pixel(canvas, pix.x + start.x, pix.y + start.y, color);
 			}
 		}
