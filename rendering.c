@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:48:33 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/14 16:50:40 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/14 17:30:58 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ t_xy	render_tile(t_display *display,
 			pos.y * grid->space_y}).y + grid->offset_y + mod.y};
 	if (b_image == NULL)
 		return (ret);
-	img_on_img(display->img, b_image, (t_xy){ret.x, ret.y}, (t_xy){1,1});
+	img_impose(display->img, b_image, (t_xy){ret.x, ret.y}, (t_xy){1,1});
 	return (ret);
 }
 
@@ -70,9 +70,8 @@ void	render_obj(t_world *world, t_display *display, t_xy tile)
 	if (current_tile.type == 'S' && current_tile.data)
 		render_sentry(display, (t_enemy *)((current_tile.data)));
 	if (current_tile.type == 'C' && current_tile.data)
-		render_tile(display, get_frame((t_coin *) \
-	(current_tile.data), 0), tile, (t_xy){center(display->sprites[1], \
-			get_frame((t_coin *)(current_tile.data), 0)), -20});
+		render_tile(display, ((t_coin *)(current_tile.data))->animator->current_frame, tile, (t_xy){center(display->sprites[1], 
+			((t_coin *)(current_tile.data))->animator->current_frame), -20});
 	if (tile.x == world->player->pos.x && tile.y == world->player->pos.y)
 		render_player(world, display);
 }
@@ -91,7 +90,7 @@ void	render_world(t_world *world, t_display *display)
 	}
 }
 
-int	update_animations(t_display *display, t_world *world)
+int	update_all_animators(t_display *display, t_world *world)
 {
 	t_object	*head;
 	t_animator	*animator;
@@ -102,7 +101,8 @@ int	update_animations(t_display *display, t_world *world)
 		animator = ((t_animator *)(head->data));
 		animator->frame_timer = (animator->frame_timer + 1) % animator->speed;
 		if (animator->frame_timer == 0)
-			animator->current_frame = (animator->current_frame + 1) % 2;
+			animator->frame_index = (animator->frame_index + 1) % 2;
+		animator->current_frame = animator->frames[animator->frame_index];
 		update_enemies(world, display);
 		head = head->next;
 	}

@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 20:06:01 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/07 14:00:30 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/14 17:25:14 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,10 +72,11 @@ typedef struct s_data
 
 typedef struct s_animator
 {
-	int		current_frame;
+	int		frame_index;
 	int		frame_timer;
 	int		speed;
 	t_img	**frames;
+	t_img	*current_frame;
 }	t_animator;
 
 typedef struct s_enemy
@@ -197,7 +198,7 @@ t_world		*world_init(char *map);
 t_img		*get_frame(void *t, int c);
 
 //hooks.c
-int			handle_keypress(int keycode, t_frame *current_frame);
+int			handle_keypress(int keycode, t_frame *frame_index);
 void		render_ui(t_world *world, t_display *display);
 int			render_next_frame(void *param);
 int			mouse(int x, int y, void *param);
@@ -285,7 +286,7 @@ int			render_sentry(t_display *display, t_enemy *enemy);
 void		render_world(t_world *world, t_display *display);
 
 void		update_enemies(t_world *world, t_display *display);
-int			update_animations(t_display *display, t_world *world);
+int			update_all_animators(t_display *display, t_world *world);
 
 
 
@@ -308,7 +309,7 @@ t_xy		render_tile(t_display *display,
 int			render_player(t_world *world, t_display *display);
 void		print_end_screen(t_world *world);
 
-int img_on_img(t_img *canvas, t_img *img, t_xy start, t_xy scaling);
+int img_impose(t_img *canvas, t_img *img, t_xy start, t_xy scaling);
 int clear_img(t_img *img);
 
 #	endif

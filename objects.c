@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 12:03:15 by shechong          #+#    #+#             */
-/*   Updated: 2023/09/18 13:48:56 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/14 17:34:06 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ t_enemy	*new_enemy(t_display *display, t_xy pos)
 
 	sentry = malloc(sizeof(t_enemy));
 	*sentry = (t_enemy){pos, 0, 0, 5,
-		(t_animator *)(display->anim_spritesheet->next->data), 0, 0, pos, NULL};
+		(t_animator *)(display->animations->next->data), 0, 0, pos, NULL};
 	timer = malloc(sizeof(t_coin));
 	*timer = (t_timer){5, 0};
 	append(&(sentry->timers), new_obj("timer", timer));
@@ -61,6 +61,6 @@ t_coin	*new_coin(t_display *display, t_xy pos)
 
 	collectible = malloc(sizeof(t_coin));
 	*collectible = (t_coin){pos,
-		(t_animator *)(display->anim_spritesheet->data)};
+		(t_animator *)(display->animations->data)};
 	return (collectible);
 }

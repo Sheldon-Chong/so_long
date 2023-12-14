@@ -6,25 +6,13 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:09 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/14 17:04:54 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/14 17:25:15 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include "graphics.h"
 #include <fcntl.h>
-
-void	print_list(t_object *start)
-{
-	t_object	*current;
-
-	current = start;
-	while (current)
-	{
-		printf("%s\n", current->type);
-		current = current->next;
-	}
-}
 
 int	shut(void *param)
 {
@@ -47,7 +35,7 @@ int	get_color(t_img *img, int x, int y)
 	return (*(unsigned int *)src);
 }
 
-int img_on_img(t_img *canvas, t_img *img, t_xy start, t_xy scaling)
+int img_impose(t_img *canvas, t_img *img, t_xy start, t_xy scaling)
 {
 	t_xy pix;
 	int color;

@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:52:14 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/07 10:40:02 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/14 17:37:35 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,23 +89,20 @@ void	free_animations(t_world *world, t_display *display)
 	t_object	*next;
 
 	img_destroy(display->mlx,
-		((t_animator *)(display->anim_spritesheet->data))->frames[0]);
+		((t_animator *)(display->animations->data))->frames[0]);
 	img_destroy(display->mlx,
-		((t_animator *)(display->anim_spritesheet->data))->frames[1]);
+		((t_animator *)(display->animations->data))->frames[1]);
 	img_destroy(display->mlx,
-		((t_animator *)(display->anim_spritesheet->next->data))->frames[0]);
+		((t_animator *)(display->animations->next->data))->frames[0]);
 	img_destroy(display->mlx,
-		((t_animator *)(display->anim_spritesheet->next->data))->frames[1]);
+		((t_animator *)(display->animations->next->data))->frames[1]);
 	img_destroy(display->mlx,
 		((t_animator *)(display->animations->next->next->data))->frames[0]);
 	img_destroy(display->mlx,
 		((t_animator *)(display->animations->next->next->data))->frames[1]);
-	free(((t_animator *)(display->anim_spritesheet->data))->frames);
-	free(((t_animator *)(display->anim_spritesheet->data)));
-	free(((t_animator *)(display->animations->next->next->data))->frames);
-	free(((t_animator *)(display->anim_spritesheet->next->data))->frames);
-	free(((t_animator *)(display->anim_spritesheet->next->data)));
-	free_obj_list(display->anim_spritesheet);
+	free(((t_animator *)(display->animations->data))->frames);
+	free(((t_animator *)(display->animations->data)));
+	free(display->anim_spritesheet);
 	free_obj_list(display->animations);
 }
 
