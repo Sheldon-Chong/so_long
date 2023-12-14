@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   pixels.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shechong <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:29 by shechong          #+#    #+#             */
-/*   Updated: 2023/09/11 18:46:33 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/07 10:40:02 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "graphics.h"
 
-void	draw_rect(t_data *img, t_xy dimensions, t_xy pos, int color)
+void	draw_rect(t_img *img, t_xy dimensions, t_xy pos, int color)
 {
 	int	x;
 	int	y;
@@ -26,7 +26,7 @@ void	draw_rect(t_data *img, t_xy dimensions, t_xy pos, int color)
 	}
 }
 
-void	put_pixel(t_data *data, int x, int y, int color)
+void	put_pixel(t_img *data, int x, int y, int color)
 {
 	char	*dst;
 
@@ -34,7 +34,7 @@ void	put_pixel(t_data *data, int x, int y, int color)
 	*(unsigned int *)dst = color;
 }
 
-void	draw_line(t_data *img, t_xy start, t_xy end, int color)
+void	draw_line(t_img *img, t_xy start, t_xy end, int color)
 {
 	int		steps;
 	int		i2;

@@ -6,13 +6,13 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:54:06 by shechong          #+#    #+#             */
-/*   Updated: 2023/11/02 19:36:57 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/07 10:40:02 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "graphics.h"
 
-int	draw_fov(t_enemy *enemy, t_display *display, t_data *char_array)
+int	draw_fov(t_enemy *enemy, t_display *display, t_img *char_array)
 {
 	t_xy		pos;
 	t_grid_d	grid;

@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:52:14 by shechong          #+#    #+#             */
-/*   Updated: 2023/10/25 11:22:58 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/07 10:40:02 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void	free_ojects(t_world *world, t_display *display)
 	current = display->animations;
 }
 
-void	img_destroy(void *mlx, t_data *img)
+void	img_destroy(void *mlx, t_img *img)
 {
 	mlx_destroy_image(mlx, img->img);
 	free(img);

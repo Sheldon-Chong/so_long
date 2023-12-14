@@ -6,13 +6,13 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:55:44 by shechong          #+#    #+#             */
-/*   Updated: 2023/11/02 20:09:12 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/07 10:40:02 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "graphics.h"
 
-int	center(t_data *image, t_data *image2)
+int	center(t_img *image, t_img *image2)
 {
 	return (((image->line_length) / 4 - (image2->line_length) / 4) / 2);
 }

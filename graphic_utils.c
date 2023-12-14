@@ -1,36 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   graphics.c                                         :+:      :+:    :+:   */
+/*   graphic_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:43 by shechong          #+#    #+#             */
-/*   Updated: 2023/11/02 19:57:46 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/07 13:57:22 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "graphics.h"
 
-t_data	*empty_img(void *mlx, int x, int y)
+t_img	*empty_img(void *mlx, int x, int y)
 {
-	t_data	*img;
+	t_img	*img;
 
-	img = malloc(sizeof(t_data));
+	img = malloc(sizeof(t_img));
 	img->img = mlx_new_image(mlx, x, y);
 	img->addr = mlx_get_data_addr(img->img, &(img->bits_per_pixel),
 			&(img->line_length), &(img->endian));
+	img->width = x;
+	img->height = y;
 	return (img);
 }
 
-t_data	*img_from_path(char *image, void *mlx)
+t_img	*img_from_path(char *image, void *mlx)
 {
 	int		img_width;
 	int		img_height;
-	t_data	*img;
+	t_img	*img;
 
-	img = malloc(sizeof(t_data));
-	img->img = mlx_xpm_file_to_image(mlx, image, &img_width, &img_height);
+	img = malloc(sizeof(t_img));
+	img->img = mlx_xpm_file_to_image(mlx, image, &img->width, &img->height);
+	printf("%d, %d\n", img->width, img->height);
 	if (img->img == NULL)
 	{
 		free(img);

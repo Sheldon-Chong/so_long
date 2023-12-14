@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 20:06:01 by shechong          #+#    #+#             */
-/*   Updated: 2023/11/02 20:13:52 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/07 14:00:30 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,15 @@
 # define LINUX_D 2
 # define SCREEN_WIDTH 1920
 # define SCREEN_HEIGHT 1080
+# define COLOR_BLACK 0x00000000
+# define COLOR_WHITE 0x00FFFFFF
+# define COLOR_RED 0x00FF0000
+# define COLOR_GREEN 0x0000FF00
+# define COLOR_BLUE 0x000000FF
+# define COLOR_YELLOW 0x00FFFF00
+# define COLOR_MAGENTA 0x00FF00FF
+# define COLOR_CYAN 0x0000FFFF
+# define COLOR_TRANSPARENT 0xFFFF0000
 
 typedef struct s_xy
 {
@@ -57,14 +66,16 @@ typedef struct s_data
 	int		bits_per_pixel;
 	int		line_length;
 	int		endian;
-}				t_data;
+	int		width;
+	int		height;
+}				t_img;
 
 typedef struct s_animator
 {
 	int		current_frame;
 	int		frame_timer;
 	int		speed;
-	t_data	**frames;
+	t_img	**frames;
 }	t_animator;
 
 typedef struct s_enemy
@@ -107,13 +118,14 @@ typedef struct s_display
 	int			height;
 	void		*mlx;
 	void		*mlx_win;
-	t_data		**sprites;
+	t_img		**sprites;
 	t_camera	*camera;
 	t_object	*animations;
 	t_object	*anim_spritesheet;
 	t_xy		mouse;
 	t_xy		dimensions;
 	t_grid_d	*grid_display;
+	t_img		*img;
 }	t_display;
 
 typedef struct t_counter{
@@ -168,21 +180,21 @@ void		update_enemies(t_world *world, t_display *display);
 //free.c
 void		free_world_display(t_world *world, t_display *display);
 void		ft_free_objects(t_object **head);
-void		img_destroy(void *mlx, t_data *img);
+void		img_destroy(void *mlx, t_img *img);
 void		free_obj_list(t_object *object);
 void		free_animations(t_world *world, t_display *display);
 
 //graphics.c
-t_data		*empty_img(void *mlx, int x, int y);
-t_data		*img_from_path(char *image, void *mlx);
+t_img		*empty_img(void *mlx, int x, int y);
+t_img		*img_from_path(char *image, void *mlx);
 
 
 //initialization.c
 t_display	display_init(int width, int height);			//test
-t_data		**frames(char *frames, char *directory, t_display *display);
+t_img		**frames(char *frames, char *directory, t_display *display);
 void		animation_init(t_world *world, t_display *display);
 t_world		*world_init(char *map);
-t_data		*get_frame(void *t, int c);
+t_img		*get_frame(void *t, int c);
 
 //hooks.c
 int			handle_keypress(int keycode, t_frame *current_frame);
@@ -223,12 +235,12 @@ int			find_exit(char **c, t_world *world);
 int			count_newline(char *filename);
 
 //pixels.c
-void		draw_rect(t_data *img, t_xy dimensions, t_xy pos, int color);
-void		put_pixel(t_data *data, int x, int y, int color);
-void		draw_line(t_data *img, t_xy start, t_xy end, int color);
+void		draw_rect(t_img *img, t_xy dimensions, t_xy pos, int color);
+void		put_pixel(t_img *data, int x, int y, int color);
+void		draw_line(t_img *img, t_xy start, t_xy end, int color);
 
 //positioning.c
-int			center(t_data *image, t_data *image2);
+int			center(t_img *image, t_img *image2);
 t_xy		interpolate(t_xy pos, t_xy pos2, int value);
 t_xy		iso_map(t_xy pos);
 
@@ -242,13 +254,13 @@ int			ray_cast(t_world *world, t_xy pos, double angle_deg, int distance);
 
 //rendering_objects.c
 t_xy		interpolate(t_xy pos, t_xy pos2, int value);
-void		put_pixel(t_data *data, int x, int y, int color);
-t_data		*empty_img(void *mlx, int x, int y);
-t_data		*img_from_path(char *image, void *mlx);
+void		put_pixel(t_img *data, int x, int y, int color);
+t_img		*empty_img(void *mlx, int x, int y);
+t_img		*img_from_path(char *image, void *mlx);
 
 
-void		draw_line(t_data *img, t_xy start, t_xy end, int color);
-void		draw_rect(t_data *img, t_xy dimensions, t_xy pos, int color);
+void		draw_line(t_img *img, t_xy start, t_xy end, int color);
+void		draw_rect(t_img *img, t_xy dimensions, t_xy pos, int color);
 
 int			count_newline(char *filename);
 
@@ -268,7 +280,7 @@ char		**clone_char_array(char **c);
 int			find_exit(char **c, t_world *world);
 
 
-int			render_floor(t_world *world, t_display *display, t_data **sprites);
+int			render_floor(t_world *world, t_display *display, t_img **sprites);
 int			render_sentry(t_display *display, t_enemy *enemy);
 void		render_world(t_world *world, t_display *display);
 
@@ -278,7 +290,7 @@ int			update_animations(t_display *display, t_world *world);
 
 
 int			draw_fov(t_enemy *enemy, t_display *display,
-				t_data *char_array);
+				t_img *char_array);
 
 
 
@@ -292,10 +304,11 @@ int			endgame(t_world *world, t_display *display);
 void		print_statistics(t_world *world);
 void		print_2d_tiles(t_tile **c);
 t_xy		render_tile(t_display *display,
-				t_data *b_image, t_xy pos, t_xy mod);
+				t_img *b_image, t_xy pos, t_xy mod);
 int			render_player(t_world *world, t_display *display);
 void		print_end_screen(t_world *world);
 
-
+int img_on_img(t_img *canvas, t_img *img, t_xy start, t_xy scaling);
+int clear_img(t_img *img);
 
 #	endif

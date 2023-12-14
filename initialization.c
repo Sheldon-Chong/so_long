@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:23 by shechong          #+#    #+#             */
-/*   Updated: 2023/11/02 19:57:46 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/07 10:40:02 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ t_display	display_init(int width, int height)
 	ret.grid_display = malloc(sizeof(t_grid_d));
 	*(ret.grid_display) = (t_grid_d){1, 1, 1, 1};
 	ret.mouse = (t_xy){0, 0};
-	ret.sprites = malloc(sizeof(t_data *) * 6);
+	ret.sprites = malloc(sizeof(t_img *) * 6);
 	ret.sprites[1] = img_from_path("assets/Wall.xpm", ret.mlx);
 	ret.sprites[2] = img_from_path("assets/tile_black.xpm", ret.mlx);
 	ret.sprites[3] = img_from_path("assets/tile_white.xpm", ret.mlx);
@@ -40,9 +40,9 @@ t_display	display_init(int width, int height)
 	return (ret);
 }
 
-t_data	**frames(char *frames, char *directory, t_display *display)
+t_img	**frames(char *frames, char *directory, t_display *display)
 {
-	t_data	**array;
+	t_img	**array;
 	char	**char_array;
 	char	*path;
 	int		i;
@@ -51,7 +51,7 @@ t_data	**frames(char *frames, char *directory, t_display *display)
 	i = 0;
 	while (char_array[i])
 		i ++;
-	array = malloc(sizeof(t_data *) * (i + 1));
+	array = malloc(sizeof(t_img *) * (i + 1));
 	array[i - 1] = NULL;
 	i = -1;
 	while (char_array[++i])
@@ -102,7 +102,7 @@ t_world	*world_init(char *map)
 	return (world);
 }
 
-t_data	*get_frame(void *t, int c)
+t_img	*get_frame(void *t, int c)
 {
 	if (c == 0)
 		return (((t_coin *)t)->animator->frames

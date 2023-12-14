@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:09 by shechong          #+#    #+#             */
-/*   Updated: 2023/11/02 19:32:20 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/14 16:48:37 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,61 @@ int	shut(void *param)
 	return (1);
 }
 
+int	get_color(t_img *img, int x, int y)
+{
+	char	*src;
+
+	if (x < 0 || y < 0)
+		return (0);
+	src = img->addr + (y * img->line_length + x * (img->bits_per_pixel / 8));
+	return (*(unsigned int *)src);
+}
+
+int img_on_img(t_img *canvas, t_img *img, t_xy start, t_xy scaling)
+{
+	t_xy pix;
+	int color;
+
+	pix = (t_xy){-1,-1};
+	scaling.x = img->width * scaling.x;
+	scaling.y = img->height * scaling.y;
+	while (++pix.y < scaling.y)
+	{
+		pix.x = -1;
+		while (++pix.x < scaling.x)
+		{
+			
+			if (start.x + pix.x > 0 && start.y + pix.y > 0)
+			{
+				if(pix.x + start.x > SCREEN_WIDTH || pix.y + start.y > SCREEN_HEIGHT)
+					break;
+				if (scaling.x == img->width && scaling.y == img->height)
+					color = get_color(img, pix.x, pix.y);
+				else
+					color = get_color(img, (int)(((double)pix.x / (double)scaling.x) * img->width), (int)(((double)pix.y / (double)scaling.y) * img->height));
+				// printf("kele: %d\n", get_color(img, 0,0));
+				if(color != -16777216)
+					put_pixel(canvas, pix.x + start.x, pix.y + start.y, color);
+			}
+		}
+	}
+	return 1;
+}
+
+int clear_img(t_img *img)
+{
+	t_xy pix;
+
+	pix = (t_xy){-1,-1};
+	while(++pix.y < img->height)
+	{
+		pix.x = -1;
+		while(++pix.x < img->width)
+			put_pixel(img, pix.x, pix.y, COLOR_BLACK);	
+	}
+	return 1;
+}
+
 int	main(void)
 {
 	t_display	display;
@@ -52,6 +107,7 @@ int	main(void)
 	world->tgrid = char2tile(world, count_newline("map.ber"), &display);
 	if (find_exit(world->grid, world) == 0)
 		exit(write(2, "Error: Player cannot reach exit\n", 32));
+	display.img = empty_img(display.mlx, SCREEN_WIDTH, SCREEN_HEIGHT);
 	frame_sec = 0;
 	frame = (t_frame){&frame_sec, world, &display};
 	mlx_hook(display.mlx_win, 2, 1L << 0, handle_keypress, &frame);

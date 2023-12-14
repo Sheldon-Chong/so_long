@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:21 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/07 10:36:45 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/07 14:02:21 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ void	render_ui(t_world *world, t_display *display)
 	free(buffer);
 }
 
+
+
 int	render_next_frame(void *param)
 {
 	t_frame			*data;
@@ -63,6 +65,7 @@ int	render_next_frame(void *param)
 	if (*(data->frame_sec) < 100)
 		return (1);
 	mlx_clear_window(display->mlx, display->mlx_win);
+	clear_img(display->img);
 	*(data->frame_sec) = 0;
 	display->camera->pos = interpolate(display->camera->pos,
 			(t_xy){world->player->mapped_pos.x + (display->mouse.x
@@ -74,6 +77,7 @@ int	render_next_frame(void *param)
 		((display->height) / 2) - display->camera->pos.y};
 	update_animations(display, world);
 	render_ui(world, display);
+	mlx_put_image_to_window(display->mlx, display->mlx_win, display->img->img, 0, 0);
 	return (1);
 }
 

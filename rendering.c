@@ -6,14 +6,14 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:48:33 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/07 10:39:17 by shechong         ###   ########.fr       */
+/*   Updated: 2023/12/07 14:05:07 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "graphics.h"
 
 t_xy	render_tile(t_display *display,
-	t_data *b_image, t_xy pos, t_xy mod)
+	t_img *b_image, t_xy pos, t_xy mod)
 {
 	t_xy		ret;
 	t_grid_d	*grid;
@@ -26,15 +26,14 @@ t_xy	render_tile(t_display *display,
 			pos.y * grid->space_y}).y + grid->offset_y + mod.y};
 	if (b_image == NULL)
 		return (ret);
-	mlx_put_image_to_window(display->mlx, display->mlx_win,
-		b_image->img, ret.x, ret.y);
+	img_on_img(display->img, b_image, (t_xy){ret.x, ret.y}, (t_xy){1,1});
 	return (ret);
 }
 
-int	render_floor(t_world *world, t_display *display, t_data **sprites)
+int	render_floor(t_world *world, t_display *display, t_img **sprites)
 {
 	t_xy	tile;
-	t_data	*b_image;
+	t_img	*b_image;
 	t_tile	**tgrid;
 
 	tgrid = world->tgrid;
@@ -58,7 +57,7 @@ int	render_floor(t_world *world, t_display *display, t_data **sprites)
 void	render_obj(t_world *world, t_display *display, t_xy tile)
 {
 	t_tile		current_tile;
-	t_data		**sprites;
+	t_img		**sprites;
 
 	sprites = display->sprites;
 	current_tile = world->tgrid[tile.y][tile.x];
@@ -110,7 +109,7 @@ int	update_animations(t_display *display, t_world *world)
 	return (1);
 }
 
-void	place_pixel(t_data *image, int x, int y, int color)
+void	place_pixel(t_img *image, int x, int y, int color)
 {
 	char	*dst;
 
@@ -122,12 +121,3 @@ void	place_pixel(t_data *image, int x, int y, int color)
 }
 
 
-int	get_color(t_data *img, int x, int y)
-{
-	char	*src;
-
-	if (x < 0 || y < 0)
-		return (0);
-	src = img->addr + (y * img->line_length + x * (img->bits_per_pixel / 8));
-	return (*(unsigned int *)src);
-}
