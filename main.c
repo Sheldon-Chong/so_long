@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:09 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 13:14:43 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 14:37:38 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,6 @@ int	main(void)
 	t_frame		frame;
 	int			frame_sec;
 
-	printf("%lu\n", sizeof(t_animator));
 	display = display_init(SCREEN_WIDTH, SCREEN_HEIGHT);
 	world = world_init("map.ber");
 	world->coins = NULL;
@@ -106,3 +105,39 @@ int	main(void)
 }
 
 
+/*
+t_xy
+t_timer
+t_object
+t_camera
+t_img
+t_animator
+t_enemy
+t_collectible
+t_player
+t_grid_d
+t_display
+t_counter
+t_tile
+t_world
+t_frame
+t_ray
+
+printf("%lu\n", sizeof(t_xy));
+printf("%lu\n", sizeof(t_timer));
+printf("%lu\n", sizeof(t_object));
+printf("%lu\n", sizeof(t_camera));
+printf("%lu\n", sizeof(t_img));
+printf("%lu\n", sizeof(t_animator));
+printf("%lu\n", sizeof(t_enemy));
+printf("%lu\n", sizeof(t_collectible));
+printf("\n");
+printf("%lu\n", sizeof(t_player));
+printf("%lu\n", sizeof(t_grid_d));
+printf("%lu\n", sizeof(t_display));
+printf("%lu\n", sizeof(t_counter));
+printf("%lu\n", sizeof(t_tile));
+printf("%lu\n", sizeof(t_world));
+printf("%lu\n", sizeof(t_frame));
+printf("%lu\n", sizeof(t_ray));
+*/

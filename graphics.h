@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 20:06:01 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 13:43:25 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 14:21:55 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,18 +85,18 @@ typedef struct s_enemy
 	int			current_angle;			
 	int			final_angle;	
 	int			hp;				
-	t_animator	*animator;	
+	t_animator	animator;	
 	int			player_found;
 	int			alert;
 	t_xy		current_pos;
-	t_object	*timers;
+	t_timer		time;
 }	t_enemy;
 
 typedef struct s_collectible
 {
 	t_xy		pos;
 	t_animator	animator;
-}	t_coin;
+}	t_collectible;
 
 typedef struct s_player
 {
@@ -195,7 +195,6 @@ t_display	display_init(int width, int height);			//test
 t_img		**frames(char *frames, char *directory, t_display *display);
 void		animation_init(t_world *world, t_display *display);
 t_world		*world_init(char *map);
-t_img		*get_frame(void *t, int c);
 
 //hooks.c
 int			handle_keypress(int keycode, t_frame *frame_index);
@@ -219,8 +218,8 @@ int			vec2_to_angle(t_xy point1, t_xy point2);
 //objects.c
 t_object	*new_obj(char *type, void *data);
 t_object	*append(t_object **head, t_object *object);
-t_enemy		*new_enemy(t_display *display, t_xy pos);
-t_coin		*new_coin(t_display *display, t_xy pos);
+t_enemy		*new_sentry(t_display *display, t_xy pos);
+t_collectible		*new_collectible(t_display *display, t_xy pos);
 
 //parsing.c
 int			find_holes(char **array, int rows);

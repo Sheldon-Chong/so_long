@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:35 by shechong          #+#    #+#             */
-/*   Updated: 2023/11/02 20:10:41 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 14:21:55 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,8 @@ void	print_2d_tiles(t_tile **c)
 // 	head = world->enemies;
 // 	while (head)
 // 	{
-// 		printf("Position: (%d, %d)\n", ((t_coin *)(head->data))->pos.x,
-// 			((t_coin *)(head->data))->pos.y);
+// 		printf("Position: (%d, %d)\n", ((t_collectible *)(head->data))->pos.x,
+// 			((t_collectible *)(head->data))->pos.y);
 // 		head = head->next;
 // 	}
 // }

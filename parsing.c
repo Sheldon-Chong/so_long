@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:29 by shechong          #+#    #+#             */
-/*   Updated: 2023/11/02 19:23:59 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 14:21:55 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,10 +90,10 @@ t_tile	**char2tile(t_world *world, int row_count, t_display *display)
 			ret_array[p.y][p.x] = (t_tile){world->grid[p.y][p.x], NULL, };
 			if (world->grid[p.y][p.x] == 'S')
 				ret_array[p.y][p.x].data = ((t_enemy *)(append(&world->enemies, \
-				new_obj("enemy", new_enemy(display, (t_xy){p.x, p.y}))))->data);
+				new_obj("enemy", new_sentry(display, (t_xy){p.x, p.y}))))->data);
 			if (world->grid[p.y][p.x] == 'C')
-				ret_array[p.y][p.x].data = (t_coin *)(append(&world->coins, \
-				new_obj("c", new_coin(display, (t_xy){p.x, p.y})))->data);
+				ret_array[p.y][p.x].data = (t_collectible *)(append(&world->coins, \
+				new_obj("c", new_collectible(display, (t_xy){p.x, p.y})))->data);
 			if (world->grid[p.y][p.x] == 'P')
 				world->player->pos = (t_xy){p.x, p.y};
 		}

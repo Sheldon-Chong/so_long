@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:16 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/14 17:28:22 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 14:20:52 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ void	enemy_track(t_world *world, t_display *display, t_enemy *enemy)
 	if (ran_int(1, 100) == 1 && enemy->player_found == 0)
 		enemy->final_angle += ran_int(-180, 180);
 	if (enemy->player_found == 1
-		&& (((t_timer *)(enemy->timers->data))->elapsed == 0))
+		&& (enemy->time.elapsed == 0))
 		decide_enemy_movement(world, enemy);
 	enemy->alert -= (enemy->alert > 0);
 }
@@ -92,8 +92,7 @@ void	update_enemies(t_world *world, t_display *display)
 		enemy_track(world, display, enemy);
 		draw_fov(enemy, display, char_array);
 		head = head->next;
-		((t_timer *)(enemy->timers->data))->elapsed
-			= (((t_timer *)(enemy->timers->data))->elapsed + 1) % 70;
+		enemy->time.elapsed = (enemy->time.elapsed + 1) % 30;
 	}
 	free(char_array);
 }

@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 12:03:15 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 13:45:57 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 14:31:01 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,26 +41,25 @@ t_object	*append(t_object **head, t_object *object)
 	return (object);
 }
 
-t_enemy	*new_enemy(t_display *display, t_xy pos)
+t_enemy	*new_sentry(t_display *display, t_xy pos)
 {
 	t_enemy	*sentry;
-	t_timer	*timer;
 
 	sentry = malloc(sizeof(t_enemy));
 	*sentry = (t_enemy){pos, 0, 0, 5,
-		(t_animator *)(display->animations->next->data), 0, 0, pos, NULL};
-	timer = malloc(sizeof(t_coin));
-	*timer = (t_timer){5, 0};
-	append(&(sentry->timers), new_obj("timer", timer));
+		(t_animator){0, 0, 30, frames("sentry.xpm", "assets/", display)}, 0, 0, pos, (t_timer){5, 0}};
+	sentry->animator.current_frame = sentry->animator.frames[0];
 	return (sentry);
 }
 
-t_coin	*new_coin(t_display *display, t_xy pos)
+t_collectible	*new_collectible(t_display *display, t_xy pos)
 {
-	t_coin	*collectible;
+	t_collectible	*collectible;
 
-	collectible = malloc(sizeof(t_coin));
-	*collectible = (t_coin){pos, (t_animator){0, 0, 30, frames("collectible_1.xpm,collectible_4.xpm", "assets/", display)}};
+	collectible = malloc(sizeof(t_collectible));
+	*collectible = (t_collectible){pos, 
+		(t_animator){0, 0, 30, frames("collectible_1.xpm,collectible_4.xpm", "assets/", display)}};
 	collectible->animator.current_frame = collectible->animator.frames[0];
 	return (collectible);
 }
+
