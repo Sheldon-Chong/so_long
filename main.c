@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:09 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 14:37:38 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 15:15:17 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,69 +14,19 @@
 #include "graphics.h"
 #include <fcntl.h>
 
-int	shut(void *param)
-{
-	t_world		*world;
-	t_display	*display;
 
-	world = ((t_frame *)(param))->world;
-	display = ((t_frame *)(param))->display;
-	endgame(world, display);
+int	clear_img(t_img *img)
+{
+	t_xy	pix;
+
+	pix = (t_xy){-1, -1};
+	while (++pix.y < img->height)
+	{
+		pix.x = -1;
+		while (++pix.x < img->width)
+			put_pixel(img, pix.x, pix.y, COLOR_BLACK);
+	}
 	return (1);
-}
-
-int	get_color(t_img *img, int x, int y)
-{
-	char	*src;
-
-	if (x < 0 || y < 0)
-		return (0);
-	src = img->addr + (y * img->line_length + x * (img->bits_per_pixel / 8));
-	return (*(unsigned int *)src);
-}
-
-int img_impose(t_img *canvas, t_img *img, t_xy start, t_xy scaling)
-{
-	t_xy pix;
-	int color;
-
-	pix = (t_xy){-1,-1};
-	scaling.x = img->width * scaling.x;
-	scaling.y = img->height * scaling.y;
-	while (++pix.y < scaling.y)
-	{
-		pix.x = -1;
-		while (++pix.x < scaling.x)
-		{
-			
-			if (start.x + pix.x > 0 && start.y + pix.y > 0)
-			{
-				if(pix.x + start.x > SCREEN_WIDTH || pix.y + start.y > SCREEN_HEIGHT)
-					break;
-				if (scaling.x == img->width && scaling.y == img->height)
-					color = get_color(img, pix.x, pix.y);
-				else
-					color = get_color(img, (int)(((double)pix.x / (double)scaling.x) * img->width), (int)(((double)pix.y / (double)scaling.y) * img->height));
-				if(color != -16777216 && color != 0xFFFF0000)
-					put_pixel(canvas, pix.x + start.x, pix.y + start.y, color);
-			}
-		}
-	}
-	return 1;
-}
-
-int clear_img(t_img *img)
-{
-	t_xy pix;
-
-	pix = (t_xy){-1,-1};
-	while(++pix.y < img->height)
-	{
-		pix.x = -1;
-		while(++pix.x < img->width)
-			put_pixel(img, pix.x, pix.y, COLOR_BLACK);	
-	}
-	return 1;
 }
 
 int	main(void)
@@ -88,7 +38,7 @@ int	main(void)
 
 	display = display_init(SCREEN_WIDTH, SCREEN_HEIGHT);
 	world = world_init("map.ber");
-	world->coins = NULL;
+	world->collectibles = NULL;
 	world->enemies = NULL;
 	animation_init(world, &display);
 	world->tgrid = char2tile(world, count_newline("map.ber"), &display);
@@ -103,41 +53,3 @@ int	main(void)
 	mlx_hook(display.mlx_win, ON_DESTROY, 0, shut, &frame);
 	mlx_loop(display.mlx);
 }
-
-
-/*
-t_xy
-t_timer
-t_object
-t_camera
-t_img
-t_animator
-t_enemy
-t_collectible
-t_player
-t_grid_d
-t_display
-t_counter
-t_tile
-t_world
-t_frame
-t_ray
-
-printf("%lu\n", sizeof(t_xy));
-printf("%lu\n", sizeof(t_timer));
-printf("%lu\n", sizeof(t_object));
-printf("%lu\n", sizeof(t_camera));
-printf("%lu\n", sizeof(t_img));
-printf("%lu\n", sizeof(t_animator));
-printf("%lu\n", sizeof(t_enemy));
-printf("%lu\n", sizeof(t_collectible));
-printf("\n");
-printf("%lu\n", sizeof(t_player));
-printf("%lu\n", sizeof(t_grid_d));
-printf("%lu\n", sizeof(t_display));
-printf("%lu\n", sizeof(t_counter));
-printf("%lu\n", sizeof(t_tile));
-printf("%lu\n", sizeof(t_world));
-printf("%lu\n", sizeof(t_frame));
-printf("%lu\n", sizeof(t_ray));
-*/

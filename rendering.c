@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:48:33 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 14:47:38 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 15:04:43 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ void	render_obj(t_world *world, t_display *display, t_xy tile)
 		render_tile(display, sprites[4],
 			(t_xy){tile.x, tile.y}, (t_xy){0, -50});
 	if (current_tile.type == 'S' && current_tile.data)
-		render_sentry(display, (t_enemy *)((current_tile.data)));
+		render_sentry(display, (t_sentry *)((current_tile.data)));
 	if (current_tile.type == 'C' && current_tile.data)
 		render_tile(display, ((t_collectible *)(current_tile.data))->animator.current_frame, tile, (t_xy){center(display->sprites[1], 
 			((t_collectible *)(current_tile.data))->animator.current_frame), -20});
@@ -96,7 +96,7 @@ int	update_all_animators(t_display *display, t_world *world)
 	t_animator	*animator;
 
 	update_enemies(world, display);
-	head = world->coins;
+	head = world->collectibles;
 	while(head)
 	{
 		animator = &((t_collectible *)(head->data))->animator;

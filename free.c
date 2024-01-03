@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:52:14 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 14:53:18 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 15:13:23 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,13 +53,20 @@ void	free_ojects(t_world *world, t_display *display)
 	{
 		next = current->next;
 		img_destroy(display->mlx,
-			((t_enemy *)(current->data))->animator.frames[0]);
-		free(((t_enemy *)(current->data))->animator.frames);
+			((t_sentry *)(current->data))->animator.frames[0]);
+		free(((t_sentry *)(current->data))->animator.frames);
 		free(current->data);
 		free(current);
 		current = next;
 	}
-	current = world->coins;
+}
+
+void	free_collectibles(t_world *world, t_display *display)
+{
+	t_object	*next;
+	t_object	*current;
+
+	current = world->collectibles;
 	while (current)
 	{
 		next = current->next;
@@ -72,29 +79,27 @@ void	free_ojects(t_world *world, t_display *display)
 		free(current);
 		current = next;
 	}
-	img_destroy(display->mlx, world->player->animator.frames[0]);
-	img_destroy(display->mlx, world->player->animator.frames[1]);
-	free(world->player->animator.frames);
-	free(display->anim_spritesheet);
-	free_obj_list(display->animations);
-}
-
-void	free_obj_list(t_object *object)
-{
-	t_object	*temp;
-
-	while (temp)
-	{
-		temp = object->next;
-		free(object);
-		object = temp;
-	}
 }
 
 int	endgame(t_world *world, t_display *display)
 {
 	free_ojects(world, display);
+	free_collectibles(world, display);
+	img_destroy(display->mlx, world->player->animator.frames[0]);
+	img_destroy(display->mlx, world->player->animator.frames[1]);
+	free(world->player->animator.frames);
 	free_world_display(world, display);
 	free(world);
 	exit(0);
+}
+
+int	shut(void *param)
+{
+	t_world		*world;
+	t_display	*display;
+
+	world = ((t_frame *)(param))->world;
+	display = ((t_frame *)(param))->display;
+	endgame(world, display);
+	return (1);
 }

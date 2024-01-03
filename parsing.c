@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:29 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 14:21:55 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 15:04:43 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,10 +89,10 @@ t_tile	**char2tile(t_world *world, int row_count, t_display *display)
 		{
 			ret_array[p.y][p.x] = (t_tile){world->grid[p.y][p.x], NULL, };
 			if (world->grid[p.y][p.x] == 'S')
-				ret_array[p.y][p.x].data = ((t_enemy *)(append(&world->enemies, \
+				ret_array[p.y][p.x].data = ((t_sentry *)(append(&world->enemies, \
 				new_obj("enemy", new_sentry(display, (t_xy){p.x, p.y}))))->data);
 			if (world->grid[p.y][p.x] == 'C')
-				ret_array[p.y][p.x].data = (t_collectible *)(append(&world->coins, \
+				ret_array[p.y][p.x].data = (t_collectible *)(append(&world->collectibles, \
 				new_obj("c", new_collectible(display, (t_xy){p.x, p.y})))->data);
 			if (world->grid[p.y][p.x] == 'P')
 				world->player->pos = (t_xy){p.x, p.y};

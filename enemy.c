@@ -6,13 +6,13 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:16 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 14:20:52 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 15:04:43 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "graphics.h"
 
-void	enemy_move(t_enemy *enemy, t_xy pos, t_world *world)
+void	enemy_move(t_sentry *enemy, t_xy pos, t_world *world)
 {
 	if (pos.x < world->dimensions.x
 		&& pos.y < world->dimensions.y
@@ -25,10 +25,10 @@ void	enemy_move(t_enemy *enemy, t_xy pos, t_world *world)
 		enemy->pos = pos;
 		world->tgrid[pos.y][pos.x].type = 'S';
 		world->tgrid[pos.y][pos.x].data = enemy;
-	}	
+	}
 }
 
-int	decide_enemy_movement(t_world *world, t_enemy *enemy)
+int	decide_enemy_movement(t_world *world, t_sentry *enemy)
 {
 	if (world->player->pos.x - enemy->pos.x > 0)
 		enemy_move(enemy, (t_xy){enemy->pos.x + 1, enemy->pos.y}, world);
@@ -41,7 +41,7 @@ int	decide_enemy_movement(t_world *world, t_enemy *enemy)
 	return (1);
 }
 
-int	enemy_search4player(t_world *world, t_enemy *enemy)
+int	enemy_search4player(t_world *world, t_sentry *enemy)
 {
 	if (enemy->alert)
 	{
@@ -61,7 +61,7 @@ int	enemy_search4player(t_world *world, t_enemy *enemy)
 	return (1);
 }
 
-void	enemy_track(t_world *world, t_display *display, t_enemy *enemy)
+void	enemy_track(t_world *world, t_display *display, t_sentry *enemy)
 {
 	if (enemy->pos.x == world->player->pos.x
 		&& enemy->pos.y == world->player->pos.y)
@@ -80,7 +80,7 @@ void	enemy_track(t_world *world, t_display *display, t_enemy *enemy)
 
 void	update_enemies(t_world *world, t_display *display)
 {
-	t_enemy		*enemy;
+	t_sentry		*enemy;
 	t_object	*head;
 	t_img		*char_array;
 
@@ -88,7 +88,7 @@ void	update_enemies(t_world *world, t_display *display)
 	head = world->enemies;
 	while (head)
 	{
-		enemy = (t_enemy *)(head->data);
+		enemy = (t_sentry *)(head->data);
 		enemy_track(world, display, enemy);
 		draw_fov(enemy, display, char_array);
 		head = head->next;

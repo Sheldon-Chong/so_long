@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:35 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 14:21:55 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 15:04:43 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,9 @@ void	print_2d_tiles(t_tile **c)
 // 	head = world->enemies;
 // 	while (head)
 // 	{
-// 		printf("Position: (%d, %d)\n", ((t_enemy *)(head->data))->pos.x,
-// 			((t_enemy *)(head->data))->pos.y);
-// 		printf("HP: (%d)\n", ((t_enemy *)(head->data))->hp);
+// 		printf("Position: (%d, %d)\n", ((t_sentry *)(head->data))->pos.x,
+// 			((t_sentry *)(head->data))->pos.y);
+// 		printf("HP: (%d)\n", ((t_sentry *)(head->data))->hp);
 // 		head = head->next;
 // 	}
 // 	printf("\nCOLLECtIBLES:\n");
