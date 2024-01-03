@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:09 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/14 17:25:15 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 13:14:43 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,7 @@ int	main(void)
 	t_frame		frame;
 	int			frame_sec;
 
+	printf("%lu\n", sizeof(t_animator));
 	display = display_init(SCREEN_WIDTH, SCREEN_HEIGHT);
 	world = world_init("map.ber");
 	world->coins = NULL;
@@ -103,3 +104,5 @@ int	main(void)
 	mlx_hook(display.mlx_win, ON_DESTROY, 0, shut, &frame);
 	mlx_loop(display.mlx);
 }
+
+

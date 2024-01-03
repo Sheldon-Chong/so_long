@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:23 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/14 17:34:25 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 13:40:07 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,20 +67,14 @@ t_img	**frames(char *frames, char *directory, t_display *display)
 
 void	animation_init(t_world *world, t_display *display)
 {
-	t_animator	*global_coin_animator;
 	t_animator	*global_enemy_animator;
 
-	global_coin_animator = malloc(sizeof(t_animator));
 	global_enemy_animator = malloc(sizeof(t_animator));
-	*global_coin_animator = (t_animator){0, 0, 30,
-		frames("collectible_1.xpm,collectible_4.xpm", "assets/", display)};
-	global_coin_animator->current_frame = global_coin_animator->frames[0];
 	*global_enemy_animator = (t_animator){0, 0, 5,
 		frames("sentry.xpm,sentry.xpm", "assets/", display)};
 	global_enemy_animator->current_frame = global_enemy_animator->frames[0];
 	world->player->animator = (t_animator){0, 0, 30,
 		frames("player.xpm,player_2.xpm", "assets/", display)};
-	append(&display->animations, new_obj("animation", global_coin_animator));
 	append(&display->animations, new_obj("animation", global_enemy_animator));
 	append(&display->animations, new_obj("player animation",
 			&(world->player->animator)));
@@ -102,9 +96,6 @@ t_world	*world_init(char *map)
 
 t_img	*get_frame(void *t, int c)
 {
-	if (c == 0)
-		return (((t_coin *)t)->animator->frames
-			[((t_coin *)t)->animator->frame_index]);
 	if (c == 1)
 		return (((t_enemy *)t)->animator->frames
 			[((t_enemy *)t)->animator->frame_index]);

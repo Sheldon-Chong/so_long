@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:54:06 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/14 17:25:14 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 13:39:14 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int	render_sentry(t_display *display, t_enemy *enemy)
 			enemy->pos.y * grid.space_y}, enemy->current_pos, 2);
 	img_impose(display->img, enemy->animator->frames[enemy->animator->frame_index],
 		(t_xy){iso_map(enemy->current_pos).x + grid.offset_x
-		+ center(display->sprites[1], enemy->animator->current_frame),
+		+ center(display->sprites[1], display->sprites[1]),
 		iso_map(enemy->current_pos).y + grid.offset_y -32}, (t_xy){1,1});
 	return (1);
 }

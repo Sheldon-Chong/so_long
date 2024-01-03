@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:52:14 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/14 17:37:35 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 13:15:06 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,13 +46,12 @@ void	free_ojects(t_world *world, t_display *display)
 	while (current)
 	{
 		next = current->next;
-		free(((t_enemy *)(current->data))->timers);
 		free(((t_enemy *)(current->data))->timers->data);
+		free(((t_enemy *)(current->data))->timers);
 		free(current->data);
 		free(current);
 		current = next;
 	}
-	free(current);
 	current = world->coins;
 	while (current)
 	{
@@ -61,7 +60,6 @@ void	free_ojects(t_world *world, t_display *display)
 		free(current);
 		current = next;
 	}
-	free(current);
 	current = display->animations;
 }
 

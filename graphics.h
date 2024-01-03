@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 20:06:01 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/14 17:25:14 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 13:43:25 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ typedef struct s_enemy
 typedef struct s_collectible
 {
 	t_xy		pos;
-	t_animator	*animator;
+	t_animator	animator;
 }	t_coin;
 
 typedef struct s_player

@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 12:03:15 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/14 17:34:06 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/03 13:45:57 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ t_coin	*new_coin(t_display *display, t_xy pos)
 	t_coin	*collectible;
 
 	collectible = malloc(sizeof(t_coin));
-	*collectible = (t_coin){pos,
-		(t_animator *)(display->animations->data)};
+	*collectible = (t_coin){pos, (t_animator){0, 0, 30, frames("collectible_1.xpm,collectible_4.xpm", "assets/", display)}};
+	collectible->animator.current_frame = collectible->animator.frames[0];
 	return (collectible);
 }
