@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:43 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 15:15:21 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/04 11:36:11 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,16 +43,6 @@ t_img	*img_from_path(char *image, void *mlx)
 	return (img);
 }
 
-int	get_color(t_img *img, int x, int y)
-{
-	char	*src;
-
-	if (x < 0 || y < 0)
-		return (0);
-	src = img->addr + (y * img->line_length + x * (img->bits_per_pixel / 8));
-	return (*(unsigned int *)src);
-}
-
 int	img_impose(t_img *canvas, t_img *img, t_xy start, t_xy scaling)
 {
 	t_xy	pix;
@@ -77,7 +67,7 @@ int	img_impose(t_img *canvas, t_img *img, t_xy start, t_xy scaling)
 					color = get_color(img, (int)(((double)pix.x \
 					/ (double)scaling.x) * img->width), \
 					(int)(((double)pix.y / (double)scaling.y) * img->height));
-				if (color != -16777216 && color != 0xFFFF0000)
+				if (color != C_MLX_TRANSPARENT && color != C_TRANSPARENT)
 					put_pixel(canvas, pix.x + start.x, pix.y + start.y, color);
 			}
 		}

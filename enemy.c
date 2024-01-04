@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:16 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 15:04:43 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/04 11:30:24 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,9 +52,9 @@ int	enemy_search4player(t_world *world, t_sentry *enemy)
 		|| ray_cast(world, enemy->pos, enemy->current_angle + 20, 10) == 1
 		|| ray_cast(world, enemy->pos, enemy->current_angle - 20, 10) == 1)
 	{
-		enemy->player_found = 1;
+		enemy->player_found = true;
 		enemy->final_angle = enemy->current_angle;
-		enemy->alert = 100;
+		enemy->alert = SENTRY_MAX_ALERT;
 	}
 	else
 		enemy->alert = 0;
@@ -70,7 +70,7 @@ void	enemy_track(t_world *world, t_display *display, t_sentry *enemy)
 		+ (enemy->final_angle - enemy->current_angle) / 10;
 	enemy->player_found = 0;
 	enemy_search4player(world, enemy);
-	if (ran_int(1, 100) == 1 && enemy->player_found == 0)
+	if (ran_int(1, SENTRY_TURN_RATE) == 1 && enemy->player_found == 0)
 		enemy->final_angle += ran_int(-180, 180);
 	if (enemy->player_found == 1
 		&& (enemy->time.elapsed == 0))
@@ -80,7 +80,7 @@ void	enemy_track(t_world *world, t_display *display, t_sentry *enemy)
 
 void	update_enemies(t_world *world, t_display *display)
 {
-	t_sentry		*enemy;
+	t_sentry	*enemy;
 	t_object	*head;
 	t_img		*char_array;
 

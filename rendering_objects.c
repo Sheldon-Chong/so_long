@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:54:06 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 15:12:07 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/04 11:17:49 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,9 @@ int	draw_fov(t_sentry *enemy, t_display *display, t_img *char_array)
 	draw_rect(char_array, (t_xy){100, 60}, (t_xy){0, 0}, 0xFFFF0000);
 	pos = (t_xy){30, 0};
 	draw_line(char_array, iso_map(pos),
-		iso_map(move_in_dir(pos, enemy->current_angle + 20, 15)), 0x30eeff);
+		iso_map(move_in_dir(pos, enemy->current_angle + 20, 15)), SENTRY_FOV_COLOR);
 	draw_line(char_array, iso_map(pos),
-		iso_map(move_in_dir(pos, enemy->current_angle -20, 15)), 0x30eeff);
+		iso_map(move_in_dir(pos, enemy->current_angle -20, 15)), SENTRY_FOV_COLOR);
 	img_impose(display->img, char_array,
 		(t_xy){iso_map((t_xy){
 			enemy->pos.x * 21, enemy->pos.y * 21}).x + grid.offset_x - 14, \

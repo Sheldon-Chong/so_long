@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 20:06:01 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 15:08:56 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/04 11:37:03 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,22 +19,41 @@
 # include "libft/libft.h"
 # include <stdio.h>
 # include <sys/fcntl.h>
+# include <stdbool.h>
+
+//screen
+# define SCREEN_WIDTH 1920
+# define SCREEN_HEIGHT 1080
+
+//colors
+# define COLOR_BLACK 0x00000000
+# define C_TRANSPARENT 0xFFFF0000
+# define C_MLX_TRANSPARENT -16777216
+
+//object sprites
+# define SENTRY_FOV_COLOR 0x30eeff
+# define SENTRY_MAX_ALERT 100
+# define SENTRY_TURN_RATE 100
+# define SENTRY_SPRITES "sentry.xpm"
+# define COLLECTIBLE_SPRITES "collectible_1.xpm,collectible_4.xpm"
+# define PLAYER_SPRITES "player.xpm,player_2.xpm"
+
+// map sprites
+# define WALL_SPRITE "assets/Wall.xpm"
+# define FLOOR_1_SPRITE "assets/tile_black.xpm"
+# define FLOOR_2_SPRITE "assets/tile_white.xpm"
+# define EXIT_SPRITE "assets/Exit.xpm"
+
+//hooks
+# define ON_MOUSE_MOTION 6
+# define ON_KEY_PRESS 2
 # define ON_DESTROY 17
+
+//keys
 # define LINUX_W 13
 # define LINUX_A 0
 # define LINUX_S 1
 # define LINUX_D 2
-# define SCREEN_WIDTH 1920
-# define SCREEN_HEIGHT 1080
-# define COLOR_BLACK 0x00000000
-# define COLOR_WHITE 0x00FFFFFF
-# define COLOR_RED 0x00FF0000
-# define COLOR_GREEN 0x0000FF00
-# define COLOR_BLUE 0x000000FF
-# define COLOR_YELLOW 0x00FFFF00
-# define COLOR_MAGENTA 0x00FF00FF
-# define COLOR_CYAN 0x0000FFFF
-# define COLOR_TRANSPARENT 0xFFFF0000
 
 //general struct to store coordinates
 typedef struct s_xy
@@ -91,7 +110,7 @@ typedef struct s_enemy
 	int			final_angle;
 	int			hp;
 	t_animator	animator;
-	int			player_found;
+	bool		player_found;
 	int			alert;
 	t_xy		current_pos;
 	t_timer		time;
@@ -197,12 +216,11 @@ void			free_animations(t_world *world, t_display *display);
 t_img			*empty_img(void *mlx, int x, int y);
 t_img			*img_from_path(char *image, void *mlx);
 
-
 //initialization.c
 t_display		display_init(int width, int height);			//test
 t_img			**frames(char *frames, char *directory, t_display *display);
 void			animation_init(t_world *world, t_display *display);
-t_world			*world_init(char *map);
+t_world			*world_init(char *map, t_display *display);
 
 //hooks.c
 int				handle_keypress(int keycode, t_frame *frame_index);
@@ -214,7 +232,6 @@ int				mouse(int x, int y, void *param);
 void			print_list(t_object *start);
 int				shut(void *param);
 
-
 //maths.c
 int				ran_int(int min, int max);
 double			deg_to_rad(double degrees);
@@ -222,11 +239,10 @@ t_xy			move_in_dir(t_xy currentPos, double direction, double distance);
 t_xy			polar_to_vec2(t_xy start, double angle_rad, int distance);
 int				vec2_to_angle(t_xy point1, t_xy point2);
 
-
 //objects.c
 t_object		*new_obj(char *type, void *data);
 t_object		*append(t_object **head, t_object *object);
-t_sentry			*new_sentry(t_display *display, t_xy pos);
+t_sentry		*new_sentry(t_display *display, t_xy pos);
 t_collectible	*new_collectible(t_display *display, t_xy pos);
 
 //parsing.c
@@ -280,14 +296,11 @@ char			**read_map(char *file, int rows, t_world *world);
 t_tile			**char2tile(t_world *world, int row_count, t_display *display);
 char			**scan_map(t_world *world, char *file);
 
-
-
 void			ray_init(t_ray *ray, t_xy pos, double angle_deg, int distance);
 int				ray_cast(t_world *world, t_xy pos, double angle_deg,
 					int distance);
 char			**clone_char_array(char **c);
 int				find_exit(char **c, t_world *world);
-
 
 int				render_floor(t_world *world,
 					t_display *display, t_img **sprites);
@@ -297,18 +310,12 @@ void			render_world(t_world *world, t_display *display);
 void			update_enemies(t_world *world, t_display *display);
 int				update_all_animators(t_display *display, t_world *world);
 
-
-
 int				draw_fov(t_sentry *enemy, t_display *display,
 					t_img *char_array);
-
-
 
 int				endgame(t_world *world, t_display *display);
 int				mouse(int x, int y, void *param);
 int				render_next_frame(void *param);
-
-
 
 int				endgame(t_world *world, t_display *display);
 void			print_statistics(t_world *world);
@@ -321,4 +328,6 @@ void			print_end_screen(t_world *world);
 int				img_impose(t_img *canvas, t_img *img, t_xy start, t_xy scaling);
 int				clear_img(t_img *img);
 
-# endif
+int				get_color(t_img *img, int x, int y);
+
+#endif

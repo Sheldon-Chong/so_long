@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:29 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 15:04:43 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/04 10:56:54 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,30 +76,30 @@ char	**read_map(char *file, int rows, t_world *world)
 
 t_tile	**char2tile(t_world *world, int row_count, t_display *display)
 {
-	t_xy	p;
+	t_xy	pos;
 	t_tile	**ret_array;
 
 	ret_array = malloc(sizeof(t_tile *) * (row_count + 1));
-	p.y = -1;
-	while (++p.y < row_count)
+	pos.y = -1;
+	while (++pos.y < row_count)
 	{
-		ret_array[p.y] = malloc(16 * (ft_strlen(world->grid[0]) + 1));
-		p.x = -1;
-		while (++p.x < (int)(ft_strlen(world->grid[p.y])))
+		ret_array[pos.y] = malloc(16 * (ft_strlen(world->grid[0]) + 1));
+		pos.x = -1;
+		while (++pos.x < (int)(ft_strlen(world->grid[pos.y])))
 		{
-			ret_array[p.y][p.x] = (t_tile){world->grid[p.y][p.x], NULL, };
-			if (world->grid[p.y][p.x] == 'S')
-				ret_array[p.y][p.x].data = ((t_sentry *)(append(&world->enemies, \
-				new_obj("enemy", new_sentry(display, (t_xy){p.x, p.y}))))->data);
-			if (world->grid[p.y][p.x] == 'C')
-				ret_array[p.y][p.x].data = (t_collectible *)(append(&world->collectibles, \
-				new_obj("c", new_collectible(display, (t_xy){p.x, p.y})))->data);
-			if (world->grid[p.y][p.x] == 'P')
-				world->player->pos = (t_xy){p.x, p.y};
+			ret_array[pos.y][pos.x] = (t_tile){world->grid[pos.y][pos.x], NULL};
+			if (world->grid[pos.y][pos.x] == 'S')
+				ret_array[pos.y][pos.x].data = append(&world->enemies, new_obj(\
+					"enemy", new_sentry(display, (t_xy){pos.x, pos.y})))->data;
+			if (world->grid[pos.y][pos.x] == 'C')
+				ret_array[pos.y][pos.x].data = append(&world->collectibles, \
+	new_obj("c", new_collectible(display, (t_xy){pos.x, pos.y})))->data;
+			if (world->grid[pos.y][pos.x] == 'P')
+				world->player->pos = (t_xy){pos.x, pos.y};
 		}
-		ret_array[p.y][p.x] = (t_tile){0, NULL};
+		ret_array[pos.y][pos.x] = (t_tile){0, NULL};
 	}
-	ret_array[p.y] = NULL;
+	ret_array[pos.y] = NULL;
 	return (ret_array);
 }
 

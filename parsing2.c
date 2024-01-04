@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 10:53:58 by shechong          #+#    #+#             */
-/*   Updated: 2023/09/14 19:19:48 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/04 11:01:28 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,6 @@ int	find_exit(char **c, t_world *world)
 	dup = clone_char_array(c);
 	recur(dup, world->player->pos, world, &exit_found);
 	ft_free_array((void **)dup, 0);
-
 	return (exit_found);
 }
 

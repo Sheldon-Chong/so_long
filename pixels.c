@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:29 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/07 10:40:02 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/04 11:00:26 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,4 +53,25 @@ void	draw_line(t_img *img, t_xy start, t_xy end, int color)
 		x += (float)(end.x - start.x) / steps;
 		y += (float)(end.y - start.y) / steps;
 	}
+}
+
+int	get_color(t_img *img, int x, int y)
+{
+	char	*src;
+
+	if (x < 0 || y < 0)
+		return (0);
+	src = img->addr + (y * img->line_length + x * (img->bits_per_pixel / 8));
+	return (*(unsigned int *)src);
+}
+
+void	place_pixel(t_img *image, int x, int y, int color)
+{
+	char	*dst;
+
+	if (x < 0 || y < 0)
+		return ;
+	dst = image->addr + (y * image->line_length + x * (image->bits_per_pixel
+				/ 8));
+	*(unsigned int *)dst = color;
 }

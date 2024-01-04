@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:21 by shechong          #+#    #+#             */
-/*   Updated: 2023/12/14 17:28:45 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/04 11:14:07 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ int	handle_keypress(int keycode, t_frame *frame)
 {
 	t_player	*player;
 	t_xy		new_pos;
-	t_tile		t;
+	t_tile		tile;
 
 	player = frame->world->player;
 	new_pos = player->pos;
@@ -28,13 +28,13 @@ int	handle_keypress(int keycode, t_frame *frame)
 		new_pos.y ++;
 	else if (keycode == LINUX_D)
 		new_pos.x ++;
-	t = frame->world->tgrid[new_pos.y][new_pos.x];
-	if (new_pos.x > 0 && new_pos.y > 0 && t.type != '1' && t.type != 'S')
+	tile = frame->world->tgrid[new_pos.y][new_pos.x];
+	if (new_pos.x > 0 && new_pos.y > 0 && tile.type != '1' && tile.type != 'S')
 	{
 		player->pos = new_pos;
 		frame->world->count.moves ++;
 	}
-	if (t.type == 'E')
+	if (tile.type == 'E')
 		endgame(frame->world, frame->display);
 	if ((frame->world->tgrid[player->pos.y][player->pos.x].type) == 'C')
 		frame->world->tgrid[player->pos.y][player->pos.x].type = 'G';
@@ -73,7 +73,8 @@ int	render_next_frame(void *param)
 		21, 21, ((display->width) / 2) - display->camera->pos.x,
 		((display->height) / 2) - display->camera->pos.y};
 	update_all_animators(display, world);
-	mlx_put_image_to_window(display->mlx, display->mlx_win, display->img->img, 0, 0);
+	mlx_put_image_to_window(display->mlx, display->mlx_win,
+		display->img->img, 0, 0);
 	render_ui(world, display);
 	return (1);
 }

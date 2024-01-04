@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:23 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 14:59:20 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/04 11:37:45 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,10 @@ t_display	display_init(int width, int height)
 	*(ret.grid_display) = (t_grid_d){1, 1, 1, 1};
 	ret.mouse = (t_xy){0, 0};
 	ret.sprites = malloc(sizeof(t_img *) * 6);
-	ret.sprites[1] = img_from_path("assets/Wall.xpm", ret.mlx);
-	ret.sprites[2] = img_from_path("assets/tile_black.xpm", ret.mlx);
-	ret.sprites[3] = img_from_path("assets/tile_white.xpm", ret.mlx);
-	ret.sprites[4] = img_from_path("assets/Exit.xpm", ret.mlx);
+	ret.sprites[1] = img_from_path(WALL_SPRITE, ret.mlx);
+	ret.sprites[2] = img_from_path(FLOOR_1_SPRITE, ret.mlx);
+	ret.sprites[3] = img_from_path(FLOOR_2_SPRITE, ret.mlx);
+	ret.sprites[4] = img_from_path(EXIT_SPRITE, ret.mlx);
 	ret.sprites[5] = NULL;
 
 	return (ret);
@@ -63,15 +63,7 @@ t_img	**frames(char *frames, char *directory, t_display *display)
 	return (array);
 }
 
-void	animation_init(t_world *world, t_display *display)
-{
-	t_animator	*global_enemy_animator;
-
-	world->player->animator = (t_animator){0, 0, 30,
-		frames("player.xpm,player_2.xpm", "assets/", display)};
-}
-
-t_world	*world_init(char *map)
+t_world	*world_init(char *map, t_display *display)
 {
 	t_world		*world;
 	t_player	*player;
@@ -81,6 +73,11 @@ t_world	*world_init(char *map)
 	world->count = (t_counter){0, 0, 0, 0, 0};
 	*world = ((t_world){player, NULL, NULL, scan_map(world, map),
 			NULL, world->dimensions, (t_counter){0, 0, 0, 0, 0}});
-	*player = (t_player){(t_xy){1, 1}, (t_xy){1, 1}, (t_animator){0, 0, 0, 0}};
+	*player = (t_player){(t_xy){1, 1}, (t_xy){1, 1}, (t_animator){0, 0, 30,
+		frames(PLAYER_SPRITES, "assets/", display)}};
+	player->animator.current_frame = world->player->animator.frames[0];
+	world->collectibles = NULL;
+	world->enemies = NULL;
+	world->tgrid = char2tile(world, count_newline("map.ber"), display);
 	return (world);
 }

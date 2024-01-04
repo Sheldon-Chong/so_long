@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:48:33 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 15:04:43 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/04 11:00:15 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ t_xy	render_tile(t_display *display,
 			pos.y * grid->space_y}).y + grid->offset_y + mod.y};
 	if (b_image == NULL)
 		return (ret);
-	img_impose(display->img, b_image, (t_xy){ret.x, ret.y}, (t_xy){1,1});
+	img_impose(display->img, b_image, (t_xy){ret.x, ret.y}, (t_xy){1, 1});
 	return (ret);
 }
 
@@ -42,7 +42,7 @@ int	render_floor(t_world *world, t_display *display, t_img **sprites)
 	{
 		tile.x = -1;
 		while (tgrid[tile.y][++tile.x].type)
-		{	
+		{
 			b_image = sprites[2];
 			if ((tile.x % 2 == 0 && tile.y % 2 != 0)
 				|| (tile.x % 2 != 0 && tile.y % 2 == 0))
@@ -70,8 +70,11 @@ void	render_obj(t_world *world, t_display *display, t_xy tile)
 	if (current_tile.type == 'S' && current_tile.data)
 		render_sentry(display, (t_sentry *)((current_tile.data)));
 	if (current_tile.type == 'C' && current_tile.data)
-		render_tile(display, ((t_collectible *)(current_tile.data))->animator.current_frame, tile, (t_xy){center(display->sprites[1], 
-			((t_collectible *)(current_tile.data))->animator.current_frame), -20});
+		render_tile(display,
+			((t_collectible *)(current_tile.data))->animator.current_frame,
+			tile, (t_xy){center(display->sprites[1],
+				((t_collectible *)(current_tile.data))->animator.current_frame),
+			-20});
 	if (tile.x == world->player->pos.x && tile.y == world->player->pos.y)
 		render_player(world, display);
 }
@@ -97,7 +100,7 @@ int	update_all_animators(t_display *display, t_world *world)
 
 	update_enemies(world, display);
 	head = world->collectibles;
-	while(head)
+	while (head)
 	{
 		animator = &((t_collectible *)(head->data))->animator;
 		animator->frame_timer = (animator->frame_timer + 1) % animator->speed;
@@ -106,18 +109,10 @@ int	update_all_animators(t_display *display, t_world *world)
 		animator->current_frame = animator->frames[animator->frame_index];
 		head = head->next;
 	}
+	animator = &(world->player->animator);
+	animator->frame_timer = (animator->frame_timer + 1) % animator->speed;
+	if (animator->frame_timer == 0)
+		animator->frame_index = (animator->frame_index + 1) % 2;
+	animator->current_frame = animator->frames[0];
 	return (1);
 }
-
-void	place_pixel(t_img *image, int x, int y, int color)
-{
-	char	*dst;
-
-	if (x < 0 || y < 0)
-		return ;
-	dst = image->addr + (y * image->line_length + x * (image->bits_per_pixel
-				/ 8));
-	*(unsigned int *)dst = color;
-}
-
-
