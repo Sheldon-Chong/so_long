@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:43 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/25 10:07:42 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 11:30:58 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,6 @@ t_img	*empty_img(void *mlx, int x, int y)
 
 t_img	*img_from_path(char *image, void *mlx)
 {
-	int		img_width;
-	int		img_height;
 	t_img	*img;
 
 	img = malloc(sizeof(t_img));
@@ -49,27 +47,24 @@ int	img_impose(t_img *canvas, t_img *img, t_xy start, t_xy scaling)
 	int		color;
 
 	pix = (t_xy){-1, -1};
-	scaling.x = img->width * scaling.x;
-	scaling.y = img->height * scaling.y;
+	scaling = (t_xy){img->width * scaling.x, img->height * scaling.y};
 	while (++pix.y < scaling.y)
 	{
 		pix.x = -1;
-		while (++pix.x < scaling.x)
+		while (++pix.x < scaling.x && pix.x + start.x < SCREEN_WIDTH
+			&& pix.y + start.y < SCREEN_HEIGHT)
 		{
-			if (start.x + pix.x > 0 && start.y + pix.y > 0)
-			{
-				if (pix.x + start.x > SCREEN_WIDTH
-					|| pix.y + start.y > SCREEN_HEIGHT)
-					break ;
-				if (scaling.x == img->width && scaling.y == img->height)
-					color = get_color(img, pix.x, pix.y);
-				else
-					color = get_color(img, (int)(((double)pix.x \
-					/ (double)scaling.x) * img->width), \
-					(int)(((double)pix.y / (double)scaling.y) * img->height));
-				if (color != C_MLX_TRANSPARENT && color != C_TRANSPARENT)
-					put_pixel(canvas, pix.x + start.x, pix.y + start.y, color);
-			}
+			if (!(start.x + pix.x > 0 && start.y + pix.y > 0))
+				continue ;
+			if (scaling.x == img->width && scaling.y == img->height)
+				color = get_color(img, pix.x, pix.y);
+			else
+				color = get_color(img, (int)(((double)pix.x
+								/ (double)scaling.x) * img->width), \
+				(int)(((double)pix.y / (double)scaling.y) * img->height));
+			if (color != C_MLX_TRANSPARENT && (unsigned int)color 
+				!= C_TRANSPARENT)
+				put_pixel(canvas, pix.x + start.x, pix.y + start.y, color);
 		}
 	}
 	return (1);

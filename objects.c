@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 12:03:15 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/25 10:07:42 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 11:34:06 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ t_sentry	*new_sentry(t_display *display, t_xy pos)
 	sentry = malloc(sizeof(t_sentry));
 	*sentry = (t_sentry){pos, 0, 0, 5,
 		(t_animator){0, 0, 30,
-		frames(SENTRY_SPRITES, "assets/", display)},
+		frames(SENTRY_SPRITES, "assets/", display), NULL},
 		0, 0, pos, (t_timer){5, 0}};
 	sentry->animator.current_frame = sentry->animator.frames[0];
 	return (sentry);
@@ -61,7 +61,7 @@ t_collectible	*new_collectible(t_display *display, t_xy pos)
 	collectible = malloc(sizeof(t_collectible));
 	*collectible = (t_collectible){pos,
 		(t_animator){0, 0, 30,
-		frames(COLLECTIBLE_SPRITES, "assets/", display)}};
+		frames(COLLECTIBLE_SPRITES, "assets/", display), NULL}};
 	collectible->animator.current_frame = collectible->animator.frames[0];
 	return (collectible);
 }

@@ -35,15 +35,15 @@
 # define SENTRY_MAX_ALERT 100
 # define SENTRY_TURN_RATE 100
 # define SENTRY_SPRITES "sentry.xpm"
-# define COLLECTIBLE_SPRITES "collectible_1.xpm,collectible_4.xpm"
+# define COLLECTIBLE_SPRITES "collectible_1.xpm,collectible_2.xpm"
 # define PLAYER_SPRITES "player.xpm,player_2.xpm"
 # define SENTRY_MOVEMENT_DAY 30
 
-// map sprites
-# define WALL_SPRITE "assets/Wall.xpm"
+//map sprites
+# define WALL_SPRITE "assets/wall.xpm"
 # define FLOOR_1_SPRITE "assets/tile_black.xpm"
 # define FLOOR_2_SPRITE "assets/tile_white.xpm"
-# define EXIT_SPRITE "assets/Exit.xpm"
+# define EXIT_SPRITE "assets/exit.xpm"
 
 //hooks
 # define ON_MOUSE_MOTION 6
@@ -163,7 +163,7 @@ typedef struct s_display
 }	t_display;
 
 //keep count of different items in the map
-typedef struct t_counter
+typedef struct s_counter
 {
 	int	player;
 	int	sentry;
@@ -189,6 +189,7 @@ typedef struct s_world
 	t_xy		dimensions;
 	t_counter	count;
 	bool		has_collected_all_collectibles;
+	int			collectibles_collected;
 }	t_world;
 
 typedef struct frame_data
@@ -231,7 +232,7 @@ int				mouse(int x, int y, void *param);
 
 //main.c
 void			print_list(t_object *start);
-int				shut(void *param);
+int				exit_hook(void *param);
 
 //maths.c
 int				ran_int(int min, int max);
@@ -249,12 +250,10 @@ t_collectible	*new_collectible(t_display *display, t_xy pos);
 //parsing.c
 int				find_holes(char **array, int rows);
 void			count_items(char *array, t_world *world);
-char			**map2char_array(char *file, int rows, t_world *world);
 t_tile			**char2tile(t_world *world, int row_count, t_display *display);
 char			**scan_map(t_world *world, char *file);
 
 //parsing2.c
-char			**dup_char_array(char **c);
 int				find_exit(char **c, t_world *world);
 int				count_newline(char *filename, t_world *world);
 
@@ -291,13 +290,12 @@ void			draw_rect(t_img *img, t_xy dimensions, t_xy pos, int color);
 void			print_char_array(char **c);
 void			print_2d_tiles(t_tile	**c);
 void			count_items(char *array, t_world *world);
-char			**map2char_array(char *file, int rows, t_world *world);
+char			**map2char_array(char *file, int rows);
 t_tile			**char2tile(t_world *world, int row_count, t_display *display);
 
 void			ray_init(t_ray *ray, t_xy pos, double angle_deg, int distance);
 int				ray_cast(t_world *world, t_xy pos, double angle_deg,
 					int distance);
-char			**dup_char_array(char **c);
 int				find_exit(char **c, t_world *world);
 
 int				render_floor(t_world *world,

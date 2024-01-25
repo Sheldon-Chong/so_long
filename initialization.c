@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:23 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/25 10:11:47 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 11:33:26 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,12 +72,13 @@ t_world	*world_init(char *map, t_display *display)
 	world->has_collected_all_collectibles = false;
 	world->count = (t_counter){0, 0, 0, 0, 0};
 	*world = ((t_world){player, NULL, NULL, scan_map(world, map),
-			NULL, world->dimensions, (t_counter){0, 0, 0, 0, 0}});
+			NULL, world->dimensions, (t_counter){0, 0, 0, 0, 0}, false, 0});
 	*player = (t_player){(t_xy){1, 1}, (t_xy){1, 1}, (t_animator){0, 0, 30,
-		frames(PLAYER_SPRITES, "assets/", display)}};
+		frames(PLAYER_SPRITES, "assets/", display), 0}};
 	player->animator.current_frame = world->player->animator.frames[0];
 	world->collectibles = NULL;
 	world->enemies = NULL;
+	world->collectibles_collected = 0;
 	world->tgrid = char2tile(world, count_newline(map, world), display);
 	find_exit(world->grid, world);
 	return (world);

@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:48:33 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/25 10:14:14 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 11:02:07 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,4 +90,13 @@ int	update_all_animators(t_display *display, t_world *world)
 		animator->frame_index = (animator->frame_index + 1) % 2;
 	animator->current_frame = animator->frames[0];
 	return (1);
+}
+
+void	render_ui(t_world *world, t_display *display)
+{
+	char			*buffer;
+
+	buffer = ft_itoa(world->count.moves);
+	mlx_string_put(display->mlx, display->mlx_win, 10, 10, 0x00FF0000, buffer);
+	free(buffer);
 }

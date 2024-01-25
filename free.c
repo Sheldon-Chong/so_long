@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:52:14 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/25 10:15:48 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 11:21:07 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,9 @@ void	free_ojects(t_world *world, t_display *display)
 
 int	exit_game(t_world *world, t_display *display)
 {
+	ft_putstr_fd("\nGAME OVER\nCollectibles collected: ", 1);
+	ft_putnbr_fd(world->collectibles_collected, 1);
+	ft_putchar_fd('\n', 1);
 	free_ojects(world, display);
 	img_destroy(display->mlx, world->player->animator.frames[0]);
 	img_destroy(display->mlx, world->player->animator.frames[1]);
@@ -82,7 +85,7 @@ int	exit_game(t_world *world, t_display *display)
 	exit(0);
 }
 
-int	shut(void *param)
+int	exit_hook(void *param)
 {
 	t_world		*world;
 	t_display	*display;

@@ -1,22 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   error.c                                            :+:      :+:    :+:   */
+/*   ft_dup_char_array.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shechong <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/25 11:06:33 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/25 11:06:34 by shechong         ###   ########.fr       */
+/*   Created: 2024/01/25 11:06:12 by shechong          #+#    #+#             */
+/*   Updated: 2024/01/25 11:06:14 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	check(int condition, char *str)
+char	**dup_char_array(char **c)
 {
-	if (condition)
-	{
-		ft_putstr_fd(str, 2);
-		exit(1);
-	}
+	int		y;
+	char	**ret_array;
+
+	y = 0;
+	while (c[y])
+		y ++;
+	ret_array = malloc(sizeof(char *) * (y + 1));
+	y = -1;
+	while (c[++y])
+		ret_array[y] = ft_strdup(c[y]);
+	ret_array[y] = NULL;
+	return (ret_array);
 }
