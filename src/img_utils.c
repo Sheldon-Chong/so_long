@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:43 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/25 11:30:58 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 13:57:22 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ int	img_impose(t_img *canvas, t_img *img, t_xy start, t_xy scaling)
 				color = get_color(img, (int)(((double)pix.x
 								/ (double)scaling.x) * img->width), \
 				(int)(((double)pix.y / (double)scaling.y) * img->height));
-			if (color != C_MLX_TRANSPARENT && (unsigned int)color 
+			if (color != C_MLX_TRANSPARENT && (unsigned int)color
 				!= C_TRANSPARENT)
 				put_pixel(canvas, pix.x + start.x, pix.y + start.y, color);
 		}

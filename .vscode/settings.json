@@ -25,6 +25,8 @@
 		"ios": "c",
 		"complex": "c",
 		"__locale": "c",
-		"so_long.h": "c"
+		"so_long.h": "c",
+		"*.ds_store": "c",
+		"math.h": "c"
 	}
 }

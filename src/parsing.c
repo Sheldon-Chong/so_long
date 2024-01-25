@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:29 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/25 11:35:00 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 13:56:27 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@ void	*create_obj(t_world *world, t_display *display, t_xy pos, char c)
 	if (c == 'C')
 		return (append(&world->collectibles, \
 	new_obj("c", new_collectible(display, pos)))->data);
+	if (c == 'P')
+		world->player->pos = pos;
 	return (NULL);
 }
 
@@ -85,7 +87,7 @@ char	**scan_map(t_world *world, char *file)
 	char	**char_array;
 	int		fd;
 
-	check(ft_strncmp(file + ft_strlen(file - 4), ".ber", 4),
+	check(ft_strncmp(file + ft_strlen(file) - 4, ".ber", 4),
 		"Not a .ber file\n");
 	fd = open(file, 0);
 	check(fd == -1, "Error: Cannot read file\n");

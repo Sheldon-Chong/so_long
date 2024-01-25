@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 10:53:58 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/25 11:35:12 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 14:07:06 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ int	count_newline(char *filename, t_world *world)
 	{
 		newline_count++;
 		count_items(buffer, world);
-		check(ft_is_charset(buffer, "1P2CESH0\n") != 1,
+		check(ft_is_charset(buffer, VALID_CHAR) != 1,
 			"Error: Invalid character found\n");
 		check(prev_length != ft_strlen(buffer),
 			"Error: Map is not rectangular\n");
