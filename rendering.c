@@ -6,11 +6,11 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:48:33 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/04 11:00:15 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 10:14:14 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "graphics.h"
+#include "so_long.h"
 
 t_xy	render_tile(t_display *display,
 	t_img *b_image, t_xy pos, t_xy mod)
@@ -54,31 +54,6 @@ int	render_floor(t_world *world, t_display *display, t_img **sprites)
 	return (1);
 }
 
-void	render_obj(t_world *world, t_display *display, t_xy tile)
-{
-	t_tile		current_tile;
-	t_img		**sprites;
-
-	sprites = display->sprites;
-	current_tile = world->tgrid[tile.y][tile.x];
-	if (current_tile.type == '1')
-		render_tile(display, sprites[1], (t_xy){tile.x, tile.y},
-			(t_xy){0, (current_tile.type == '1') * -30});
-	if (current_tile.type == 'E')
-		render_tile(display, sprites[4],
-			(t_xy){tile.x, tile.y}, (t_xy){0, -50});
-	if (current_tile.type == 'S' && current_tile.data)
-		render_sentry(display, (t_sentry *)((current_tile.data)));
-	if (current_tile.type == 'C' && current_tile.data)
-		render_tile(display,
-			((t_collectible *)(current_tile.data))->animator.current_frame,
-			tile, (t_xy){center(display->sprites[1],
-				((t_collectible *)(current_tile.data))->animator.current_frame),
-			-20});
-	if (tile.x == world->player->pos.x && tile.y == world->player->pos.y)
-		render_player(world, display);
-}
-
 void	render_world(t_world *world, t_display *display)
 {
 	t_xy		tile;
@@ -98,7 +73,7 @@ int	update_all_animators(t_display *display, t_world *world)
 	t_object	*head;
 	t_animator	*animator;
 
-	update_enemies(world, display);
+	update_sentries(world, display);
 	head = world->collectibles;
 	while (head)
 	{

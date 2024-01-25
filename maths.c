@@ -6,11 +6,11 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 11:29:36 by shechong          #+#    #+#             */
-/*   Updated: 2023/11/02 19:41:27 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 10:18:21 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "graphics.h"
+#include "so_long.h"
 
 int	ran_int(int min, int max)
 {

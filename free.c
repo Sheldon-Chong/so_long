@@ -6,11 +6,11 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:52:14 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/04 10:47:39 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 10:15:48 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "graphics.h"
+#include "so_long.h"
 
 void	img_destroy(void *mlx, t_img *img)
 {
@@ -71,7 +71,7 @@ void	free_ojects(t_world *world, t_display *display)
 	}
 }
 
-int	endgame(t_world *world, t_display *display)
+int	exit_game(t_world *world, t_display *display)
 {
 	free_ojects(world, display);
 	img_destroy(display->mlx, world->player->animator.frames[0]);
@@ -89,6 +89,6 @@ int	shut(void *param)
 
 	world = ((t_frame *)(param))->world;
 	display = ((t_frame *)(param))->display;
-	endgame(world, display);
+	exit_game(world, display);
 	return (1);
 }

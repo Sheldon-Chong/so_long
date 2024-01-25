@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   graphic_utils.c                                    :+:      :+:    :+:   */
+/*   img_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:43 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/04 11:36:11 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 10:07:42 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "graphics.h"
+#include "so_long.h"
 
 t_img	*empty_img(void *mlx, int x, int y)
 {
@@ -71,6 +71,20 @@ int	img_impose(t_img *canvas, t_img *img, t_xy start, t_xy scaling)
 					put_pixel(canvas, pix.x + start.x, pix.y + start.y, color);
 			}
 		}
+	}
+	return (1);
+}
+
+int	clear_img(t_img *img)
+{
+	t_xy	pix;
+
+	pix = (t_xy){-1, -1};
+	while (++pix.y < img->height)
+	{
+		pix.x = -1;
+		while (++pix.x < img->width)
+			put_pixel(img, pix.x, pix.y, COLOR_BLACK);
 	}
 	return (1);
 }

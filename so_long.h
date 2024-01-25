@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   graphics.h                                         :+:      :+:    :+:   */
+/*   so_long.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 20:06:01 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/04 11:37:03 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 10:07:20 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GRAPHICS_H
-# define GRAPHICS_H
+#ifndef SO_LONG_H
+# define SO_LONG_H
 
 # include <mlx.h>
 # include <stdlib.h>
@@ -37,6 +37,7 @@
 # define SENTRY_SPRITES "sentry.xpm"
 # define COLLECTIBLE_SPRITES "collectible_1.xpm,collectible_4.xpm"
 # define PLAYER_SPRITES "player.xpm,player_2.xpm"
+# define SENTRY_MOVEMENT_DAY 30
 
 // map sprites
 # define WALL_SPRITE "assets/Wall.xpm"
@@ -48,6 +49,7 @@
 # define ON_MOUSE_MOTION 6
 # define ON_KEY_PRESS 2
 # define ON_DESTROY 17
+# define ON_ESCAPE 53
 
 //keys
 # define LINUX_W 13
@@ -150,8 +152,6 @@ typedef struct s_grid_display
 
 typedef struct s_display
 {
-	int			width;
-	int			height;
 	void		*mlx;
 	void		*mlx_win;
 	t_img		**sprites;
@@ -188,6 +188,7 @@ typedef struct s_world
 	t_tile		**tgrid;
 	t_xy		dimensions;
 	t_counter	count;
+	bool		has_collected_all_collectibles;
 }	t_world;
 
 typedef struct frame_data
@@ -198,12 +199,12 @@ typedef struct frame_data
 }	t_frame;
 
 //enemy.c
-void			enemy_move(t_sentry *enemy, t_xy pos, t_world *world);
-int				decide_enemy_movement(t_world *world, t_sentry *enemy);
-int				enemy_search4player(t_world *world, t_sentry *enemy);
+void			sentry_move(t_sentry *enemy, t_xy pos, t_world *world);
+int				sentry_decide_move_vect(t_world *world, t_sentry *enemy);
+int				sentry_fov_raycast(t_world *world, t_sentry *enemy);
 void			enemy_track(t_world *world,
 					t_display *display, t_sentry *enemy);
-void			update_enemies(t_world *world, t_display *display);
+void			update_sentries(t_world *world, t_display *display);
 
 //free.c
 void			free_world_display(t_world *world, t_display *display);
@@ -225,7 +226,7 @@ t_world			*world_init(char *map, t_display *display);
 //hooks.c
 int				handle_keypress(int keycode, t_frame *frame_index);
 void			render_ui(t_world *world, t_display *display);
-int				render_next_frame(void *param);
+int				render_frame(void *param);
 int				mouse(int x, int y, void *param);
 
 //main.c
@@ -248,15 +249,14 @@ t_collectible	*new_collectible(t_display *display, t_xy pos);
 //parsing.c
 int				find_holes(char **array, int rows);
 void			count_items(char *array, t_world *world);
-char			**read_map(char *file, int rows, t_world *world);
+char			**map2char_array(char *file, int rows, t_world *world);
 t_tile			**char2tile(t_world *world, int row_count, t_display *display);
 char			**scan_map(t_world *world, char *file);
 
 //parsing2.c
-void			recur(char **c, t_xy pos, t_world *world, int *exit_found);
-char			**clone_char_array(char **c);
+char			**dup_char_array(char **c);
 int				find_exit(char **c, t_world *world);
-int				count_newline(char *filename);
+int				count_newline(char *filename, t_world *world);
 
 //pixels.c
 void			draw_rect(t_img *img, t_xy dimensions, t_xy pos, int color);
@@ -287,19 +287,17 @@ t_img			*img_from_path(char *image, void *mlx);
 void			draw_line(t_img *img, t_xy start, t_xy end, int color);
 void			draw_rect(t_img *img, t_xy dimensions, t_xy pos, int color);
 
-int				count_newline(char *filename);
 
 void			print_char_array(char **c);
 void			print_2d_tiles(t_tile	**c);
 void			count_items(char *array, t_world *world);
-char			**read_map(char *file, int rows, t_world *world);
+char			**map2char_array(char *file, int rows, t_world *world);
 t_tile			**char2tile(t_world *world, int row_count, t_display *display);
-char			**scan_map(t_world *world, char *file);
 
 void			ray_init(t_ray *ray, t_xy pos, double angle_deg, int distance);
 int				ray_cast(t_world *world, t_xy pos, double angle_deg,
 					int distance);
-char			**clone_char_array(char **c);
+char			**dup_char_array(char **c);
 int				find_exit(char **c, t_world *world);
 
 int				render_floor(t_world *world,
@@ -307,17 +305,17 @@ int				render_floor(t_world *world,
 int				render_sentry(t_display *display, t_sentry *enemy);
 void			render_world(t_world *world, t_display *display);
 
-void			update_enemies(t_world *world, t_display *display);
+void			update_sentries(t_world *world, t_display *display);
 int				update_all_animators(t_display *display, t_world *world);
 
 int				draw_fov(t_sentry *enemy, t_display *display,
 					t_img *char_array);
 
-int				endgame(t_world *world, t_display *display);
+int				exit_game(t_world *world, t_display *display);
 int				mouse(int x, int y, void *param);
-int				render_next_frame(void *param);
+int				render_frame(void *param);
 
-int				endgame(t_world *world, t_display *display);
+int				exit_game(t_world *world, t_display *display);
 void			print_statistics(t_world *world);
 void			print_2d_tiles(t_tile **c);
 t_xy			render_tile(t_display *display,
@@ -329,5 +327,8 @@ int				img_impose(t_img *canvas, t_img *img, t_xy start, t_xy scaling);
 int				clear_img(t_img *img);
 
 int				get_color(t_img *img, int x, int y);
+
+
+void			render_obj(t_world *world, t_display *display, t_xy tile);
 
 #endif

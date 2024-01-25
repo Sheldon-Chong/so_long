@@ -6,36 +6,35 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:23 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/04 11:37:45 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 10:11:47 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "graphics.h"
+#include "so_long.h"
 
 t_display	display_init(int width, int height)
 {
 	t_camera	*camera;
-	t_display	ret;
+	t_display	display;
 
 	camera = malloc(sizeof(t_camera));
 	*camera = (t_camera){(t_xy){1, 1}, (t_xy){1, 1}};
-	ret.dimensions = (t_xy){width, height};
-	ret.mlx = mlx_init();
-	ret.mlx_win = mlx_new_window(ret.mlx, width, height, "Hello world!");
-	ret.width = width;
-	ret.height = height;
-	ret.camera = camera;
-	ret.grid_display = malloc(sizeof(t_grid_d));
-	*(ret.grid_display) = (t_grid_d){1, 1, 1, 1};
-	ret.mouse = (t_xy){0, 0};
-	ret.sprites = malloc(sizeof(t_img *) * 6);
-	ret.sprites[1] = img_from_path(WALL_SPRITE, ret.mlx);
-	ret.sprites[2] = img_from_path(FLOOR_1_SPRITE, ret.mlx);
-	ret.sprites[3] = img_from_path(FLOOR_2_SPRITE, ret.mlx);
-	ret.sprites[4] = img_from_path(EXIT_SPRITE, ret.mlx);
-	ret.sprites[5] = NULL;
-
-	return (ret);
+	display.camera = camera;
+	display.dimensions = (t_xy){width, height};
+	display.mlx = mlx_init();
+	display.mlx_win = mlx_new_window
+		(display.mlx, width, height, "Hello world!");
+	display.grid_display = malloc(sizeof(t_grid_d));
+	*(display.grid_display) = (t_grid_d){1, 1, 1, 1};
+	display.mouse = (t_xy){0, 0};
+	display.sprites = malloc(sizeof(t_img *) * 6);
+	display.sprites[1] = img_from_path(WALL_SPRITE, display.mlx);
+	display.sprites[2] = img_from_path(FLOOR_1_SPRITE, display.mlx);
+	display.sprites[3] = img_from_path(FLOOR_2_SPRITE, display.mlx);
+	display.sprites[4] = img_from_path(EXIT_SPRITE, display.mlx);
+	display.sprites[5] = NULL;
+	display.img = empty_img(display.mlx, SCREEN_WIDTH, SCREEN_HEIGHT);
+	return (display);
 }
 
 t_img	**frames(char *frames, char *directory, t_display *display)
@@ -70,6 +69,7 @@ t_world	*world_init(char *map, t_display *display)
 
 	player = malloc(sizeof(t_player));
 	world = malloc(sizeof(t_world));
+	world->has_collected_all_collectibles = false;
 	world->count = (t_counter){0, 0, 0, 0, 0};
 	*world = ((t_world){player, NULL, NULL, scan_map(world, map),
 			NULL, world->dimensions, (t_counter){0, 0, 0, 0, 0}});
@@ -78,6 +78,7 @@ t_world	*world_init(char *map, t_display *display)
 	player->animator.current_frame = world->player->animator.frames[0];
 	world->collectibles = NULL;
 	world->enemies = NULL;
-	world->tgrid = char2tile(world, count_newline("map.ber"), display);
+	world->tgrid = char2tile(world, count_newline(map, world), display);
+	find_exit(world->grid, world);
 	return (world);
 }

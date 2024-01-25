@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/09 11:08:18 by shechong          #+#    #+#             */
-/*   Updated: 2023/09/07 13:04:47 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 10:18:38 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,5 +94,10 @@ int				ft_instr(char c, char *str);
 
 void			*f(void *ptr, void *input);
 void			*fa(void **ptr, void *input);
+
+void			pass(int condition, char *str);
+char			*rft_substr(char *s,
+					unsigned int start, size_t len);
+
 
 #endif

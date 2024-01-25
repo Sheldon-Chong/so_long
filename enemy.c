@@ -6,13 +6,13 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:16 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/04 11:30:24 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 10:15:48 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "graphics.h"
+#include "so_long.h"
 
-void	enemy_move(t_sentry *enemy, t_xy pos, t_world *world)
+void	sentry_move(t_sentry *enemy, t_xy pos, t_world *world)
 {
 	if (pos.x < world->dimensions.x
 		&& pos.y < world->dimensions.y
@@ -28,20 +28,20 @@ void	enemy_move(t_sentry *enemy, t_xy pos, t_world *world)
 	}
 }
 
-int	decide_enemy_movement(t_world *world, t_sentry *enemy)
+int	sentry_decide_move_vect(t_world *world, t_sentry *enemy)
 {
 	if (world->player->pos.x - enemy->pos.x > 0)
-		enemy_move(enemy, (t_xy){enemy->pos.x + 1, enemy->pos.y}, world);
+		sentry_move(enemy, (t_xy){enemy->pos.x + 1, enemy->pos.y}, world);
 	if (world->player->pos.x - enemy->pos.x < 0)
-		enemy_move(enemy, (t_xy){enemy->pos.x - 1, enemy->pos.y}, world);
+		sentry_move(enemy, (t_xy){enemy->pos.x - 1, enemy->pos.y}, world);
 	if (world->player->pos.y - enemy->pos.y > 0)
-		enemy_move(enemy, (t_xy){enemy->pos.x, enemy->pos.y + 1}, world);
+		sentry_move(enemy, (t_xy){enemy->pos.x, enemy->pos.y + 1}, world);
 	if (world->player->pos.y - enemy->pos.y < 0)
-		enemy_move(enemy, (t_xy){enemy->pos.x, enemy->pos.y - 1}, world);
+		sentry_move(enemy, (t_xy){enemy->pos.x, enemy->pos.y - 1}, world);
 	return (1);
 }
 
-int	enemy_search4player(t_world *world, t_sentry *enemy)
+int	sentry_fov_raycast(t_world *world, t_sentry *enemy)
 {
 	if (enemy->alert)
 	{
@@ -65,20 +65,20 @@ void	enemy_track(t_world *world, t_display *display, t_sentry *enemy)
 {
 	if (enemy->pos.x == world->player->pos.x
 		&& enemy->pos.y == world->player->pos.y)
-		endgame(world, display);
+		exit_game(world, display);
 	enemy->current_angle = enemy->current_angle
 		+ (enemy->final_angle - enemy->current_angle) / 10;
 	enemy->player_found = 0;
-	enemy_search4player(world, enemy);
+	sentry_fov_raycast(world, enemy);
 	if (ran_int(1, SENTRY_TURN_RATE) == 1 && enemy->player_found == 0)
 		enemy->final_angle += ran_int(-180, 180);
 	if (enemy->player_found == 1
 		&& (enemy->time.elapsed == 0))
-		decide_enemy_movement(world, enemy);
+		sentry_decide_move_vect(world, enemy);
 	enemy->alert -= (enemy->alert > 0);
 }
 
-void	update_enemies(t_world *world, t_display *display)
+void	update_sentries(t_world *world, t_display *display)
 {
 	t_sentry	*enemy;
 	t_object	*head;
@@ -91,8 +91,8 @@ void	update_enemies(t_world *world, t_display *display)
 		enemy = (t_sentry *)(head->data);
 		enemy_track(world, display, enemy);
 		draw_fov(enemy, display, char_array);
+		enemy->time.elapsed = (enemy->time.elapsed + 1) % SENTRY_MOVEMENT_DAY;
 		head = head->next;
-		enemy->time.elapsed = (enemy->time.elapsed + 1) % 30;
 	}
 	free(char_array);
 }

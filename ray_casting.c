@@ -6,11 +6,11 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:00 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/04 10:39:04 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 10:07:42 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "graphics.h"
+#include "so_long.h"
 
 void	ray_init(t_ray *ray, t_xy pos, double angle_deg, int distance)
 {

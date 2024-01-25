@@ -6,26 +6,26 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:29 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/04 10:56:54 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 10:07:42 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "graphics.h"
+#include "so_long.h"
 
 int	find_holes(char **array, int rows)
 {
 	int	i;
 
 	i = -1;
-	if (!array || !array[0])
+	if (!array || !array[0] || !array[0][0])
 		return (0);
 	while (array[0][++i])
-		if (array[0][i] != '1' || array[rows - 1][i] != '1')
-			exit(write(2, "Not fully walled\n", 16));
+		pass(array[0][i] != '1' || array[rows - 1][i] != '1',
+			"Error: Not fully walled\n");
 	i = -1;
 	while (array[++i])
-		if (array[i][0] != '1' || array[i][ft_strlen(array[0]) - 1] != '1')
-			exit(write(2, "Not fully walled\n", 16));
+		pass(array[i][0] != '1' || array[i][ft_strlen(array[0]) - 1] != '1',
+			"Error: Not fully walled\n");
 	return (0);
 }
 
@@ -43,35 +43,6 @@ void	count_items(char *array, t_world *world)
 		if (array[i] == 'E')
 			world->count.exit ++;
 	}
-}
-
-char	**read_map(char *file, int rows, t_world *world)
-{
-	int		i;
-	char	*buffer;
-	char	**array;
-	int		fd;
-
-	fd = open(file, 0);
-	i = 0;
-	buffer = get_next_line(fd);
-	array = malloc(sizeof(char *) * (rows + 1));
-	while (buffer)
-	{
-		array[i++] = ft_substr(buffer, 0, ft_strrchr(buffer, '\n') - buffer);
-		count_items(array[i - 1], world);
-		free(buffer);
-		buffer = get_next_line(fd);
-	}
-	array[i] = NULL;
-	close(fd);
-	if (world->count.player < 1)
-		exit(write(1, "Error: Incorrect number of players\n", 34));
-	if (world->count.exit < 1)
-		exit(write(1, "Error: No exit\n", 15));
-	if (world->count.collectible < 1)
-		exit(write(1, "Error: No collectible\n", 21));
-	return (array);
 }
 
 t_tile	**char2tile(t_world *world, int row_count, t_display *display)
@@ -107,26 +78,42 @@ char	**scan_map(t_world *world, char *file)
 {
 	int		line_count;
 	char	**char_array;
+	int		fd;
+
+	pass(ft_strncmp(file + ft_strlen(file - 4), ".ber", 4),
+		"Not a .ber file\n");
+	fd = open(file, 0);
+	pass(fd == -1, "Error: Cannot read file\n");
+	line_count = count_newline(file, world);
+	pass(world->count.player != 1, "Error: Incorrect number of players\n");
+	pass(world->count.exit < 1, "Error: No exit present\n");
+	pass(world->count.collectible < 1, "Error: No collectible present\n");
+	pass(line_count < 3, "Error: Incorrect length\n");
+	char_array = map2char_array(file, line_count, world);
+	find_holes(char_array, line_count);
+	world->dimensions.y = line_count;
+	world->dimensions.x = ft_strlen(char_array[0]);
+	return (char_array);
+}
+
+char	**map2char_array(char *file, int rows, t_world *world)
+{
 	int		i;
+	char	*buffer;
+	char	**array;
 	int		fd;
 
 	fd = open(file, 0);
-	if (fd == -1)
-		exit(write(2, "Error: Cannot read file\n", 23));
-	line_count = count_newline(file);
-	if (line_count == 1)
-		exit(write(2, "Error: Incorrect length\n", 23));
-	char_array = read_map(file, line_count, world);
-	i = -1;
-	while (char_array[++i + 1])
-		if (ft_strlen(char_array[i])
-			!= ft_strlen(char_array[i + 1]))
-			exit(write(2, "Error: Incorrect length1\n", 23));
-	find_holes(char_array, line_count);
-	print_char_array(char_array);
-	world->dimensions.y = line_count;
-	world->dimensions.x = ft_strlen(char_array[0]);
-	if (world->dimensions.y == world->dimensions.x)
-		exit(write(2, "Error: Incorrect length\n", 23));
-	return (char_array);
+	i = 0;
+	buffer = get_next_line(fd);
+	array = malloc(sizeof(char *) * (rows + 1));
+	while (buffer)
+	{
+		array[i++] = ft_substr(buffer, 0, ft_strrchr(buffer, '\n') - buffer);
+		free(buffer);
+		buffer = get_next_line(fd);
+	}
+	array[i] = NULL;
+	close(fd);
+	return (array);
 }

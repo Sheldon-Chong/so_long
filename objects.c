@@ -6,11 +6,11 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 12:03:15 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/04 11:18:57 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 10:07:42 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "graphics.h"
+#include "so_long.h"
 
 t_object	*new_obj(char *type, void *data)
 {
@@ -48,7 +48,8 @@ t_sentry	*new_sentry(t_display *display, t_xy pos)
 	sentry = malloc(sizeof(t_sentry));
 	*sentry = (t_sentry){pos, 0, 0, 5,
 		(t_animator){0, 0, 30,
-		frames(SENTRY_SPRITES, "assets/", display)}, 0, 0, pos, (t_timer){5, 0}};
+		frames(SENTRY_SPRITES, "assets/", display)},
+		0, 0, pos, (t_timer){5, 0}};
 	sentry->animator.current_frame = sentry->animator.frames[0];
 	return (sentry);
 }

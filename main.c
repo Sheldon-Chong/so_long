@@ -6,43 +6,35 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:09 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/04 11:26:55 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 10:07:42 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "graphics.h"
+#include "so_long.h"
 
-int	clear_img(t_img *img)
+int	handle_keys(int keycode, t_frame *frame)
 {
-	t_xy	pix;
-
-	pix = (t_xy){-1, -1};
-	while (++pix.y < img->height)
-	{
-		pix.x = -1;
-		while (++pix.x < img->width)
-			put_pixel(img, pix.x, pix.y, COLOR_BLACK);
-	}
-	return (1);
+	if (keycode == ON_ESCAPE)
+		shut(frame);
+	return (0);
 }
 
-int	main(void)
+int	main(int ac, char **av)
 {
 	t_display	display;
 	t_world		*world;
 	t_frame		frame;
 	int			frame_sec;
 
+	pass(ac != 2, "Incorrect argument count\n");
 	display = display_init(SCREEN_WIDTH, SCREEN_HEIGHT);
-	world = world_init("map.ber", &display);
-	if (find_exit(world->grid, world) == 0)
-		exit(write(2, "Error: Player cannot reach exit\n", 32));
-	display.img = empty_img(display.mlx, SCREEN_WIDTH, SCREEN_HEIGHT);
+	world = world_init(av[1], &display);
 	frame_sec = 0;
 	frame = (t_frame){&frame_sec, world, &display};
 	mlx_hook(display.mlx_win, ON_KEY_PRESS, 1L << 0, handle_keypress, &frame);
-	mlx_loop_hook(display.mlx, render_next_frame, &frame);
+	mlx_loop_hook(display.mlx, render_frame, &frame);
 	mlx_hook(display.mlx_win, ON_MOUSE_MOTION, 1L << 6, mouse, &frame);
 	mlx_hook(display.mlx_win, ON_DESTROY, 0, shut, &frame);
+	mlx_key_hook(display.mlx_win, handle_keys, &frame);
 	mlx_loop(display.mlx);
 }

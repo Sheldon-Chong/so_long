@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 14:05:47 by shechong          #+#    #+#             */
-/*   Updated: 2023/06/23 12:00:33 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/23 16:52:08 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,5 +102,7 @@ char	*get_next_line(int fd)
 	}
 	ret = get_current_line(static_buffer);
 	static_buffer = remove_current_line(static_buffer);
+	if (ft_strlen(ret) > 0 && ret[ft_strlen(ret) - 1] == '\n' && GNL_RM_NEWLINE)
+		ret = rft_substr(ret, 0, ft_strlen(ret) - 1);
 	return (free_ret(buffer, ret));
 }

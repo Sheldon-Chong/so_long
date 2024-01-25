@@ -6,11 +6,11 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:21 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/04 11:14:07 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 10:15:48 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "graphics.h"
+#include "so_long.h"
 
 int	handle_keypress(int keycode, t_frame *frame)
 {
@@ -31,11 +31,13 @@ int	handle_keypress(int keycode, t_frame *frame)
 	tile = frame->world->tgrid[new_pos.y][new_pos.x];
 	if (new_pos.x > 0 && new_pos.y > 0 && tile.type != '1' && tile.type != 'S')
 	{
+		ft_putnbr_fd(frame->world->count.moves, 1);
+		ft_putchar_fd('\n', 1);
 		player->pos = new_pos;
 		frame->world->count.moves ++;
 	}
 	if (tile.type == 'E')
-		endgame(frame->world, frame->display);
+		exit_game(frame->world, frame->display);
 	if ((frame->world->tgrid[player->pos.y][player->pos.x].type) == 'C')
 		frame->world->tgrid[player->pos.y][player->pos.x].type = 'G';
 	return (0);
@@ -50,7 +52,7 @@ void	render_ui(t_world *world, t_display *display)
 	free(buffer);
 }
 
-int	render_next_frame(void *param)
+int	render_frame(void *param)
 {
 	t_frame			*data;
 	t_world			*world;
@@ -70,8 +72,8 @@ int	render_next_frame(void *param)
 		+ (display->mouse.y - (SCREEN_HEIGHT / 2)) / 3}, 10);
 	render_world(world, display);
 	*(display->grid_display) = (t_grid_d){
-		21, 21, ((display->width) / 2) - display->camera->pos.x,
-		((display->height) / 2) - display->camera->pos.y};
+		21, 21, ((display->dimensions.x) / 2) - display->camera->pos.x,
+		((display->dimensions.y) / 2) - display->camera->pos.y};
 	update_all_animators(display, world);
 	mlx_put_image_to_window(display->mlx, display->mlx_win,
 		display->img->img, 0, 0);

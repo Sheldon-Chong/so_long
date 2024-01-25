@@ -6,11 +6,11 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:35 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/03 15:04:43 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 10:07:42 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "graphics.h"
+#include "so_long.h"
 
 void	print_2d_tiles(t_tile **c)
 {
@@ -40,29 +40,6 @@ void	print_2d_tiles(t_tile **c)
 	}
 }
 
-// void	print_statistics(t_world *world)
-// {
-// 	t_object	*head;
-
-// 	printf("\nENEMIES:\n");
-// 	head = world->enemies;
-// 	while (head)
-// 	{
-// 		printf("Position: (%d, %d)\n", ((t_sentry *)(head->data))->pos.x,
-// 			((t_sentry *)(head->data))->pos.y);
-// 		printf("HP: (%d)\n", ((t_sentry *)(head->data))->hp);
-// 		head = head->next;
-// 	}
-// 	printf("\nCOLLECtIBLES:\n");
-// 	head = world->enemies;
-// 	while (head)
-// 	{
-// 		printf("Position: (%d, %d)\n", ((t_collectible *)(head->data))->pos.x,
-// 			((t_collectible *)(head->data))->pos.y);
-// 		head = head->next;
-// 	}
-// }
-
 void	print_char_array(char **c)
 {
 	int	y;
@@ -76,27 +53,4 @@ void	print_char_array(char **c)
 			ft_putchar_fd(c[y][x], 1);
 		ft_putchar_fd('\n', 1);
 	}
-}
-
-void	print_end_screen(t_world *world)
-{
-	ft_putstr_fd(" _______  _______  __   __  _______    ", 1);
-	ft_putstr_fd("_______  __   __  _______  ______   \n", 1);
-	ft_putstr_fd("|       ||   _   ||  |_|  ||       |  ", 1);
-	ft_putstr_fd("|       ||  | |  ||       ||    _ |  \n", 1);
-	ft_putstr_fd("|    ___||  |_|  ||       ||    ___|  ", 1);
-	ft_putstr_fd("|   _   ||  |_|  ||    ___||   | ||  \n", 1);
-	ft_putstr_fd("|   | __ |       ||       ||   |___   ", 1);
-	ft_putstr_fd("|  | |  ||       ||   |___ |   |_||_ \n", 1);
-	ft_putstr_fd("|   ||  ||       ||       ||    ___|  ", 1);
-	ft_putstr_fd("|  |_|  ||       ||    ___||    __  |\n", 1);
-	ft_putstr_fd("|   |_| ||   _   || ||_|| ||   |___   ", 1);
-	ft_putstr_fd("|       | |     | |   |___ |   |  | |\n", 1);
-	ft_putstr_fd("|_______||__| |__||_|   |_||_______|  ", 1);
-	ft_putstr_fd("|_______|  |___|  |_______||___|  |_|\n", 1);
-	ft_putstr_fd("|_______||__| |__||_|   |_||_______|  ", 1);
-	ft_putstr_fd("|_______|  |___|  |_______||___|  |_|\n", 1);
-	ft_putstr_fd("\n\nCoins collected:", 1);
-	ft_putnbr_fd(world->count.collectible, 1);
-	ft_putstr_fd("\n\n\n", 1);
 }

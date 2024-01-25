@@ -25,6 +25,6 @@
 		"ios": "c",
 		"complex": "c",
 		"__locale": "c",
-		"graphics.h": "c"
+		"so_long.h": "c"
 	}
 }
