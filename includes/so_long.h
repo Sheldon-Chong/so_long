@@ -46,7 +46,6 @@
 # define EXIT_SPRITE "assets/exit.xpm"
 
 # define VALID_CHAR "1P2CESH0\n"
-# define IS_BONUS false
 
 //hooks
 # define ON_MOUSE_MOTION 6

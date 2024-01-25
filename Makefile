@@ -20,7 +20,7 @@ all: $(NAME)
 
 bonus: $(OBJS)
 	@echo "Compiling Bonus $(NAME)..."
-	@make -C ./libft
+	@make bonus -C ./libft
 	$(CC) $(FLAGS) $(OBJS) $(LIBRARY) $(INCLUDES) -D BONUS=1 -D VALID_CHAR="1P2CESH0\n" -o $@
 	@echo "$(NAME) compiled successfully."
 
@@ -36,6 +36,8 @@ $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c
 
 clean:
 	@rm -rf $(OBJS_DIR)
+	@make clean -C ./libft
+	@echo "Object files have been removed."
 
 fclean: clean
 	@rm -rf $(NAME)
