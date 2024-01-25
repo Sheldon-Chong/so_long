@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:46:23 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/25 11:33:26 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 14:32:41 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,5 +81,6 @@ t_world	*world_init(char *map, t_display *display)
 	world->collectibles_collected = 0;
 	world->tgrid = char2tile(world, count_newline(map, world), display);
 	find_exit(world->grid, world);
+	check(world->dimensions.x * world->dimensions.y > 700, "Map too big\n");
 	return (world);
 }
