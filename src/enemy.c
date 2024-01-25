@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:16 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/25 12:04:19 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 14:44:45 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ int	sentry_fov_raycast(t_world *world, t_sentry *enemy)
 	return (1);
 }
 
-void	enemy_track(t_world *world, t_display *display, t_sentry *enemy)
+void	update_sentry(t_world *world, t_display *display, t_sentry *enemy)
 {
 	if (enemy->pos.x == world->player->pos.x
 		&& enemy->pos.y == world->player->pos.y)
@@ -89,7 +89,7 @@ void	update_sentries(t_world *world, t_display *display)
 	while (head)
 	{
 		enemy = (t_sentry *)(head->data);
-		enemy_track(world, display, enemy);
+		update_sentry(world, display, enemy);
 		draw_fov(enemy, display, char_array);
 		enemy->time.elapsed = (enemy->time.elapsed + 1) % SENTRY_MOVEMENT_DAY;
 		head = head->next;

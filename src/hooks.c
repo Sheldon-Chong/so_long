@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:21 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/25 11:20:46 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 14:40:34 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ int	render_frame(void *param)
 	return (1);
 }
 
-int	mouse(int x, int y, void *param)
+int	mouse_hook(int x, int y, void *param)
 {
 	t_frame	*char_array;
 

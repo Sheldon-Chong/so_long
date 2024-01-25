@@ -41,6 +41,7 @@ clean:
 
 fclean: clean
 	@rm -rf $(NAME)
+	@rm -rf so_long_bonus
 	@make fclean -C ./libft
 	@echo "Object files and $(NAME) have been removed."
 

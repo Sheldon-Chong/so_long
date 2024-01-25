@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   so_long.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:09 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/25 11:23:36 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/25 14:40:39 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int	main(int ac, char **av)
 	frame = (t_frame){&frame_sec, world, &display};
 	mlx_hook(display.mlx_win, ON_KEY_PRESS, 1L << 0, handle_keypress, &frame);
 	mlx_loop_hook(display.mlx, render_frame, &frame);
-	mlx_hook(display.mlx_win, ON_MOUSE_MOTION, 1L << 6, mouse, &frame);
+	mlx_hook(display.mlx_win, ON_MOUSE_MOTION, 1L << 6, mouse_hook, &frame);
 	mlx_hook(display.mlx_win, ON_DESTROY, 0, exit_hook, &frame);
 	mlx_key_hook(display.mlx_win, handle_keys, &frame);
 	mlx_loop(display.mlx);
