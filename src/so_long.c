@@ -6,7 +6,7 @@
 /*   By: shechong <shechong@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:47:09 by shechong          #+#    #+#             */
-/*   Updated: 2024/01/31 10:46:28 by shechong         ###   ########.fr       */
+/*   Updated: 2024/01/31 10:52:35 by shechong         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	handle_keys(int keycode, t_frame *frame)
 	return (0);
 }
 
-int	main2(int ac, char **av)
+int	main(int ac, char **av)
 {
 	t_display	display;
 	t_world		*world;
@@ -37,11 +37,4 @@ int	main2(int ac, char **av)
 	mlx_hook(display.mlx_win, ON_DESTROY, 0, exit_hook, &frame);
 	mlx_key_hook(display.mlx_win, handle_keys, &frame);
 	mlx_loop(display.mlx);
-	return (0);
-}
-
-int	main(int ac, char **av)
-{
-	main2(ac, av);
-	system("leaks so_long");
 }
