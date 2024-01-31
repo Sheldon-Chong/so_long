@@ -237,7 +237,6 @@ int				handle_keypress(int keycode, t_frame *frame_index);
 int				render_frame(void *param);
 int				mouse_hook(int x, int y, void *param);
 
-
 //img_utils.c
 t_img			*empty_img(void *mlx, int x, int y);
 t_img			*img_from_path(char *image, void *mlx);
@@ -285,7 +284,6 @@ int				get_color(t_img *img, int x, int y);
 int				center(t_img *image, t_img *image2);
 t_xy			interpolate(t_xy pos, t_xy pos2, int value);
 t_xy			iso_map(t_xy pos);
-
 
 //ray_casting.c
 void			ray_init(t_ray *ray, t_xy pos, double angle_deg, int distance);

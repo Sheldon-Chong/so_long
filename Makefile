@@ -21,7 +21,7 @@ all: $(NAME)
 bonus: $(OBJS)
 	@echo "Compiling Bonus $(NAME)..."
 	@make bonus -C ./libft
-	$(CC) $(FLAGS) $(OBJS) $(LIBRARY) $(INCLUDES) -D BONUS=1 -D VALID_CHAR="1P2CESH0\n" -o so_long_bonus
+	$(CC) $(FLAGS) $(OBJS) $(LIBRARY) $(INCLUDES) -o so_long_bonus
 	@echo "$(NAME) compiled successfully."
 
 $(NAME): $(OBJS)
