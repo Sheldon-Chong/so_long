@@ -40,6 +40,7 @@ int	handle_keypress(int keycode, t_frame *frame)
 
 	player = frame->world->player;
 	new_pos = player->pos;
+	printf("%d, %d\n", new_pos.x,new_pos.y);
 	if (keycode == LINUX_W)
 		new_pos.y --;
 	else if (keycode == LINUX_A)

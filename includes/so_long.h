@@ -13,7 +13,7 @@
 #ifndef SO_LONG_H
 # define SO_LONG_H
 
-# include <mlx.h>
+# include <../minilibx/mlx.h>
 # include <stdlib.h>
 # include <math.h>
 # include "../libft/libft.h"
@@ -51,13 +51,13 @@
 # define ON_MOUSE_MOTION 6
 # define ON_KEY_PRESS 2
 # define ON_DESTROY 17
-# define ON_ESCAPE 53
+# define ON_ESCAPE 65307
 
 //keys
-# define LINUX_W 13
-# define LINUX_A 0
-# define LINUX_S 1
-# define LINUX_D 2
+# define LINUX_W 119
+# define LINUX_A 97
+# define LINUX_S 115
+# define LINUX_D 100
 
 //general struct to store coordinates
 typedef struct s_xy

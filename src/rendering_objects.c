@@ -19,20 +19,21 @@ void	render_obj(t_world *world, t_display *display, t_xy tile)
 
 	sprites = display->sprites;
 	current_tile = world->tgrid[tile.y][tile.x];
-	if (current_tile.type == '1')
-		render_tile(display, sprites[1], (t_xy){tile.x, tile.y},
-			(t_xy){0, (current_tile.type == '1') * -30});
+	
 	if (current_tile.type == 'E')
 		render_tile(display, sprites[4],
 			(t_xy){tile.x, tile.y}, (t_xy){0, -50});
 	if (current_tile.type == 'S' && current_tile.data)
 		render_sentry(display, (t_sentry *)((current_tile.data)));
-	if (current_tile.type == 'C' && current_tile.data)
+	if (current_tile.type == 'C' && current_tile.data) {
+
 		render_tile(display,
 			((t_collectible *)(current_tile.data))->animator.current_frame,
-			tile, (t_xy){center(display->sprites[1],
-				((t_collectible *)(current_tile.data))->animator.current_frame),
-			-20});
+			tile, (t_xy){ 18,-20});
+	}
+	if (current_tile.type == '1')
+		render_tile(display, sprites[3], (t_xy){tile.x, tile.y},
+			(t_xy){0, (current_tile.type == '1') * -30});
 	if (tile.x == world->player->pos.x && tile.y == world->player->pos.y)
 		render_player(world, display);
 }
@@ -68,9 +69,7 @@ int	render_sentry(t_display *display, t_sentry *enemy)
 			enemy->pos.y * grid.space_y}, enemy->current_pos, 2);
 	img_impose(display->img,
 		enemy->animator.frames[enemy->animator.frame_index],
-		(t_xy){iso_map(enemy->current_pos).x + grid.offset_x
-		+ center(display->sprites[1], enemy->animator.current_frame),
-		iso_map(enemy->current_pos).y + grid.offset_y - 32}, (t_xy){1, 1});
+		(t_xy){iso_map(enemy->current_pos).x + grid.offset_x + 12, iso_map(enemy->current_pos).y + grid.offset_y - 32}, (t_xy){1, 1});
 	return (1);
 }
 

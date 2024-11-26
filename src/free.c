@@ -14,8 +14,13 @@
 
 void	img_destroy(void *mlx, t_img *img)
 {
-	mlx_destroy_image(mlx, img->img);
-	free(img);
+	printf("%p, %p\n", img, mlx);
+
+	if (img)
+		mlx_destroy_image(mlx, img->img);
+
+
+
 }
 
 void	free_world_display(t_world *world, t_display *display)
