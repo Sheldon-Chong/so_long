@@ -14,7 +14,7 @@
 
 int	center(t_img *image, t_img *image2)
 {
-	return (((image->line_length) / 4 - (image2->line_length) / 4) / 2);
+	return (((image->line_length) / 4 - (image2->line_length) / 4) / 2) * RENDER_SCALE;
 }
 
 t_xy	interpolate(t_xy pos, t_xy pos2, int value)

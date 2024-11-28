@@ -16,27 +16,27 @@ void	render_obj(t_world *world, t_display *display, t_xy tile)
 {
 	t_tile		current_tile;
 	t_img		**sprites;
+	t_img		*buffer;
 
 	sprites = display->sprites;
 	current_tile = world->tgrid[tile.y][tile.x];
 	
 	if (current_tile.type == 'E')
 		render_tile(display, sprites[4],
-			(t_xy){tile.x, tile.y}, (t_xy){0, -50});
+			(t_xy){tile.x, tile.y}, (t_xy){center(display->sprites[1], sprites[4]), -100});
 
 	if (current_tile.type == 'S' && current_tile.data)
 		render_sentry(display, (t_sentry *)((current_tile.data)));
 
 	if (current_tile.type == 'C' && current_tile.data) {
-
-		render_tile(display,
-			((t_collectible *)(current_tile.data))->animator.current_frame,
-			tile, (t_xy){ 18,-20});
+		buffer = ((t_collectible *)(current_tile.data))->animator.current_frame;
+		render_tile(display, buffer, tile, (t_xy){center(display->sprites[1],buffer),-20});
 	}
 
 	if (current_tile.type == '1')
 		render_tile(display, sprites[1], (t_xy){tile.x, tile.y},
 			(t_xy){0, (current_tile.type == '1') * -60});
+
 	if (tile.x == world->player->pos.x && tile.y == world->player->pos.y)
 		render_player(world, display);
 }
@@ -69,7 +69,7 @@ int	draw_fov(t_sentry *enemy, t_display *display, t_img *char_array)
 	img_impose(
 		display->img, 
 		char_array, 
-		add(iso_map(new_pos), (t_xy){grid.offset_x - 14, grid.offset_y - 50}), 
+		add(iso_map(new_pos), (t_xy){grid.offset_x - 25, grid.offset_y - 90}), 
 		(t_xy){1, 1});
 	return (1);
 }
@@ -83,9 +83,11 @@ int	render_sentry(t_display *display, t_sentry *enemy)
 	grid = *(display->grid_display);
 	enemy->current_pos = interpolate((t_xy){enemy->pos.x * grid.space_x,
 			enemy->pos.y * grid.space_y}, enemy->current_pos, 2);
+
+	t_img *img = enemy->animator.frames[enemy->animator.frame_index];
 	img_impose(display->img,
-		enemy->animator.frames[enemy->animator.frame_index],
-		add(iso_map(enemy->current_pos), (t_xy){grid.offset_x + CENTER_X, grid.offset_y - 32}), (t_xy){1, 1});
+		img,
+		add(iso_map(enemy->current_pos), (t_xy){grid.offset_x + center(display->sprites[2], img), grid.offset_y - 60}), (t_xy){1, 1});
 	return (1);
 }
 

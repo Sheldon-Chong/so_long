@@ -31,19 +31,19 @@
 # define C_MLX_TRANSPARENT -16777216
 
 //object sprites
-# define SENTRY_FOV_COLOR 0x30eeff
+# define SENTRY_FOV_COLOR 0xff6200
 # define SENTRY_MAX_ALERT 100
 # define SENTRY_TURN_RATE 100
-# define SENTRY_SPRITES "sentry.xpm"
 # define COLLECTIBLE_SPRITES "collectible_1.xpm,collectible_2.xpm"
-# define PLAYER_SPRITES "player.xpm,player_2.xpm"
+# define PLAYER_SPRITES "player1.xpm,player2.xpm"
 # define SENTRY_MOVEMENT_DAY 30
 
 //map sprites
-# define WALL_SPRITE "assets/wall.xpm"
-# define FLOOR_1_SPRITE "assets/tile_black.xpm"
-# define FLOOR_2_SPRITE "assets/tile_white.xpm"
-# define EXIT_SPRITE "assets/exit.xpm"
+# define WALL_SPRITE "assets/wall_new.xpm"
+# define SENTRY_SPRITES "pawn.xpm"
+# define FLOOR_1_SPRITE "assets/floor_black_new.xpm"
+# define FLOOR_2_SPRITE "assets/floor_white_new.xpm"
+# define EXIT_SPRITE "assets/phonebox.xpm"
 
 # define VALID_CHAR "1P2CESH0\n"
 
