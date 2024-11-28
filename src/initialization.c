@@ -25,7 +25,7 @@ t_display	display_init(int width, int height)
 	display.mlx_win = mlx_new_window
 		(display.mlx, width, height, "Hello world!");
 	display.grid_display = malloc(sizeof(t_grid_d));
-	*(display.grid_display) = (t_grid_d){1, 1, 1, 1};
+	*(display.grid_display) = (t_grid_d){TILE_DIST_X, TILE_DIST_Y, 1, 1};
 	display.mouse = (t_xy){0, 0};
 	display.sprites = malloc(sizeof(t_img *) * 6);
 	display.sprites[1] = img_from_path(WALL_SPRITE, display.mlx);

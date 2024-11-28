@@ -79,9 +79,9 @@ int	render_frame(void *param)
 				- (SCREEN_WIDTH / 2)) / 3, world->player->mapped_pos.y \
 		+ (display->mouse.y - (SCREEN_HEIGHT / 2)) / 3}, 10);
 	render_world(world, display);
-	*(display->grid_display) = (t_grid_d){
-		21, 21, ((display->dimensions.x) / 2) - display->camera->pos.x,
-		((display->dimensions.y) / 2) - display->camera->pos.y};
+	display->grid_display->offset_x = (display->dimensions.x / 2) - display->camera->pos.x;
+	display->grid_display->offset_y = (display->dimensions.y / 2) - display->camera->pos.y;
+
 	update_all_animators(display, world);
 	mlx_put_image_to_window(display->mlx, display->mlx_win,
 		display->img->img, 0, 0);

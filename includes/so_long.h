@@ -59,6 +59,11 @@
 # define LINUX_S 115
 # define LINUX_D 100
 
+# define TILE_DIST_X 41
+# define TILE_DIST_Y 41
+
+# define RENDER_SCALE 2
+
 //general struct to store coordinates
 typedef struct s_xy
 {

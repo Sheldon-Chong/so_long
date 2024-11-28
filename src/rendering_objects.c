@@ -23,14 +23,17 @@ void	render_obj(t_world *world, t_display *display, t_xy tile)
 	if (current_tile.type == 'E')
 		render_tile(display, sprites[4],
 			(t_xy){tile.x, tile.y}, (t_xy){0, -50});
+
 	if (current_tile.type == 'S' && current_tile.data)
 		render_sentry(display, (t_sentry *)((current_tile.data)));
+
 	if (current_tile.type == 'C' && current_tile.data) {
 
 		render_tile(display,
 			((t_collectible *)(current_tile.data))->animator.current_frame,
 			tile, (t_xy){ 18,-20});
 	}
+
 	if (current_tile.type == '1')
 		render_tile(display, sprites[3], (t_xy){tile.x, tile.y},
 			(t_xy){0, (current_tile.type == '1') * -30});

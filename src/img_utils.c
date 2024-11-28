@@ -46,6 +46,8 @@ int	img_impose(t_img *canvas, t_img *img, t_xy start, t_xy scaling)
 	t_xy	pix;
 	int		color;
 
+	scaling = (t_xy){RENDER_SCALE, RENDER_SCALE};
+
 	pix = (t_xy){-1, -1};
 	scaling = (t_xy){img->width * scaling.x, img->height * scaling.y};
 	while (++pix.y < scaling.y)
