@@ -21,12 +21,12 @@ t_xy	render_tile(t_display *display,
 	grid = display->grid_display;
 	ret = (t_xy){
 		iso_map((t_xy){pos.x * grid->space_x,
-			pos.y * grid->space_y}).x + grid->offset_x + mod.x,
+			pos.y * grid->space_y}).x + grid->offset_x,
 		iso_map((t_xy){pos.x * grid->space_x,
-			pos.y * grid->space_y}).y + grid->offset_y + mod.y};
+			pos.y * grid->space_y}).y + grid->offset_y};
 	if (b_image == NULL)
 		return (ret);
-	img_impose(display->img, b_image, (t_xy){ret.x, ret.y}, (t_xy){1, 1});
+	img_impose(display->img, b_image, (t_xy){ret.x + mod.x, ret.y + mod.y}, (t_xy){1, 1});
 	return (ret);
 }
 

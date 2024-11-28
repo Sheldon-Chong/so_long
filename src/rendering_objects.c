@@ -35,16 +35,25 @@ void	render_obj(t_world *world, t_display *display, t_xy tile)
 	}
 
 	if (current_tile.type == '1')
-		render_tile(display, sprites[3], (t_xy){tile.x, tile.y},
-			(t_xy){0, (current_tile.type == '1') * -30});
+		render_tile(display, sprites[1], (t_xy){tile.x, tile.y},
+			(t_xy){0, (current_tile.type == '1') * -60});
 	if (tile.x == world->player->pos.x && tile.y == world->player->pos.y)
 		render_player(world, display);
+}
+
+t_xy add(t_xy pos, t_xy pos2) {
+	return (t_xy){pos.x + pos2.x, pos.y + pos2.y};
+}
+
+t_xy mult(t_xy pos, t_xy pos2) {
+	return (t_xy){pos.x * pos2.x, pos.y * pos2.y};
 }
 
 int	draw_fov(t_sentry *enemy, t_display *display, t_img *char_array)
 {
 	t_xy		pos;
 	t_grid_d	grid;
+	t_xy 		new_pos;
 
 	grid = *(display->grid_display);
 	draw_rect(char_array, (t_xy){100, 60}, (t_xy){0, 0}, 0xFFFF0000);
@@ -54,14 +63,18 @@ int	draw_fov(t_sentry *enemy, t_display *display, t_img *char_array)
 				pos, enemy->current_angle + 20, 15)), SENTRY_FOV_COLOR);
 	draw_line(char_array, iso_map(pos),
 		iso_map(move_in_dir(
-				pos, enemy->current_angle -20, 15)), SENTRY_FOV_COLOR);
-	img_impose(display->img, char_array,
-		(t_xy){iso_map((t_xy){
-			enemy->pos.x * 21, enemy->pos.y * 21}).x + grid.offset_x - 14, \
-			iso_map((t_xy){enemy->pos.x * 21, enemy->pos.y * 21}).y \
-			+ grid.offset_y - 50}, (t_xy){1, 1});
+				pos, enemy->current_angle - 20, 15)), SENTRY_FOV_COLOR);
+	
+	new_pos = (t_xy){enemy->pos.x * TILE_DIST_X, enemy->pos.y * TILE_DIST_Y};
+	img_impose(
+		display->img, 
+		char_array, 
+		add(iso_map(new_pos), (t_xy){grid.offset_x - 14, grid.offset_y - 50}), 
+		(t_xy){1, 1});
 	return (1);
 }
+
+# define CENTER_X 23
 
 int	render_sentry(t_display *display, t_sentry *enemy)
 {
@@ -72,7 +85,7 @@ int	render_sentry(t_display *display, t_sentry *enemy)
 			enemy->pos.y * grid.space_y}, enemy->current_pos, 2);
 	img_impose(display->img,
 		enemy->animator.frames[enemy->animator.frame_index],
-		(t_xy){iso_map(enemy->current_pos).x + grid.offset_x + 12, iso_map(enemy->current_pos).y + grid.offset_y - 32}, (t_xy){1, 1});
+		add(iso_map(enemy->current_pos), (t_xy){grid.offset_x + CENTER_X, grid.offset_y - 32}), (t_xy){1, 1});
 	return (1);
 }
 
@@ -84,9 +97,8 @@ int	render_player(t_world *world, t_display *display)
 
 	grid = *(display->grid_display);
 	player = world->player;
-	world->player->mapped_pos = iso_map((t_xy){player->pos.x * grid.space_x,
-			player->pos.y * grid.space_y});
+	world->player->mapped_pos = iso_map(mult(player->pos, (t_xy){grid.space_x, grid.space_y}));
 	img = player->animator.frames[player->animator.frame_index];
-	render_tile(display, img, player->pos, (t_xy){12, -44});
+	render_tile(display, img, player->pos, (t_xy){20, -90});
 	return (1);
 }

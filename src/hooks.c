@@ -70,7 +70,7 @@ int	render_frame(void *param)
 	world = data->world;
 	display = data->display;
 	(*(data->frame_sec))++;
-	if (*(data->frame_sec) < 100)
+	if (*(data->frame_sec) < 130)
 		return (1);
 	clear_img(display->img);
 	*(data->frame_sec) = 0;
